@@ -1,0 +1,11 @@
+{
+  "projects": {
+    "default": "mobopoly-866b1"
+  },
+  "targets": {},
+  "etags": {
+    "mobopoly-866b1": {
+      "extensionInstances": {}
+    }
+  }
+}
