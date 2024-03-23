@@ -29,7 +29,11 @@
     }
   ],
   "hosting": {
-    "public": "public",
+    "public": "frontend/build",
+    "rewrites": [{
+      "source": "**",
+      "destination": "/index.html"
+    }],
     "ignore": [
       "firebase.json",
       "**/.*",
