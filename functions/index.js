@@ -22,7 +22,8 @@ const {onDocumentCreated} = require("firebase-functions/v2/firestore");
 const {initializeApp} = require("firebase-admin/app");
 const {getFirestore} = require("firebase-admin/firestore");
 
-initializeApp();
+const firebaseApp = initializeApp()
+const db = getFirestore(firebaseApp)
 
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
@@ -44,6 +45,70 @@ exports.addmessage = onRequest(async (req, res) => {
 	// Send back a message that we've successfully written the message
 	res.json({result: `Message with ID: ${writeResult.id} added.`});
 });
+
+function makeRandomID(){
+	const length = 6;
+	const roomCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	let roomCode = "";
+	for(let i = 0; i < length; i++){
+		roomCode+=roomCharacters.charAt(Math.floor(Math.random() * roomCharacters.length));
+	}
+	return roomCode;
+}	
+
+const roomDataTemplate = {
+	"gameID": -1,
+	"users": [
+		{
+			"name": "JohnSmith",
+			"userID": -1,
+			"playerID": -1,
+			"roomCode": ""
+		}
+	],
+	"open": true,
+	"roomCode": "" 
+};
+
+async function doesRoomExist(roomCode){
+    const docRef = db.collection('rooms').doc(roomCode);
+    let documentExists = false;
+    try {
+        const doc = await docRef.get();
+        documentExists = doc.exists;
+    }
+    catch(error) {
+        logger.log("error", error);
+        return false;
+    }
+    return documentExists;
+}
+
+exports.makeroom = onRequest(async (req, res) => {
+	// Grab the text parameter.
+	const original = req.query.text;
+	let roomCode = makeRandomID();
+	let DRE = await doesRoomExist(roomCode);
+	logger.log("DRE"+DRE);
+	while(DRE){
+		roomCode = makeRandomID();
+		logger.log("attempting: "+roomCode);
+		DRE = await doesRoomExist(roomCode);
+	}
+	logger.log("found available"+roomCode);
+	roomData = roomDataTemplate;
+	roomData.roomCode = roomCode;
+	const writeResult = await getFirestore()
+		.collection("rooms")
+		.doc(roomCode)
+		.set(roomData);
+	// Send back a message that we've successfully written the message
+	res.json({result: `Room with ID: ${writeResult.id} added.`});
+});
+
+
+
+
 
 // Listens for new messages added to /messages/:documentId/original
 // and saves an uppercased version of the message
