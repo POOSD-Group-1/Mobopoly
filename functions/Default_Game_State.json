@@ -1,0 +1,185 @@
+{
+    "gameID": 1,
+    "players": [
+    ],
+    "properties": [
+        {
+            "name" : "Brown Property 1",
+            "cost": 50,
+            "rent": 50,
+            "location": 1,
+            "playerID": -1
+        },
+        {
+            "name" : "Brown Property 2",
+            "cost": 50,
+            "rent": 50,
+            "location": 3,
+            "playerID": -1
+        },
+        {
+            "name" : "Light Blue Property 1",
+            "cost": 50,
+            "rent": 50,
+            "location": 6,
+            "playerID": -1
+        },
+        {
+            "name" : "Light Blue Property 2",
+            "cost": 50,
+            "rent": 50,
+            "location": 8,
+            "playerID": -1
+        },
+        {
+            "name" : "Light Blue Property 3",
+            "cost": 50,
+            "rent": 50,
+            "location": 9,
+            "playerID": -1
+        },
+        {
+            "name" : "Combined Jail Space",
+            "cost": 1000000000,
+            "rent": 0,
+            "location": 10,
+            "playerID": -1
+        },
+        {
+            "name" : "Magenta Property 1",
+            "cost": 50,
+            "rent": 50,
+            "location": 11,
+            "playerID": -1
+        },
+        {
+            "name" : "Magenta Property 2",
+            "cost": 50,
+            "rent": 50,
+            "location": 13,
+            "playerID": -1
+        },
+        {
+            "name" : "Magenta Property 3",
+            "cost": 50,
+            "rent": 50,
+            "location": 14,
+            "playerID": -1
+        },
+        {
+            "name" : "Orange Property 1",
+            "cost": 50,
+            "rent": 50,
+            "location": 16,
+            "playerID": -1
+        },
+        {
+            "name" : "Orange Property 2",
+            "cost": 50,
+            "rent": 50,
+            "location": 18,
+            "playerID": -1
+        },
+        {
+            "name" : "Orange Property 3",
+            "cost": 50,
+            "rent": 50,
+            "location": 19,
+            "playerID": -1
+        },
+        {
+            "name" : "Free Parking Space",
+            "cost": 1000000000,
+            "rent": 20,
+			"currentMoney": 0,
+            "location": 20,
+            "playerID": -1
+        },
+        {
+            "name" : "Red Property 1",
+            "cost": 50,
+            "rent": 50,
+            "location": 21,
+            "playerID": -1
+        },
+        {
+            "name" : "Red Property 2",
+            "cost": 50,
+            "rent": 50,
+            "location": 23,
+            "playerID": -1
+        },
+        {
+            "name" : "Red Property 3",
+            "cost": 50,
+            "rent": 50,
+            "location": 24,
+            "playerID": -1
+        },
+        {
+            "name" : "Yellow Property 1",
+            "cost": 50,
+            "rent": 50,
+            "location": 26,
+            "playerID": -1
+        },
+        {
+            "name" : "Yellow Property 2",
+            "cost": 50,
+            "rent": 50,
+            "location": 27,
+            "playerID": -1
+        },
+        {
+            "name" : "Yellow Property 3",
+            "cost": 50,
+            "rent": 50,
+            "location": 29,
+            "playerID": -1
+        },
+        {
+            "name" : "Go To Jail Space",
+            "cost": 1000000000,
+            "rent": 0,
+            "location": 30,
+            "playerID": -1
+        },
+        {
+            "name" : "Green Property 1",
+            "cost": 50,
+            "rent": 50,
+            "location": 31,
+            "playerID": -1
+        },
+        {
+            "name" : "Green Property 2",
+            "cost": 50,
+            "rent": 50,
+            "location": 32,
+            "playerID": -1
+        },
+        {
+            "name" : "Green Property 3",
+            "cost": 50,
+            "rent": 50,
+            "location": 34,
+            "playerID": -1
+        },
+        {
+            "name" : "Dark Blue Property 1",
+            "cost": 50,
+            "rent": 50,
+            "location": 37,
+            "playerID": -1
+        },
+        {
+            "name" : "Dark Blue Property 2",
+            "cost": 50,
+            "rent": 50,
+            "location": 39,
+            "playerID": -1
+        }
+    ],
+    "ambushes" : [],
+    "playerTurn": 0
+}
