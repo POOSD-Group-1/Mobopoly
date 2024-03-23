@@ -4,7 +4,7 @@
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "echo 7"
+        "build": "cd public && npm install && npm run build"
     },
     "engines": {
         "node": "18"
