@@ -24,7 +24,7 @@ const {getFirestore} = require("firebase-admin/firestore");
 
 const firebaseApp = initializeApp()
 const db = getFirestore(firebaseApp)
-
+//import {v4 as uuidv4} from 'uuid';
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
 
@@ -59,16 +59,12 @@ function makeRandomID(){
 const roomDataTemplate = {
 	"gameID": -1,
 	"users": [
-		{
-			"name": "JohnSmith",
-			"userID": -1,
-			"playerID": -1,
-			"roomCode": ""
-		}
 	],
 	"open": true,
 	"roomCode": "" 
 };
+
+
 
 async function doesRoomExist(roomCode){
     const docRef = db.collection('rooms').doc(roomCode);
@@ -85,29 +81,108 @@ async function doesRoomExist(roomCode){
 }
 
 exports.makeroom = onRequest(async (req, res) => {
-	// Grab the text parameter.
-	const original = req.query.text;
 	let roomCode = makeRandomID();
 	let DRE = await doesRoomExist(roomCode);
-	logger.log("DRE"+DRE);
 	while(DRE){
 		roomCode = makeRandomID();
-		logger.log("attempting: "+roomCode);
 		DRE = await doesRoomExist(roomCode);
 	}
-	logger.log("found available"+roomCode);
 	roomData = roomDataTemplate;
 	roomData.roomCode = roomCode;
 	const writeResult = await getFirestore()
 		.collection("rooms")
 		.doc(roomCode)
 		.set(roomData);
-	// Send back a message that we've successfully written the message
-	res.json({result: `Room with ID: ${writeResult.id} added.`});
 });
 
+function validateName(name){
+	return true;
+}
+
+exports.joinroom = onRequest(async (req, res) => {
+	// Grab the text parameter.
+	const name = req.query.name;
+	const roomCode = req.query.roomCode;
+	logger.log(roomCode);
+	result = {
+		"error": -1,
+		"userID": ""
+	}
+
+	userTemplate = {
+		"name": "",
+		"userID": "",
+		"playerID": -1,
+		"roomCode": ""
+	}
+	
+	if(!validateName(name)){
+		result.error = -2;
+		res.json(result);
+		return;
+	}
+
+	DRE = await doesRoomExist(roomCode);
+	if(!DRE){
+		res.json(result);
+		return;
+	}
+
+	const docRef = db.collection('rooms').doc(roomCode);
+
+	let roomData = 0;
+	await docRef.get().then((doc) => {
+		if(doc.exists){
+			roomData = doc.data();
+		}else{
+			result.error = -1;
+			res.json(result);
+			return;
+		}
+	}).catch((error) => {
+			logger.log("error",error);
+	});
+	//currently not working
+	/*
+	roomData.users.forEach((user) => {
+		if(user.name === name){
+			result.error = -6;
+			res.json(result);
+			return;
+		}
+	});
+	*/
+
+	if(roomData.open == false){
+		result.error = -3;
+		res.json(result);
+		return;
+	}
+	console.log(typeof(roomData));
+	console.log(typeof(roomData.users));
+	if(roomData.users.length >= 6){
+		result.error = -4;
+		res.json(result);
+		return;
+	}
 
 
+	myUser = userTemplate;
+	myUser.roomCode = roomCode;
+	myUser.name = name;
+	myUser.playerID = -1;
+	myUser.userID = 7; //uuidv4();
+	roomData.users.push(myUser);
+	const writeResult = await getFirestore()
+		.collection("rooms")
+		.doc(roomCode)
+		.set(roomData);
+	
+	result.error = 0;
+	result.userID = myUser.userID;
+	res.json(result);
+	return;
+});
 
 
 // Listens for new messages added to /messages/:documentId/original
