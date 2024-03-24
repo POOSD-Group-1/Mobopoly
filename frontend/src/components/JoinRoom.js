@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { Button, TextField } from '@mui/material';
 import "../styles.css";
 
 const JoinRoom = () => {
@@ -6,9 +7,9 @@ const JoinRoom = () => {
     return (
         <div className="landing">
             <img src="/assets/logo.png" alt="Monopoly Logo" className="logo"  />
-            <input type="text" placeholder="Enter Room Code" className="text-input" />
+            <TextField variant="outlined" label="Enter Room Code" />
             <div className="button-row">
-                <button className="action-button" onClick={() => navigate("/game")}>Join Room</button>
+                <Button variant="contained" onClick={() => navigate("/game")} sx={{marginTop: "1rem"}}>Join Room</Button>
             </div>
         </div>
     );

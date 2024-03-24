@@ -22,8 +22,10 @@ const gameConfig = {
 };
 
 const UserContext = createContext(fromJSON(initialUserJSON, User));
+const GameContext = createContext(fromJSON(initialGameJSON, GameState));
 function Game() {
     const phaserGame = useRef(null);
+    const [user, setUser] = useState(fromJSON(initialGameJSON, User));
     const [gameState, setGameState] = useState(fromJSON(initialGameJSON, GameState));
     useEffect(() => {
         if (!phaserGame.current)
@@ -40,12 +42,15 @@ function Game() {
     const players = <div className="player-container">
         {gameState.players.map((player, i) => <Player key={i} player={player} />)}
     </div>
-    return <UserContext.Provider>
-        <div className="game-player-container">
-            <div id="game" />
-            {players}
-        </div>
-    </UserContext.Provider>
+    return <GameContext.Provider value={gameState}>
+        <UserContext.Provider value={user}>
+            <div className="game-player-container">
+                <div id="game" />
+                {players}
+            </div>
+        </UserContext.Provider>
+    </GameContext.Provider>
 }
 
+export { GameContext, UserContext };
 export default Game;
