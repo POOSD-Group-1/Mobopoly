@@ -27,9 +27,23 @@ function Game() {
     const phaserGame = useRef(null);
     const [user, setUser] = useState(fromJSON(initialGameJSON, User));
     const [gameState, setGameState] = useState(fromJSON(initialGameJSON, GameState));
+
+    let updatePlayers = () => {
+        if (phaserGame.current.scene.getScene('gameScene')) {
+            console.log("call player update")
+            let locations = gameState.players.map(player => player.location);
+            phaserGame.current.scene.getScene('gameScene').updatePlayers(locations);
+            
+        }
+    };
     useEffect(() => {
-        if (!phaserGame.current)
+        if (!phaserGame.current) {
             phaserGame.current = new Phaser.Game(gameConfig);
+            phaserGame.current.scene.start('gameScene', {numPlayers: gameState.players.length});
+            phaserGame.current.events.once('ready', () => {
+                updatePlayers();
+            });
+        }
 
         return () => {
             if (phaserGame.current) {
@@ -38,6 +52,9 @@ function Game() {
             }
         };
     }, []);
+    useEffect(() => {
+        updatePlayers();
+    }, [gameState.players]);
     console.log(gameState);
     const players = <div className="player-container">
         {gameState.players.map((player, i) => <Player key={i} player={player} />)}

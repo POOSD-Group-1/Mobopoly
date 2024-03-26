@@ -4,7 +4,7 @@
         {
             "playerID": 0,
             "name": "Sachin",
-            "location": 0,
+            "location": 2,
             "numGangMembers": 0,
             "money": 200,
             "hideouts": [],
@@ -21,6 +21,13 @@
         }
     ],
     "properties": [
+        {
+            "name" : "Go",
+            "cost": 10000000,
+            "rent": 0,
+            "location": 0,
+            "playerID": -1
+        },
         {
             "name" : "Brown Property 1",
             "cost": 50,
