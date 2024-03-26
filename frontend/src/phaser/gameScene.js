@@ -19,7 +19,7 @@ class gameScene extends Phaser.Scene {
   create(config) {
     const board = this.add.image(center.x, center.y, "board");
     board.setScale(0.15);
-    this.setPlayercount(config.numPlayers)
+    this.setPlayercount(config.numPlayers);
     this.createCalled = true;
   }
 
@@ -30,8 +30,8 @@ class gameScene extends Phaser.Scene {
     }
     this.players = [];
     for (let i = 0; i < playerCount; i++) {
-      const player = this.add.sprite(0, 0, `piece${i}`);
-      player.setScale(0.08);
+      const player = this.add.image(0, 0, `piece${i}`);
+      player.setScale(0.2);
       this.players.push(player);
     }
   }

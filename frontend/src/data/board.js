@@ -2,7 +2,7 @@ import { Vector2 } from './util.js';
 const boardWidth = 600;
 const boardHeight = 600;
 
-const MAX_PLAYERS = 2;
+const MAX_PLAYERS = 6;
 
 const center = new Vector2(boardWidth / 2, boardHeight / 2);
 
