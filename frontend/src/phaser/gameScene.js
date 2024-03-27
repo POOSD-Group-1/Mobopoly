@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { Vector2 } from "../data/util.js";
-import { center, locationAnchors, MAX_PLAYERS } from "../data/board";
+import { center, locationAnchors, MAX_PLAYERS, playerAnchors } from "../data/board";
 
 
 
@@ -24,7 +24,6 @@ class gameScene extends Phaser.Scene {
   }
 
   setPlayercount(playerCount) {
-    console.log("set player count to " + playerCount)
     for (let i = 0; i < this.players.length; i++) {
       this.players[i].destroy();
     }
@@ -38,10 +37,8 @@ class gameScene extends Phaser.Scene {
 
   updatePlayers(players) {
     const setPlayers = () => {
-      console.log("this.players: ", this.players);
       for (let i = 0; i < players.length; i++) {
-        const location = center.clone().add(locationAnchors[players[i]]);
-        console.log(location)
+        const location = center.clone().add(locationAnchors[players[i][0]]).add(playerAnchors[players[i][1]]);
         this.players[i].setPosition(location.x, location.y);
       }
     };

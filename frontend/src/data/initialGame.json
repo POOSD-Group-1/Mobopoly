@@ -4,7 +4,7 @@
         {
             "playerID": 0,
             "name": "Sachin",
-            "location": 2,
+            "location": 6,
             "numGangMembers": 0,
             "money": 200,
             "hideouts": [],
@@ -18,6 +18,15 @@
             "money": 1500,
             "hideouts": [],
             "properties": []
+        },
+        {
+            "playerID": 2,
+            "name": "Shane",
+            "location": 1,
+            "numGangMembers": 3,
+            "money": 1500,
+            "hideouts": [],
+            "properties": [2]
         }
     ],
     "properties": [
@@ -36,31 +45,59 @@
             "playerID": -1
         },
         {
-            "name" : "Brown Property 2",
-            "cost": 50,
-            "rent": 50,
+            "name" : "Community Chest",
+            "cost": 10000000,
+            "rent": 0,
             "location": 2,
             "playerID": -1
         },
         {
-            "name" : "Light Blue Property 1",
+            "name" : "Brown Property 2",
             "cost": 50,
             "rent": 50,
             "location": 3,
             "playerID": -1
         },
         {
+            "name" : "Income Tax",
+            "cost": 10000000,
+            "rent": 0,
+            "location": 4,
+            "playerID": -1
+        },
+        {
+            "name" : "Railroad",
+            "cost": 10000000,
+            "rent": 0,
+            "location": 5,
+            "playerID": -1
+        },
+        {
+            "name" : "Light Blue Property 1",
+            "cost": 50,
+            "rent": 50,
+            "location": 6,
+            "playerID": -1
+        },
+        {
+            "name" : "Chance",
+            "cost": 10000000,
+            "rent": 0,
+            "location": 7,
+            "playerID": -1
+        },
+        {
             "name" : "Light Blue Property 2",
             "cost": 50,
             "rent": 50,
-            "location": 4,
+            "location": 8,
             "playerID": -1
         },
         {
             "name" : "Light Blue Property 3",
             "cost": 50,
             "rent": 50,
-            "location": 5,
+            "location": 9,
             "playerID": -1
         }
     ],
