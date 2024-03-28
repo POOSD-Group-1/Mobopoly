@@ -1,3 +1,5 @@
+//import {v4 as uuidv4} from 'uuid';
+const {v4} = require('uuid');
 /**
  * Import function triggers from their respective submodules:
  *
@@ -24,7 +26,6 @@ const {getFirestore} = require("firebase-admin/firestore");
 
 const firebaseApp = initializeApp()
 const db = getFirestore(firebaseApp)
-//import {v4 as uuidv4} from 'uuid';
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
 
@@ -142,16 +143,19 @@ exports.joinroom = onRequest(async (req, res) => {
 	}).catch((error) => {
 			logger.log("error",error);
 	});
+
 	//currently not working
-	/*
+	let foundDuplicate = false
 	roomData.users.forEach((user) => {
 		if(user.name === name){
 			result.error = -6;
+			foundDuplicate = true;
 			res.json(result);
-			return;
+			
 		}
 	});
-	*/
+
+	if(foundDuplicate) return;
 
 	if(roomData.open == false){
 		result.error = -3;
@@ -166,12 +170,11 @@ exports.joinroom = onRequest(async (req, res) => {
 		return;
 	}
 
-
 	myUser = userTemplate;
 	myUser.roomCode = roomCode;
 	myUser.name = name;
 	myUser.playerID = -1;
-	myUser.userID = 7; //uuidv4();
+	myUser.userID = v4();
 	roomData.users.push(myUser);
 	const writeResult = await getFirestore()
 		.collection("rooms")
