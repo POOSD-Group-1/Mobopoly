@@ -7,9 +7,8 @@ import Location from './Location.js';
 function Player({ player }) {
     const gameState = useContext(GameContext);
     const user = useContext(UserContext);
-    console.log(user);
-    const { playerID, name, location, money, hideouts, properties } = player;
-    console.log(gameState.playerTurn, playerID == gameState.playerTurn)
+    const { playerID, name, location, numGangMembers, money, hideouts, properties } = player;
+    let propertyList = properties.map((property) => <Location key={property} location={property} />);
     return (
         <Card className="player" sx={playerID == gameState.playerTurn ? {backgroundColor: "darkgrey"} : {}}>
             <CardHeader
@@ -23,8 +22,12 @@ function Player({ player }) {
                 <Typography variant="body">Location: </Typography><br />
                 <Location location={location} /><br />
                 <Typography variant="body">Money: {money}</Typography><br />
+                <Typography variant="body">Gang Members: {numGangMembers}</Typography><br />
                 <Typography variant="body">Hideouts: {hideouts.length}</Typography><br />
-                <Typography variant="body">Properties: {properties.length}</Typography>
+                <Typography variant="body">Properties Owned: {properties.length}</Typography>
+                <div style={{marginTop: "1rem"}}>
+                    {propertyList}
+                </div>
             </CardContent>
         </Card>
     );

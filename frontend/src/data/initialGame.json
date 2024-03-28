@@ -8,7 +8,7 @@
             "numGangMembers": 0,
             "money": 200,
             "hideouts": [],
-            "properties": [1]
+            "properties": [1, 8]
         },
         {
             "playerID": 1,
@@ -26,7 +26,7 @@
             "numGangMembers": 3,
             "money": 1500,
             "hideouts": [],
-            "properties": [2]
+            "properties": [3]
         }
     ],
     "properties": [
@@ -42,7 +42,7 @@
             "cost": 50,
             "rent": 50,
             "location": 1,
-            "playerID": -1
+            "playerID": 0
         },
         {
             "name" : "Community Chest",
@@ -56,7 +56,7 @@
             "cost": 50,
             "rent": 50,
             "location": 3,
-            "playerID": -1
+            "playerID": 2
         },
         {
             "name" : "Income Tax",
@@ -91,7 +91,7 @@
             "cost": 50,
             "rent": 50,
             "location": 8,
-            "playerID": -1
+            "playerID": 0
         },
         {
             "name" : "Light Blue Property 3",
