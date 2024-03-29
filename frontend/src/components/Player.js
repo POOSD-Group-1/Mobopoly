@@ -8,7 +8,7 @@ function Player({ player }) {
     const gameState = useContext(GameContext);
     const user = useContext(UserContext);
     const { playerID, name, location, numGangMembers, money, hideouts, properties } = player;
-    let propertyList = properties.map((property) => <Location key={property} location={property} />);
+    const propertyList = properties.map((property) => <Location key={property} location={property} />);
     return (
         <Card className="player" sx={playerID == gameState.playerTurn ? {backgroundColor: "darkgrey"} : {}}>
             <CardHeader
