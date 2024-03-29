@@ -14,6 +14,7 @@ const JoinRoom = () => {
     const changeRoomCode = (e) => {
         setRoomCode(e.target.value);
     }
+    const canJoin = validateName(name) && validateRoomCode(roomCode);
     return (
         <div className="landing">
             <img src="/assets/logo.png" alt="Monopoly Logo" className="logo" />
@@ -29,7 +30,7 @@ const JoinRoom = () => {
                 error={!validateRoomCode(roomCode)}
                 helperText={getRoomCodeHelperText(roomCode)} />
             <div className="button-row">
-                <Button variant="contained" onClick={() => navigate("/game")} sx={{ marginTop: "1rem" }}>Join Room</Button>
+                <Button variant="contained" disabled={!canJoin} onClick={() => navigate("/game")} sx={{ marginTop: "1rem" }}>Join Room</Button>
             </div>
         </div>
     );
