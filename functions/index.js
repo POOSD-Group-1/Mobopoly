@@ -103,87 +103,97 @@ function validateName(name){
 	return re.test(name);
 }
 
+
+
+const errorCodes = Object.freeze({
+	noError: 0,
+	roomNotFound: -1,
+	invalidName: -2,
+	roomClosed: -3,
+	roomFull: -4,
+	nameInvalid: -5,
+	nameDuplicate: -6,
+});
+
 exports.joinroom = onRequest(async (req, res) => {
 
 	const name = req.query.name;
 	const roomCode = req.query.roomCode;
-	logger.log(roomCode);
 	result = {
-		"error": -1,
+		"error": errorCodes.noError,
 		"userID": ""
 	}
 
-	userTemplate = {
-		"name": "",
-		"userID": "",
-		"playerID": -1,
-		"roomCode": ""
-	}
 	
 	if(!validateName(name)){
-		result.error = -2;
+		result.error = errorCodes.invalidName;
 		res.json(result);
 		return;
 	}
-
-	DRE = await doesRoomExist(roomCode);
+	
+	let DRE = await doesRoomExist(roomCode);
 	if(!DRE){
+		result.error = errorCodes.roomNotFound;
 		res.json(result);
 		return;
 	}
-
+	
 	const docRef = db.collection('rooms').doc(roomCode);
-
+	
 	let roomData = 0;
 	await docRef.get().then((doc) => {
 		if(doc.exists){
 			roomData = doc.data();
 		}else{
-			result.error = -1;
+			result.error = errorCodes.roomNotFound;
 			res.json(result);
 			return;
 		}
 	}).catch((error) => {
-			logger.log("error",error);
+		logger.log("error",error);
+		result.error = errorCodes.roomNotFound;
+		res.json(result);
+		return;
 	});
-
+	
 	let foundDuplicate = false
 	roomData.users.forEach((user) => {
 		if(user.name === name){
-			result.error = -6;
+			result.error = errorCodes.nameDuplicate;
 			foundDuplicate = true;
 			res.json(result);
 		}
 	});
 
 	if(foundDuplicate) return;
-
+	
 	if(roomData.open == false){
-		result.error = -3;
+		result.error = errorCodes.roomClosed;
 		res.json(result);
 		return;
 	}
-	console.log(typeof(roomData));
-	console.log(typeof(roomData.users));
+	
 	if(roomData.users.length >= 6){
-		result.error = -4;
+		result.error = errorCodes.roomFull;
 		res.json(result);
 		return;
+	}
+	
+	userID = v4(); //assign userID with UUID 
+	User = {
+		"name": name,
+		"userID": userID,
+		"playerID": -1,
+		"roomCode": roomCode
 	}
 
-	myUser = userTemplate;
-	myUser.roomCode = roomCode;
-	myUser.name = name;
-	myUser.playerID = -1;
-	myUser.userID = v4();
-	roomData.users.push(myUser);
+	roomData.users.push(User);
 	const writeResult = await getFirestore()
 		.collection("rooms")
 		.doc(roomCode)
 		.set(roomData);
 	
-	result.error = 0;
-	result.userID = myUser.userID;
+	result.userID = User.userID;
 	res.json(result);
 	return;
 });
