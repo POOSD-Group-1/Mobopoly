@@ -60,7 +60,7 @@ const roomDataTemplate = {
 	],
 	"open": true,
 	"roomCode": "",
-	"listenDocumentID": ""
+	"listenDocumentID": "",
 };
 
 
@@ -80,6 +80,56 @@ async function doesRoomExist(roomCode){
     }
     return documentExists;
 }
+
+const errorCodes = Object.freeze({
+    noError: 0,
+    roomNotFound: -1,
+    invalidName: -2,
+    roomClosed: -3,
+    roomFull: -4,
+    nameInvalid: -5,
+    nameDuplicate: -6,
+    invalidHost: -7,
+    userNotFound: -8
+});
+
+exports.startgame = onRequest(async (req, res) => {
+	const roomCode = req.query.roomCode;
+	const userID = req.query.userID
+	let DRE = await doesRoomExist(roomCode);
+	if(!DRE){
+		result.error = errorCodes.roomNotFound;
+		res.json({error: errorCodes.roomNotFound});
+		return;
+	}
+
+	const docRef = db.collection('rooms').doc(roomCode);
+	let roomData = 0;
+	await docRef.get().then((doc) => {
+		if(doc.exists){ roomData = doc.data();
+		}else{
+			res.json({error: errorCodes.roomNotFound});
+			return;
+		}
+	}).catch((error) => {
+		logger.log("error",error);
+		res.json({error: errorCodes.roomNotFound});
+		return;
+	});
+
+	if(roomData.users.length === 0 || 
+	   roomData.user[0] != userID){
+		res.json({error:errorCodes.invalidHost});
+		return;
+	}
+
+	gameID = v4();
+	roomData.gameID = gameID;
+
+
+	
+})
+
 
 exports.makeroom = onRequest(async (req, res) => {
 	let roomCode = makeRandomID();
@@ -112,15 +162,33 @@ function validateName(name){
 
 
 
-const errorCodes = Object.freeze({
-	noError: 0,
-	roomNotFound: -1,
-	invalidName: -2,
-	roomClosed: -3,
-	roomFull: -4,
-	nameInvalid: -5,
-	nameDuplicate: -6,
-});
+
+
+async function updateListener(listenerID,gameStart){
+	const docRef = db.collection('listeners').doc(listenerID);
+	let listenerData = {
+		gameStarted: false,
+		turnNumber: -1
+	}
+	await docRef.get().then((doc) => {
+		if(doc.exists){
+			listenerData = doc.data();
+		}else{
+			return;
+		}
+	}).catch((error) => {
+		logger.log("error",error);
+		return;
+	});
+	
+	if(listenerData.turnNumber == -1) return;
+	listenerData.turnNumber++;
+	listenerData.gameStarted |= gameStart;
+	const listenerUpdate = await getFirestore()
+	.collection("listeners")
+	.doc(listenerID)
+	.set(listenerData)
+};
 
 exports.joinroom = onRequest(async (req, res) => {
 
@@ -200,6 +268,8 @@ exports.joinroom = onRequest(async (req, res) => {
 		.collection("rooms")
 		.doc(roomCode)
 		.set(roomData);
+
+	await updateListener(roomData.listenDocumentID);
 	
 	result.userID = User.userID;
 	result.gameListener = roomData.listenDocumentID
