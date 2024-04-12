@@ -1,14 +1,24 @@
+import { useContext } from 'react';
+import { GameContext } from './Game';
+import { pieceImgFile } from '../data/util.js';
+import { Avatar, Card, CardContent, CardHeader, Typography } from '@mui/material';
 
-
-function Player({player}) {
+function Player({ player }) {
+    const gameState = useContext(GameContext);
+    const { playerID, name, location, money, hideouts, properties } = player;
     return (
-        <div className="player">
-            <h1>Player {player.playerID}</h1>
-            <p className="player-description">Location: {player.location}</p>
-            <p className="player-description">Money: {player.money}</p>
-            <p className="player-description">Hideouts: {player.hideouts.length}</p>
-            <p className="player-description">Properties: {player.properties.length}</p>
-        </div>
+        <Card className="player">
+            <CardHeader
+                avatar={<Avatar sx={{ width: 24, height: 24 }} src={pieceImgFile(playerID)} alt="Player Icon" />}
+                title={name}
+            />
+            <CardContent>
+                <Typography variant="body">Location: {gameState.properties[location].name}</Typography><br />
+                <Typography variant="body">Money: {money}</Typography><br />
+                <Typography variant="body">Hideouts: {hideouts.length}</Typography><br />
+                <Typography variant="body">Properties: {properties.length}</Typography>
+            </CardContent>
+        </Card>
     );
 }
 

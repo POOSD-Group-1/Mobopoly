@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { boardHeight, boardWidth } from "../data/board";
 
 class gameScene extends Phaser.Scene {
   constructor() {
@@ -8,7 +9,7 @@ class gameScene extends Phaser.Scene {
     this.load.image("board", 'assets/board.png');
   }
   create() {
-    const board = this.add.image(300, 300, "board");
+    const board = this.add.image(boardWidth / 2, boardHeight / 2, "board");
     board.setScale(0.15);
   }
 }

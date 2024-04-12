@@ -3,15 +3,17 @@
     "players": [
         {
             "playerID": 0,
+            "name": "Sachin",
             "location": 0,
             "numGangMembers": 0,
-            "money": 1500,
+            "money": 200,
             "hideouts": [],
-            "properties": []
+            "properties": [1]
         },
         {
             "playerID": 1,
-            "location": 0,
+            "name": "Thomas",
+            "location": 1,
             "numGangMembers": 0,
             "money": 1500,
             "hideouts": [],
@@ -30,28 +32,28 @@
             "name" : "Brown Property 2",
             "cost": 50,
             "rent": 50,
-            "location": 3,
+            "location": 2,
             "playerID": -1
         },
         {
             "name" : "Light Blue Property 1",
             "cost": 50,
             "rent": 50,
-            "location": 6,
+            "location": 3,
             "playerID": -1
         },
         {
             "name" : "Light Blue Property 2",
             "cost": 50,
             "rent": 50,
-            "location": 8,
+            "location": 4,
             "playerID": -1
         },
         {
             "name" : "Light Blue Property 3",
             "cost": 50,
             "rent": 50,
-            "location": 9,
+            "location": 5,
             "playerID": -1
         }
     ],
