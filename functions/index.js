@@ -68,8 +68,8 @@ const roomDataTemplate = {
 
 
 async function doesRoomExist(roomCode){
-	const re = new RegExp("^[A-Z]{6}$");
-	if(!re.test(roomCode)) return false;
+    const re = new RegExp("^[A-Z]{6}$");
+    if(!re.test(roomCode)) return false;
     const docRef = db.collection('rooms').doc(roomCode);
     let documentExists = false;
     try {
