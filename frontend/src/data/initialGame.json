@@ -1,0 +1,62 @@
+{
+    "gameID": 1,
+    "players": [
+        {
+            "playerID": 0,
+            "name": "Sachin",
+            "location": 0,
+            "numGangMembers": 0,
+            "money": 200,
+            "hideouts": [],
+            "properties": [1]
+        },
+        {
+            "playerID": 1,
+            "name": "Thomas",
+            "location": 1,
+            "numGangMembers": 0,
+            "money": 1500,
+            "hideouts": [],
+            "properties": []
+        }
+    ],
+    "properties": [
+        {
+            "name" : "Brown Property 1",
+            "cost": 50,
+            "rent": 50,
+            "location": 1,
+            "playerID": -1
+        },
+        {
+            "name" : "Brown Property 2",
+            "cost": 50,
+            "rent": 50,
+            "location": 2,
+            "playerID": -1
+        },
+        {
+            "name" : "Light Blue Property 1",
+            "cost": 50,
+            "rent": 50,
+            "location": 3,
+            "playerID": -1
+        },
+        {
+            "name" : "Light Blue Property 2",
+            "cost": 50,
+            "rent": 50,
+            "location": 4,
+            "playerID": -1
+        },
+        {
+            "name" : "Light Blue Property 3",
+            "cost": 50,
+            "rent": 50,
+            "location": 5,
+            "playerID": -1
+        }
+    ],
+    "ambushes" : [],
+    "playerTurn": 0
+}

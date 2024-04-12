@@ -1,0 +1,82 @@
+.logo {
+    /* background-color: #282c34; */
+    /* min-height: 100vh; */
+    width: 50%;
+    height: auto;
+    margin-bottom: 10rem;
+    /* flex-direction: column; */
+    /* align-items: center; */
+    /* justify-content: center; */
+    /* font-size: calc(10px + 2vmin); */
+    /* color: white; */
+}
+
+
+.landing {
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    display: flex;
+    padding: 2rem;
+}
+
+.button-row {
+    gap: 1rem;
+    display: flex;
+}
+
+.text-input {
+    /* width: 12rem; */
+    height: 2rem;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+}
+
+.action-button {
+    margin-top: 2rem;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 0.5rem;
+    background-color: #455048;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.join-button {
+    width: 100%;
+}
+
+.game-player-container {
+    display: flex;
+    gap: 1rem;
+}
+
+.player {
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    background-color: #f9f9f9;
+}
+
+.player-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: green;
+    gap: 1rem;
+}
+
+.player-description {
+    margin: 0;
+}
+
+.player-container {
+    gap: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    /* background-color: grey; */
+}
