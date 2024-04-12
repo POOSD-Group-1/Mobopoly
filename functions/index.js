@@ -29,10 +29,7 @@ const db = getFirestore(firebaseApp)
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
 
-exports.helloWorld2 = onRequest((request, response) => {
-  logger.info("Hello logs!", {structuredData: true});
-  response.send("Hello from Firebase!");
-});
+
 
 // Take the text parameter passed to this HTTP endpoint and insert it into
 // Firestore under the path /messages/:documentId/original
@@ -62,7 +59,8 @@ const roomDataTemplate = {
 	"users": [
 	],
 	"open": true,
-	"roomCode": "" 
+	"roomCode": "",
+	"listenDocumentID": ""
 };
 
 
@@ -92,6 +90,15 @@ exports.makeroom = onRequest(async (req, res) => {
 	}
 	roomData = roomDataTemplate;
 	roomData.roomCode = roomCode;
+	roomData.listenDocumentID = v4();
+	const myDocument = await getFirestore()
+		.collection("listeners")
+		.doc(roomData.listenDocumentID)
+		.set({
+			gameStarted: false,
+			turnNumber: 0
+		})
+
 	const writeResult = await getFirestore()
 		.collection("rooms")
 		.doc(roomCode)
@@ -121,7 +128,8 @@ exports.joinroom = onRequest(async (req, res) => {
 	const roomCode = req.query.roomCode;
 	result = {
 		"error": errorCodes.noError,
-		"userID": ""
+		"userID": "",
+		"gameListener": ""
 	}
 
 	
@@ -194,6 +202,7 @@ exports.joinroom = onRequest(async (req, res) => {
 		.set(roomData);
 	
 	result.userID = User.userID;
+	result.gameListener = roomData.listenDocumentID
 	res.json(result);
 	return;
 });
