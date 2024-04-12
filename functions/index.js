@@ -68,6 +68,8 @@ const roomDataTemplate = {
 
 
 async function doesRoomExist(roomCode){
+	const re = new RegExp("^[A-Z]{6}$");
+	if(!re.test(roomCode)) return false;
     const docRef = db.collection('rooms').doc(roomCode);
     let documentExists = false;
     try {
@@ -97,11 +99,12 @@ exports.makeroom = onRequest(async (req, res) => {
 });
 
 function validateName(name){
-	return true;
+	const re = new RegExp("^(([a-zA-Z0-9]([a-zA-Z0-9 ]{0,8})[a-zA-Z0-9])|[a-zA-Z0-9])$");
+	return re.test(name);
 }
 
 exports.joinroom = onRequest(async (req, res) => {
-	// Grab the text parameter.
+
 	const name = req.query.name;
 	const roomCode = req.query.roomCode;
 	logger.log(roomCode);
@@ -144,14 +147,12 @@ exports.joinroom = onRequest(async (req, res) => {
 			logger.log("error",error);
 	});
 
-	//currently not working
 	let foundDuplicate = false
 	roomData.users.forEach((user) => {
 		if(user.name === name){
 			result.error = -6;
 			foundDuplicate = true;
 			res.json(result);
-			
 		}
 	});
 
