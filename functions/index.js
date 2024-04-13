@@ -1,5 +1,7 @@
 //import {v4 as uuidv4} from 'uuid';
 const {v4} = require('uuid');
+const initialGameState = require("./Default_Game_State.json");
+const defaultPlayer = require("./defaultPlayer.json")
 /**
  * Import function triggers from their respective submodules:
  *
@@ -98,7 +100,6 @@ exports.startgame = onRequest(async (req, res) => {
 	const userID = req.query.userID
 	let DRE = await doesRoomExist(roomCode);
 	if(!DRE){
-		result.error = errorCodes.roomNotFound;
 		res.json({error: errorCodes.roomNotFound});
 		return;
 	}
@@ -117,17 +118,40 @@ exports.startgame = onRequest(async (req, res) => {
 		return;
 	});
 
-	if(roomData.users.length === 0 || 
-	   roomData.user[0] != userID){
+	if(roomData.users.length == 0 || 
+	   roomData.users[0].userID != userID){
+		console.log(roomData.user[0].userID);
+		console.log(userID);
 		res.json({error:errorCodes.invalidHost});
 		return;
 	}
 
 	gameID = v4();
 	roomData.gameID = gameID;
+	let myGameState = initialGameState;
+	myGameState.gameID = gameID;
+	for(let i = 0; i < roomData.users.length; i++){
+		currentPlayer = defaultPlayer;
+		currentPlayer.name = roomData.users[i].name;
+		currentPlayer.playerID = i;
+		roomData.users[i].playerID = i;
+		roomData.open = false;
+		myGameState.players.push(currentPlayer);
+	}
 
+	const makeGameDocument = await getFirestore()
+		.collection("games")
+		.doc(gameID)
+		.set(myGameState);
 
+	const changeRoomData = await getFirestore()
+		.collection("rooms")
+		.doc(roomCode)
+		.set(roomData)
 	
+	updateListener(roomData.listenDocumentID,true);
+	res.json({error: errorCodes.noError});
+	return;
 })
 
 
@@ -146,13 +170,14 @@ exports.makeroom = onRequest(async (req, res) => {
 		.doc(roomData.listenDocumentID)
 		.set({
 			gameStarted: false,
-			turnNumber: 0
+			counter: 0
 		})
 
 	const writeResult = await getFirestore()
 		.collection("rooms")
 		.doc(roomCode)
 		.set(roomData);
+	return;
 });
 
 function validateName(name){
@@ -164,11 +189,11 @@ function validateName(name){
 
 
 
-async function updateListener(listenerID,gameStart){
+async function updateListener(listenerID,startGame){
 	const docRef = db.collection('listeners').doc(listenerID);
 	let listenerData = {
 		gameStarted: false,
-		turnNumber: -1
+		counter: -1
 	}
 	await docRef.get().then((doc) => {
 		if(doc.exists){
@@ -181,9 +206,9 @@ async function updateListener(listenerID,gameStart){
 		return;
 	});
 	
-	if(listenerData.turnNumber == -1) return;
-	listenerData.turnNumber++;
-	listenerData.gameStarted |= gameStart;
+	if(listenerData.counter == -1) return;
+	listenerData.counter++;
+	if(startGame) listenerData.gameStarted = true; 
 	const listenerUpdate = await getFirestore()
 	.collection("listeners")
 	.doc(listenerID)
@@ -269,7 +294,7 @@ exports.joinroom = onRequest(async (req, res) => {
 		.doc(roomCode)
 		.set(roomData);
 
-	await updateListener(roomData.listenDocumentID);
+	await updateListener(roomData.listenDocumentID,false);
 	
 	result.userID = User.userID;
 	result.gameListener = roomData.listenDocumentID
