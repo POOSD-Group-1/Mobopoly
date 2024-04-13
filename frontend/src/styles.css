@@ -53,20 +53,19 @@
 .game-player-container {
     display: flex;
     gap: 1rem;
+    /* background-color: red; */
 }
 
 .player {
     padding: 1rem;
     border: 1px solid #ccc;
-    border-radius: 0.5rem;
-    background-color: #f9f9f9;
 }
 
 .player-header {
     display: flex;
     flex-direction: row;
     align-items: center;
-    background-color: green;
+    /* background-color: green; */
     gap: 1rem;
 }
 
@@ -77,6 +76,13 @@
 .player-container {
     gap: 0.5rem;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     /* background-color: grey; */
+}
+
+.location {
+    border-left-width: 0.5rem;
+    border-left-style: solid;
+    /* padding: 0rem; */
+    display: inline-block;
 }
