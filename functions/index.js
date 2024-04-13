@@ -106,13 +106,15 @@ function validateName(name){
 
 
 const errorCodes = Object.freeze({
-	noError: 0,
-	roomNotFound: -1,
-	invalidName: -2,
-	roomClosed: -3,
-	roomFull: -4,
-	nameInvalid: -5,
-	nameDuplicate: -6,
+    noError: 0,
+    roomNotFound: -1,
+    invalidName: -2,
+    roomClosed: -3,
+    roomFull: -4,
+    nameInvalid: -5,
+    nameDuplicate: -6,
+    invalidHost: -7,
+    userNotFound: -8
 });
 
 exports.joinroom = onRequest(async (req, res) => {
@@ -197,6 +199,71 @@ exports.joinroom = onRequest(async (req, res) => {
 	res.json(result);
 	return;
 });
+
+exports.leaveRoom = onRequest(async (req, res) => {
+    const userID = req.query.userID;
+    const roomCode = req.query.roomCode;
+    const result = {
+        "error": errorCodes.noError
+    };
+
+    // Check if the userID and roomCode are provided
+    if (!userID || !roomCode) {
+        result.error = errorCodes.invalidParams;
+        res.json(result);
+        return;
+    }
+
+    let roomExists = await doesRoomExist(roomCode);
+    if (!roomExists) {
+        result.error = errorCodes.roomNotFound;
+        res.json(result);
+        return;
+    }
+
+    const docRef = db.collection('rooms').doc(roomCode);
+
+    let roomData = 0;
+    await docRef.get().then((doc) => {
+        if (doc.exists) {
+            roomData = doc.data();
+        } else {
+            result.error = errorCodes.roomNotFound;
+            res.json(result);
+            return;
+        }
+    }).catch((error) => {
+        logger.log("error", error);
+        result.error = errorCodes.roomNotFound;
+        res.json(result);
+        return;
+    });
+
+    let userIndex = -1;
+    for (let i = 0; i < roomData.users.length; i++) {
+        if (roomData.users[i].userID === userID) {
+            userIndex = i;
+            break;
+        }
+    }
+
+    if (userIndex === -1) {
+        result.error = errorCodes.userNotFound;
+        res.json(result);
+        return;
+    }
+
+    roomData.users.splice(userIndex, 1);
+
+    const writeResult = await getFirestore()
+        .collection("rooms")
+        .doc(roomCode)
+        .set(roomData);
+
+    res.json(result);
+    return;
+});
+
 
 
 // Listens for new messages added to /messages/:documentId/original
