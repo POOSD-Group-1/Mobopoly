@@ -1,5 +1,7 @@
 //import {v4 as uuidv4} from 'uuid';
 const {v4} = require('uuid');
+const initialGameState = require("./Default_Game_State.json");
+const defaultPlayer = require("./defaultPlayer.json")
 /**
  * Import function triggers from their respective submodules:
  *
@@ -29,10 +31,7 @@ const db = getFirestore(firebaseApp)
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
 
-exports.helloWorld2 = onRequest((request, response) => {
-  logger.info("Hello logs!", {structuredData: true});
-  response.send("Hello from Firebase!");
-});
+
 
 // Take the text parameter passed to this HTTP endpoint and insert it into
 // Firestore under the path /messages/:documentId/original
@@ -62,7 +61,8 @@ const roomDataTemplate = {
 	"users": [
 	],
 	"open": true,
-	"roomCode": "" 
+	"roomCode": "",
+	"listenDocumentID": "",
 };
 
 
@@ -83,28 +83,6 @@ async function doesRoomExist(roomCode){
     return documentExists;
 }
 
-exports.makeroom = onRequest(async (req, res) => {
-	let roomCode = makeRandomID();
-	let DRE = await doesRoomExist(roomCode);
-	while(DRE){
-		roomCode = makeRandomID();
-		DRE = await doesRoomExist(roomCode);
-	}
-	roomData = roomDataTemplate;
-	roomData.roomCode = roomCode;
-	const writeResult = await getFirestore()
-		.collection("rooms")
-		.doc(roomCode)
-		.set(roomData);
-});
-
-function validateName(name){
-	const re = new RegExp("^(([a-zA-Z0-9]([a-zA-Z0-9 ]{0,8})[a-zA-Z0-9])|[a-zA-Z0-9])$");
-	return re.test(name);
-}
-
-
-
 const errorCodes = Object.freeze({
     noError: 0,
     roomNotFound: -1,
@@ -117,13 +95,136 @@ const errorCodes = Object.freeze({
     userNotFound: -8
 });
 
+exports.startgame = onRequest(async (req, res) => {
+	const roomCode = req.query.roomCode;
+	const userID = req.query.userID
+	let DRE = await doesRoomExist(roomCode);
+	if(!DRE){
+		res.json({error: errorCodes.roomNotFound});
+		return;
+	}
+
+	const docRef = db.collection('rooms').doc(roomCode);
+	let roomData = 0;
+	await docRef.get().then((doc) => {
+		if(doc.exists){ roomData = doc.data();
+		}else{
+			res.json({error: errorCodes.roomNotFound});
+			return;
+		}
+	}).catch((error) => {
+		logger.log("error",error);
+		res.json({error: errorCodes.roomNotFound});
+		return;
+	});
+
+	if(roomData.users.length == 0 || 
+	   roomData.users[0].userID != userID){
+		console.log(roomData.user[0].userID);
+		console.log(userID);
+		res.json({error:errorCodes.invalidHost});
+		return;
+	}
+
+	gameID = v4();
+	roomData.gameID = gameID;
+	let myGameState = initialGameState;
+	myGameState.gameID = gameID;
+	for(let i = 0; i < roomData.users.length; i++){
+		currentPlayer = defaultPlayer;
+		currentPlayer.name = roomData.users[i].name;
+		currentPlayer.playerID = i;
+		roomData.users[i].playerID = i;
+		roomData.open = false;
+		myGameState.players.push(currentPlayer);
+	}
+
+	const makeGameDocument = await getFirestore()
+		.collection("games")
+		.doc(gameID)
+		.set(myGameState);
+
+	const changeRoomData = await getFirestore()
+		.collection("rooms")
+		.doc(roomCode)
+		.set(roomData)
+	
+	updateListener(roomData.listenDocumentID,true);
+	res.json({error: errorCodes.noError});
+	return;
+})
+
+
+exports.makeroom = onRequest(async (req, res) => {
+	let roomCode = makeRandomID();
+	let DRE = await doesRoomExist(roomCode);
+	while(DRE){
+		roomCode = makeRandomID();
+		DRE = await doesRoomExist(roomCode);
+	}
+	roomData = roomDataTemplate;
+	roomData.roomCode = roomCode;
+	roomData.listenDocumentID = v4();
+	const myDocument = await getFirestore()
+		.collection("listeners")
+		.doc(roomData.listenDocumentID)
+		.set({
+			gameStarted: false,
+			counter: 0
+		})
+
+	const writeResult = await getFirestore()
+		.collection("rooms")
+		.doc(roomCode)
+		.set(roomData);
+	return;
+});
+
+function validateName(name){
+	const re = new RegExp("^(([a-zA-Z0-9]([a-zA-Z0-9 ]{0,8})[a-zA-Z0-9])|[a-zA-Z0-9])$");
+	return re.test(name);
+}
+
+
+
+
+
+
+async function updateListener(listenerID,startGame){
+	const docRef = db.collection('listeners').doc(listenerID);
+	let listenerData = {
+		gameStarted: false,
+		counter: -1
+	}
+	await docRef.get().then((doc) => {
+		if(doc.exists){
+			listenerData = doc.data();
+		}else{
+			return;
+		}
+	}).catch((error) => {
+		logger.log("error",error);
+		return;
+	});
+	
+	if(listenerData.counter == -1) return;
+	listenerData.counter++;
+	if(startGame) listenerData.gameStarted = true; 
+	const listenerUpdate = await getFirestore()
+	.collection("listeners")
+	.doc(listenerID)
+	.set(listenerData)
+};
+
+
 exports.joinroom = onRequest(async (req, res) => {
 
 	const name = req.query.name;
 	const roomCode = req.query.roomCode;
 	result = {
 		"error": errorCodes.noError,
-		"userID": ""
+		"userID": "",
+		"gameListener": ""
 	}
 
 	
@@ -194,8 +295,11 @@ exports.joinroom = onRequest(async (req, res) => {
 		.collection("rooms")
 		.doc(roomCode)
 		.set(roomData);
+
+	await updateListener(roomData.listenDocumentID,false);
 	
 	result.userID = User.userID;
+	result.gameListener = roomData.listenDocumentID
 	res.json(result);
 	return;
 });
