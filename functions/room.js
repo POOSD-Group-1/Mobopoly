@@ -287,3 +287,55 @@ exports.startGame = onRequest(async (req, res) => {
 	res.json({ error: errorCodes.noError });
 	return;
 })
+
+exports.getRoomInfo = onRequest(async (req, res) => {
+    const roomCode = req.query.roomCode;
+    const userID = req.query.userID;
+    let result = {
+        "error": errorCodes.noError,
+        "host": "",
+        "requesterIsHost": false,
+        "roomListener" : "",
+        usersInRoom: []
+    }
+    console.log(userID);
+    if(!doesRoomExist(roomCode)) result.error = roomNotFound;
+    let roomData = undefined;
+    try {
+        const doc = await rooms.doc(roomCode).get();
+        if (doc.exists) {
+            roomData = doc.data();
+        }
+    } catch (error) {
+        logger.log("error", error);
+    }
+    if (roomData === undefined) {
+        result.error = errorCodes.roomNotFound;
+        res.json(result);
+        return;
+    }
+    let userInRoom = false;
+    console.log(userID);
+    for(let i = 0; i < roomData.users.length; i++){
+        console.log(roomData.users[i].userID);
+        if(roomData.users[i].userID == userID) userInRoom = true;
+    }
+
+    if(!userInRoom){
+        result.error = errorCodes.invalidHost;
+        res.json(result);
+        return;
+    }
+
+    result.host = roomData.users[0].name;
+    result.roomListener = roomData.listenDocumentID;
+    if(userInRoom && roomData.users[0].userID == userID){
+        result.requesterIsHost = true;
+    }
+
+    for(let i = 0; i < roomData.users.length; i++){
+        result.usersInRoom.push(roomData.users[i].name);
+    }
+    res.json(result);
+    return;
+});
