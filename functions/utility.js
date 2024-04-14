@@ -18,7 +18,6 @@ function validateName(name) {
 exports.validateName = validateName;
 
 async function updateListener(listenerID, startGame) {
-	const docRef = listeners.doc(listenerID);
 	let listenerData = undefined;
 	try {
 		const doc = await listeners.doc(listenerID).get();

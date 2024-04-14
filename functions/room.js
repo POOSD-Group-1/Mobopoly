@@ -1,6 +1,5 @@
-const { onRequest } = require("firebase-functions/v2/https");
 const { v4: uuidv4 } = require('uuid');
-const { rooms, errorCodes, listeners, games } = require('./index');
+const { onRequest, rooms, errorCodes, listeners, games } = require('./index');
 const { generateRandomRoomCode, validateName, updateListener, deepcopy } = require('./utility');
 const defaultRoom = require("./defaultRoom.json")
 const defaultGameState = require("./defaultGameState.json");
