@@ -31,7 +31,7 @@ exports.makeRoom = onRequest(async (req, res) => {
         roomCode = generateRandomRoomCode();
         DRE = await doesRoomExist(roomCode);
     } while (DRE);
-    const result = { "error": errorCodes.noError, "roomCode": "" };
+    const result = { error: errorCodes.noError, roomCode: "" };
     const roomData = deepcopy(defaultRoom);
     roomData.roomCode = roomCode;
     roomData.listenDocumentID = uuidv4();
@@ -57,9 +57,9 @@ exports.joinRoom = onRequest(async (req, res) => {
     const name = req.query.name;
     const roomCode = req.query.roomCode;
     result = {
-        "error": errorCodes.noError,
-        "userID": "",
-        "gameListener": ""
+        error: errorCodes.noError,
+        userID: "",
+        gameListener: ""
     }
 
     if (name === undefined || roomCode === undefined) {
@@ -118,10 +118,10 @@ exports.joinRoom = onRequest(async (req, res) => {
 
     userID = uuidv4(); //assign userID with UUID 
     user = {
-        "name": name,
-        "userID": userID,
-        "playerID": -1,
-        "roomCode": roomCode
+        name: name,
+        userID: userID,
+        playerID: -1,
+        roomCode: roomCode
     }
 
     roomData.users.push(user);
@@ -143,7 +143,7 @@ exports.leaveRoom = onRequest(async (req, res) => {
     const userID = req.query.userID;
     const roomCode = req.query.roomCode;
     const result = {
-        "error": errorCodes.noError
+        error: errorCodes.noError
     };
 
     // Check if the userID and roomCode are provided
@@ -217,7 +217,7 @@ exports.startGame = onRequest(async (req, res) => {
 	const roomCode = req.query.roomCode;
 	const userID = req.query.userID;
     const result = {
-        "error": errorCodes.noError
+        error: errorCodes.noError
     };
 
     if (roomCode === undefined || userID === undefined) {
@@ -288,14 +288,17 @@ exports.startGame = onRequest(async (req, res) => {
 	return;
 })
 
+// gets the lobby information for a room
+// parameters: roomCode, userID
+// returns the host, whether the requester is the host, the room listener, and the users in the room
 exports.getRoomInfo = onRequest(async (req, res) => {
     const roomCode = req.query.roomCode;
     const userID = req.query.userID;
     let result = {
-        "error": errorCodes.noError,
-        "host": "",
-        "requesterIsHost": false,
-        "roomListener" : "",
+        error: errorCodes.noError,
+        host: "",
+        requesterIsHost: false,
+        roomListener : "",
         usersInRoom: []
     }
     console.log(userID);
