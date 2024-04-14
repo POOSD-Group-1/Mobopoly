@@ -301,8 +301,19 @@ exports.getRoomInfo = onRequest(async (req, res) => {
         roomListener : "",
         usersInRoom: []
     }
+
+    if (roomCode === undefined || userID === undefined) {
+        result.error = errorCodes.missingParameters;
+        res.json(result);
+        return;
+    }
     console.log(userID);
-    if(!doesRoomExist(roomCode)) result.error = roomNotFound;
+    let DRE = await doesRoomExist(roomCode);
+    if (!DRE) {
+        result.error = errorCodes.roomNotFound;
+        res.json(result);
+        return;
+    }
     let roomData = undefined;
     try {
         const doc = await rooms.doc(roomCode).get();
@@ -325,7 +336,7 @@ exports.getRoomInfo = onRequest(async (req, res) => {
     }
 
     if(!userInRoom){
-        result.error = errorCodes.invalidHost;
+        result.error = errorCodes.userNotFound;
         res.json(result);
         return;
     }
