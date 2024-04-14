@@ -16,8 +16,15 @@ const { v4: uuidv4 } = require('uuid');
 
 // The Cloud Functions for Firebase SDK to create Cloud Functions and triggers.
 const { logger } = require("firebase-functions");
-const { onRequest } = require("firebase-functions/v2/https");
+const { onRequest: onRequestWithoutCors } = require("firebase-functions/v2/https");
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
+const cors = require('cors')({origin: true});
+const onRequest = (handler) => onRequestWithoutCors(async (req, res) => {
+	cors(req, res, () => {
+		handler(req, res);
+	});
+});
+exports.onRequest = onRequest;
 
 // The Firebase Admin SDK to access Firestore.
 const { initializeApp } = require("firebase-admin/app");
