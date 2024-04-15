@@ -1,8 +1,9 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Button, Card, Typography, CardHeader, Avatar } from "@mui/material";
+import { Button, Card, Typography, CardHeader, Avatar, IconButton } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 import { doc, onSnapshot } from "firebase/firestore";
-import { db, errorCodes, getRoomInfo } from "../data/firebase.js";
+import { db, errorCodes, getRoomInfo, leaveRoom } from "../data/firebase.js";
 import { pieceImgFile } from "../data/util.js";
 import "../styles.css";
 
@@ -31,6 +32,7 @@ function Lobby() {
         setHost(host);
         setUserNames(usersInRoom);
     }
+    // Load data from local storage
     useEffect(() => {
         const data = localStorage.getItem(roomCode);
         if (data !== null) {
@@ -41,6 +43,7 @@ function Lobby() {
             refreshRoomData();
         }
     }, [roomCode]);
+    // Listen for changes in the room
     useEffect(() => {
         if (roomListener !== null) {
             const unsubscribe = onSnapshot(doc(db, "listeners", roomListener), (doc) => {
@@ -52,8 +55,24 @@ function Lobby() {
             return () => unsubscribe();
         }
     }, [roomListener]);
+    // Leave the room
+    const exitRoom = async () => {
+        if (userID === null || roomCode === null) return;
+        try {
+            localStorage.removeItem(roomCode);
+            leaveRoom({roomCode, userID}).then((response)=> {
+                if(response === undefined || response.error === undefined || response.error !== errorCodes.noError) {
+                    console.log("error:" + response.error)
+                    return;
+                }
+            });
+            navigate("/");
+        } catch (err) {
+            console.error(err);
+        }
+    };
     const userList = userNames.map((user, i) =>
-        <Card key={i} raised>
+        <Card key={i} raised sx={{ display: "flex", }}>
             <CardHeader
                 avatar={<Avatar
                     sx={{ bgcolor: 'transparent' }}
@@ -69,6 +88,9 @@ function Lobby() {
                     </div>
                 }
             />
+            {name === user && <IconButton variant="contained" onClick={exitRoom} sx={{ marginLeft: "auto" }}>
+                <CloseIcon />
+            </IconButton>}
         </Card>
     );
     return (

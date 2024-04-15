@@ -39,6 +39,7 @@ const createFunction = (functionName) => {
 const makeRoom = createFunction("makeRoom");
 const joinRoom = createFunction("joinRoom");
 const getRoomInfo = createFunction("getRoomInfo");
+const leaveRoom = createFunction("leaveRoom");
 
 const errorCodes = Object.freeze({
     noError: 0,
@@ -52,4 +53,4 @@ const errorCodes = Object.freeze({
     missingParameters: -8,
 });
 
-export { db, errorCodes, makeRoom, joinRoom, getRoomInfo };
+export { db, errorCodes, makeRoom, joinRoom, getRoomInfo, leaveRoom };
