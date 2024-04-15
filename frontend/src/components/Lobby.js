@@ -13,6 +13,7 @@ function Lobby() {
         navigate("/");
     }
     const [userID, setUserID] = useState(null);
+    const [name, setName] = useState(null);
     const [roomListener, setRoomListener] = useState(null);
     const [host, setHost] = useState(null);
     const [isHost, setIsHost] = useState(false);
@@ -33,9 +34,10 @@ function Lobby() {
     useEffect(() => {
         const data = localStorage.getItem(roomCode);
         if (data !== null) {
-            const { userID, roomListener } = JSON.parse(data);
+            const { userID, roomListener, name } = JSON.parse(data);
             setUserID(userID);
             setRoomListener(roomListener);
+            setName(name);
             refreshRoomData();
         }
     }, [roomCode]);
@@ -63,7 +65,7 @@ function Lobby() {
                             {user}
                         </Typography>
                         {host === user && <Typography variant="subtitle1" sx={{ color: "red" }}>&nbsp;(Host)</Typography>}
-                        { }
+                        {name === user && <Typography variant="subtitle1" sx={{ color: "green" }}>&nbsp;(You)</Typography>}
                     </div>
                 }
             />

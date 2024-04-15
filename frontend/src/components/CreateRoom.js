@@ -32,7 +32,7 @@ const CreateRoom = () => {
             console.log(response);
             const { userID, roomListener } = response;
             console.log(userID, roomListener);
-            localStorage.setItem(roomCode, JSON.stringify({ userID, roomListener }));
+            localStorage.setItem(roomCode, JSON.stringify({ userID, roomListener, name }));
             navigate(`/room/${roomCode}`);
         } catch(err) {
             console.error(err);
