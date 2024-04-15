@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Button, Card, Typography, CardHeader, Avatar, IconButton } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import { doc, onSnapshot } from "firebase/firestore";
-import { db, errorCodes, getRoomInfo, leaveRoom } from "../data/firebase.js";
+import { db, errorCodes, getRoomInfo, leaveRoom, startGame } from "../data/firebase.js";
 import { pieceImgFile } from "../data/util.js";
 import "../styles.css";
 
@@ -50,18 +50,20 @@ function Lobby() {
                 const { counter, gameStarted } = doc.data();
                 if (!gameStarted) {
                     refreshRoomData();
+                } else {
+                    navigate("/game");
                 }
             });
             return () => unsubscribe();
         }
     }, [roomListener]);
     // Leave the room
-    const exitRoom = async () => {
+    const clickLeaveRoom = async () => {
         if (userID === null || roomCode === null) return;
         try {
             localStorage.removeItem(roomCode);
-            leaveRoom({roomCode, userID}).then((response)=> {
-                if(response === undefined || response.error === undefined || response.error !== errorCodes.noError) {
+            leaveRoom({ roomCode, userID }).then((response) => {
+                if (response === undefined || response.error === undefined || response.error !== errorCodes.noError) {
                     console.log("error:" + response.error)
                     return;
                 }
@@ -71,6 +73,7 @@ function Lobby() {
             console.error(err);
         }
     };
+    const canStartGame = isHost && userNames.length > 1;
     const userList = userNames.map((user, i) =>
         <Card key={i} raised sx={{ display: "flex", }}>
             <CardHeader
@@ -88,11 +91,23 @@ function Lobby() {
                     </div>
                 }
             />
-            {name === user && <IconButton variant="contained" onClick={exitRoom} sx={{ marginLeft: "auto" }}>
+            {name === user && <IconButton variant="contained" onClick={clickLeaveRoom} sx={{ marginLeft: "auto" }}>
                 <CloseIcon />
             </IconButton>}
         </Card>
     );
+    const clickStartGame = async () => {
+        if (!canStartGame) return;
+        try {
+            const response = await startGame({ roomCode, userID });
+            if (response === undefined || response.error === undefined || response.error !== errorCodes.noError) {
+                console.log("error:" + response.error)
+                return;
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
     return (
         <div className="landing">
             <img src="/assets/logo.png" alt="Monopoly Logo" className="logo-small" />
@@ -100,9 +115,10 @@ function Lobby() {
                 <Typography variant="h3">Room Code: {roomCode}</Typography>
                 <Typography variant="h5">Players:</Typography>
                 {userList}
-                {isHost && <Button variant="contained" onClick={() => navigate("/game")} sx={{ marginTop: "1rem" }}>
-                    Start Game</Button>}
-                {!isHost && <Typography variant="subtitle1" sx={{ marginTop: "1rem" }}>Waiting for host to start the game...</Typography>}
+                {isHost && <Button variant="contained" onClick={clickStartGame}
+                    disabled={!canStartGame} sx={{ marginTop: "1rem" }}>Start Game</Button>}
+                {!isHost && <Typography variant="subtitle1" sx={{ marginTop: "1rem" }}>
+                    Waiting for host to start the game...</Typography>}
             </Card>
         </div>)
 }
