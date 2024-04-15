@@ -1,7 +1,6 @@
 import Phaser from "phaser";
-import { Vector2 } from "../data/util.js";
-import { center, locationAnchors, MAX_PLAYERS, playerAnchors } from "../data/board";
-
+import { boardWidth, boardHeight, center, locationAnchors, MAX_PLAYERS, playerAnchors, playerDim, playerAnchorIndex } from "../data/board";
+import { resizeToDim } from "../data/util";
 
 
 class gameScene extends Phaser.Scene {
@@ -18,7 +17,7 @@ class gameScene extends Phaser.Scene {
   }
   create(config) {
     const board = this.add.image(center.x, center.y, "board");
-    board.setScale(0.15);
+    resizeToDim(board, boardWidth);
     this.setPlayercount(config.numPlayers);
     this.createCalled = true;
   }
@@ -30,7 +29,7 @@ class gameScene extends Phaser.Scene {
     this.players = [];
     for (let i = 0; i < playerCount; i++) {
       const player = this.add.image(0, 0, `piece${i}`);
-      player.setScale(0.2);
+      resizeToDim(player, playerDim);
       this.players.push(player);
     }
   }
@@ -38,7 +37,8 @@ class gameScene extends Phaser.Scene {
   updatePlayers(players) {
     const setPlayers = () => {
       for (let i = 0; i < players.length; i++) {
-        const location = center.clone().add(locationAnchors[players[i][0]]).add(playerAnchors[players[i][1]]);
+        const index = playerAnchorIndex[players[i][0]];
+        const location = center.clone().add(locationAnchors[players[i][0]]).add(playerAnchors[index][players[i][1]]);
         this.players[i].setPosition(location.x, location.y);
       }
     };

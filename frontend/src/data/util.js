@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { scaleFactor } from './board';
 
 const Vector2 = Phaser.Math.Vector2;
 
@@ -9,6 +10,7 @@ function pieceImgFile(pieceNum) {
 function phaserPieceImgFile(pieceNum) {
     return `assets/piece${pieceNum}.png`;
 }
+
 
 const nameRegex = /^(([a-zA-Z0-9]([a-zA-Z0-9 ]{0,8})[a-zA-Z0-9])|[a-zA-Z0-9])$/;
 
@@ -44,4 +46,10 @@ function getRoomCodeHelperText(roomCode) {
     return "Unknown error in room code.";
 }
 
-export { phaserPieceImgFile, pieceImgFile, Vector2, validateName, randomName, getNameHelperText, validateRoomCode, getRoomCodeHelperText };
+function resizeToDim(img, dim) {
+    const maxDim = Math.max(img.width, img.height);
+    const imgScaleFactor = dim / maxDim;
+    return img.setScale(imgScaleFactor);
+}
+
+export { phaserPieceImgFile, pieceImgFile, resizeToDim, Vector2, validateName, randomName, getNameHelperText, validateRoomCode, getRoomCodeHelperText };
