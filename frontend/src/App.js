@@ -26,7 +26,7 @@ const router = createBrowserRouter([
     element: <CreateRoom />
   },
   {
-    path: "/room:roomCode",
+    path: "/room/:roomCode",
     element: <Lobby />
   }
 ]);

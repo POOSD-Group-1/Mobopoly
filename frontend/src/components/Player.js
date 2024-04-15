@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { Avatar, Card, CardContent, CardHeader, Typography } from '@mui/material';
 import { GameContext, UserContext } from './Game';
-import { pieceImgFile } from '../data/util.js';
+import { phaserPieceImgFile } from '../data/util.js';
 import Location from './Location.js';
 
 function Player({ player }) {
@@ -15,7 +15,7 @@ function Player({ player }) {
                 avatar={<Avatar
                     sx={{ bgcolor: 'transparent' }}
                     variant="square" alt="Player Icon"
-                ><img src={pieceImgFile(playerID)} style={{width: 24, height: 24, objectFit: 'contain'}}/></Avatar>}
+                ><img src={phaserPieceImgFile(playerID)} style={{width: 24, height: 24, objectFit: 'contain'}}/></Avatar>}
                 title={<Typography variant="subtitle1">{name + (playerID === user.playerID ? ' (You)' : '')}</Typography>}
             />
             <CardContent>

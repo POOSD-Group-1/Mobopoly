@@ -3,6 +3,10 @@ import Phaser from 'phaser';
 const Vector2 = Phaser.Math.Vector2;
 
 function pieceImgFile(pieceNum) {
+    return `/assets/piece${pieceNum}.png`;
+}
+
+function phaserPieceImgFile(pieceNum) {
     return `assets/piece${pieceNum}.png`;
 }
 
@@ -40,4 +44,4 @@ function getRoomCodeHelperText(roomCode) {
     return "Unknown error in room code.";
 }
 
-export { pieceImgFile, Vector2, validateName, randomName, getNameHelperText, validateRoomCode, getRoomCodeHelperText };
+export { phaserPieceImgFile, pieceImgFile, Vector2, validateName, randomName, getNameHelperText, validateRoomCode, getRoomCodeHelperText };

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, TextField } from '@mui/material';
+import { joinRoom, errorCodes } from "../data/firebase.js";
 import { randomName, validateName, getNameHelperText, validateRoomCode, getRoomCodeHelperText } from "../data/util.js";
 import "../styles.css";
 
@@ -15,6 +16,28 @@ const JoinRoom = () => {
         setRoomCode(e.target.value);
     }
     const canJoin = validateName(name) && validateRoomCode(roomCode);
+    const goToRoom = async () => {
+        if(!canJoin) return;
+        if(localStorage.getItem(roomCode) !== null) {
+            // TODO: make this visible to the user
+            console.error("You have already joined the room.");
+            return;
+        }
+        try {
+            const response = await joinRoom({ roomCode, name });
+            if (response === undefined || response.error === undefined || response.error !== errorCodes.noError) {
+                console.log("error:" + response.error)
+                return;
+            }
+            console.log(response);
+            const { userID, roomListener } = response;
+            console.log(userID, roomListener);
+            localStorage.setItem(roomCode, JSON.stringify({ userID, roomListener }));
+            navigate(`/room/${roomCode}`);
+        } catch(err) {
+            console.error(err);
+        }
+    };
     return (
         <div className="landing">
             <img src="/assets/logo.png" alt="Monopoly Logo" className="logo" />
@@ -30,7 +53,7 @@ const JoinRoom = () => {
                 error={!validateRoomCode(roomCode)}
                 helperText={getRoomCodeHelperText(roomCode)} />
             <div className="button-row">
-                <Button variant="contained" disabled={!canJoin} onClick={() => navigate("/game")} sx={{ marginTop: "1rem" }}>Join Room</Button>
+                <Button variant="contained" disabled={!canJoin} onClick={goToRoom} sx={{ marginTop: "1rem" }}>Join Room</Button>
             </div>
         </div>
     );
