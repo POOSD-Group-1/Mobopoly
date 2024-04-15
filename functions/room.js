@@ -58,7 +58,7 @@ exports.joinRoom = onRequest(async (req, res) => {
     result = {
         error: errorCodes.noError,
         userID: "",
-        gameListener: ""
+        roomListener: ""
     }
 
     if (name === undefined || roomCode === undefined) {
@@ -131,7 +131,7 @@ exports.joinRoom = onRequest(async (req, res) => {
     await updateListener(roomData.listenDocumentID, false);
 
     result.userID = user.userID;
-    result.gameListener = roomData.listenDocumentID
+    result.roomListener = roomData.listenDocumentID
     res.json(result);
     return;
 });
