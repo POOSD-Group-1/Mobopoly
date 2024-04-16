@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-const { onRequest, rooms, errorCodes, listeners, games } = require('./index');
+const { onRequest, rooms, errorCodes, listeners, games,logger } = require('./index');
 const { generateRandomRoomCode, validateName, updateListener, deepcopy } = require('./utility');
 const defaultRoom = require("./defaultRoom.json")
 const defaultGameState = require("./defaultGameState.json");
@@ -21,6 +21,42 @@ async function doesRoomExist(roomCode) {
     return documentExists;
 }
 exports.doesRoomExist = doesRoomExist;
+async function deleteGame(gameID){
+    if(gameID == -1) return;
+    try {
+        const docRef = await games.doc(gameID);
+        await docRef.delete();
+    }
+    catch (error) {
+        logger.log("error", error);
+    }
+}
+
+async function deleteListener(listenerID){
+    try {
+        const docRef = await listeners.doc(listenerID);
+        await docRef.delete();
+    }
+    catch (error) {
+        logger.log("error", error);
+    }
+}
+
+async function deleteRoom(roomCode){
+    let roomData = await getRoomData(roomCode);
+    let listenData = roomData.listenDocumentID;
+    console.log(listenData);
+    let gameID = roomData.gameID;
+    await deleteListener(listenData);
+    await deleteGame(gameID);
+    try {
+        const docRef = await rooms.doc(roomCode);
+        await docRef.delete();
+    }
+    catch (error) {
+        logger.log("error", error);
+    }
+}
 
 // gets room data, returns undefined if there is an error/no room. (helper function)
 async function getRoomData(roomCode){
@@ -211,6 +247,11 @@ exports.leaveRoom = onRequest(async (req, res) => {
     }
 
     roomData.users.splice(userIndex, 1);
+    if(roomData.users.length == 0){
+        deleteRoom(roomCode);
+        res.json(result);
+        return;
+    }
 
     const writeResult = rooms
         .doc(roomCode)

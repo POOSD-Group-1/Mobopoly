@@ -35,6 +35,7 @@ const { getFirestore } = require("firebase-admin/firestore");
 const firebaseApp = initializeApp()
 
 // Create exports
+exports.logger = logger;
 const db = getFirestore(firebaseApp)
 exports.db = db;
 const rooms = db.collection('rooms');
