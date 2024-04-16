@@ -12,7 +12,7 @@ function generateRandomRoomCode() {
 exports.generateRandomRoomCode = generateRandomRoomCode;
 
 function validateName(name) {
-	const re = new RegExp("^(([a-zA-Z0-9]([a-zA-Z0-9]{0,8})[a-zA-Z0-9])|[a-zA-Z0-9])$");
+	const re = new RegExp("^(([a-zA-Z0-9]([a-zA-Z0-9 ]{0,8})[a-zA-Z0-9])|[a-zA-Z0-9])$");
 	return re.test(name);
 }
 exports.validateName = validateName;
