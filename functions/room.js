@@ -41,6 +41,28 @@ async function getRoomData(roomCode){
     return roomData;
 }
 
+async function getGameData(gameID){
+    let gameData = undefined;
+    try {
+        const doc = await games.doc(gameID).get();
+        if(doc.exists){
+            gameData = doc.data();
+            return gameData;
+        }else{
+            return undefined;
+        }
+    }
+    catch (error) {
+        logger.log("error", error);
+        return undefined; //currently undefined
+    }
+}
+
+function cleanGame(gameState,userID){
+    return gameState; //implement later?
+}
+
+
 // makes a room with a random room code
 // returns the room code of the room created
 // parameters none.
@@ -314,3 +336,47 @@ exports.getRoomInfo = onRequest(async (req, res) => {
     res.json(result);
     return;
 });
+
+exports.getGameState = onRequest(async (req, res) => {
+	const roomCode = req.query.roomCode;
+	const userID = req.query.userID;
+    const result = {
+        error: errorCodes.noError,
+        gameState: undefined
+    };
+
+    if (roomCode === undefined || userID === undefined) {
+        result.error = errorCodes.missingParameters;
+        res.json(result);
+        return;
+    }
+
+	let roomData = await getRoomData(roomCode);
+    if (roomData === undefined) {
+        result.error = errorCodes.roomNotFound;
+        res.json(result);
+        return;
+    }
+
+    let userInRoom = false;
+    for(let i = 0; i < roomData.users.length; i++){
+        console.log(roomData.users[i].userID);
+        if(roomData.users[i].userID == userID) userInRoom = true;
+    }
+
+    if(!userInRoom) result.error = errorCodes.userNotFound;
+    let gameID = roomData.gameID;
+    let gameState = await getGameData(gameID);
+
+    if(gameState == undefined){
+        result.error = errorCodes.roomNotFound; //new error code????
+    }
+    
+    if (result.error != errorCodes.noError) {
+        res.json(result);
+        return;
+    }
+    result.gameState = gameState;
+	res.json(result);
+	return;
+})
