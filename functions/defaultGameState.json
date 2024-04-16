@@ -202,8 +202,8 @@
     ],
     "ambushes" : [],
     "playerTurn": {
-	  	"turn_number": 0,
-		  "has_rolled_dice": false,
-		  "has_wagered": false
+	  	"turnNumber": 0,
+		  "hasRolledDice": false,
+		  "hasWagered": false
 	}
 }
