@@ -29,7 +29,7 @@
             "cost": 50,
             "rent": 50,
             "location": 3,
-            "playerID": 2
+            "playerID": -1
         },
         {
             "name" : "Light Blue Wildcard",
@@ -64,7 +64,7 @@
             "cost": 50,
             "rent": 50,
             "location": 8,
-            "playerID": 0
+            "playerID": -1
         },
         {
             "name" : "Magenta Bar",
