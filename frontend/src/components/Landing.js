@@ -8,7 +8,7 @@ const Landing = () => {
         <div className="landing">
             <img src="/assets/logo.png" alt="Monopoly Logo" className="logo"  />
             <div className="button-row">
-                <Button variant="contained" onClick={() => navigate("/createroom")}>Create a Room</Button>
+                <Button variant="contained" onClick={() => navigate("/create")}>Create a Room</Button>
                 <Button variant="contained" onClick={() => navigate("/join")}>Join a Room</Button>
             </div>
         </div>

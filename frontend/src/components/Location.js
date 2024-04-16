@@ -7,8 +7,8 @@ import { getLocationColor } from '../data/board';
 function Location({ location }) {
     const gameState = useContext(GameContext);
     const [expanded, setExpanded] = useState(false);
-    let property = gameState.properties[location];
-    let playerID = property.playerID;
+    const property = gameState.properties[location];
+    const playerID = property.playerID;
     console.log(playerID)
     const handleExpandClick = () => {
         setExpanded(!expanded);

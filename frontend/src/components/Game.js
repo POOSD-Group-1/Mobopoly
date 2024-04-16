@@ -23,12 +23,12 @@ function Game() {
     const [user, setUser] = useState(fromJSON(initialUserJSON, User));
     const [gameState, setGameState] = useState(fromJSON(initialGameJSON, GameState));
 
-    let updatePlayers = () => {
+    const updatePlayers = () => {
         if (phaserGame.current.scene.getScene('gameScene')) {
             const freq = new Map();
             let locations = gameState.players.map(player => [-1, -1]);
             for(let i = 0; i < gameState.players.length; i++) {
-                let idx = (gameState.playerTurn + i) % gameState.players.length;
+                const idx = (gameState.playerTurn + i) % gameState.players.length;
                 if(!freq.has(gameState.players[idx].location)) freq.set(gameState.players[idx].location, 0);
                 locations[idx] = [gameState.players[idx].location, freq.get(gameState.players[idx].location)];
                 freq.set(gameState.players[idx].location, freq.get(gameState.players[idx].location) + 1);
