@@ -41,6 +41,8 @@ function Lobby() {
             setRoomListener(roomListener);
             setName(name);
             refreshRoomData();
+        } else {
+            navigate("/");
         }
     }, [roomCode]);
     // Listen for changes in the room

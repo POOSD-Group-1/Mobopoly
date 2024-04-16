@@ -54,4 +54,29 @@ const errorCodes = Object.freeze({
     missingParameters: -8,
 });
 
-export { db, errorCodes, makeRoom, joinRoom, getRoomInfo, leaveRoom, startGame };
+function getErrorMessage(errorCode) {
+    switch(errorCode) {
+        case errorCodes.noError:
+            return "No error";
+        case errorCodes.roomNotFound:
+            return "Room not found";
+        case errorCodes.invalidName:
+            return "Invalid name";
+        case errorCodes.roomClosed:
+            return "Room is closed";
+        case errorCodes.roomFull:
+            return "Room is full";
+        case errorCodes.nameDuplicate:
+            return "Name is already taken";
+        case errorCodes.invalidHost:
+            return "Invalid host";
+        case errorCodes.userNotFound:
+            return "User not found";
+        case errorCodes.missingParameters:
+            return "Missing parameters";
+        default:
+            return "An unknown error occurred";
+    }
+}
+
+export { db, errorCodes, getErrorMessage, makeRoom, joinRoom, getRoomInfo, leaveRoom, startGame };

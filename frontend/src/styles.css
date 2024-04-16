@@ -94,3 +94,18 @@
     /* padding: 0rem; */
     display: inline-block;
 }
+
+.error-box {
+    padding: 1rem;
+    /* border: 1px solid red; */
+    border-radius: 0.5rem;
+    background-color: #f8d7da;
+    color: #721c24;
+    margin-top: 1rem;
+    display: flex;
+}
+
+.error-icon {
+    color: #721c24;
+    margin-right: 0.5rem;
+}
