@@ -22,8 +22,28 @@ async function doesRoomExist(roomCode) {
 }
 exports.doesRoomExist = doesRoomExist;
 
+// gets room data, returns undefined if there is an error/no room. (helper function)
+async function getRoomData(roomCode){
+    let roomExists = await doesRoomExist(roomCode);
+    let roomData = undefined;
+    if (!roomExists) { return undefined; }
+    
+    try {
+        const doc = await rooms.doc(roomCode).get();
+        if (doc.exists) {
+            roomData = doc.data();
+        }
+    } catch (error) {
+        logger.log("error", error);
+        return undefined;
+    }
+
+    return roomData;
+}
+
 // makes a room with a random room code
 // returns the room code of the room created
+// parameters none.
 exports.makeRoom = onRequest(async (req, res) => {
     let roomCode, DRE;
     do {
@@ -52,6 +72,7 @@ exports.makeRoom = onRequest(async (req, res) => {
 // a user joins a room
 // parameters: name, roomCode
 // returns the user id and the id of the document to listen to
+//example: /joinRoom?roomCode=CAIVKX&name=thomas
 exports.joinRoom = onRequest(async (req, res) => {
     const name = req.query.name;
     const roomCode = req.query.roomCode;
@@ -73,22 +94,7 @@ exports.joinRoom = onRequest(async (req, res) => {
         return;
     }
 
-    let DRE = await doesRoomExist(roomCode);
-    if (!DRE) {
-        result.error = errorCodes.roomNotFound;
-        res.json(result);
-        return;
-    }
-
-    let roomData = undefined;
-    try {
-        const doc = await rooms.doc(roomCode).get();
-        if (doc.exists) {
-            roomData = doc.data();
-        }
-    } catch (error) {
-        logger.log("error", error);
-    }
+    let roomData = await getRoomData(roomCode);
     if (roomData === undefined) {
         result.error = errorCodes.roomNotFound;
         res.json(result);
@@ -138,6 +144,7 @@ exports.joinRoom = onRequest(async (req, res) => {
 
 // a user leaves a room
 // the room is still a lobby at this point
+// example /leaveRoom?userID=a795ec39-0388-4d3f-8178-6a4469091142&roomCode=UEUXDN
 exports.leaveRoom = onRequest(async (req, res) => {
     const userID = req.query.userID;
     const roomCode = req.query.roomCode;
@@ -152,27 +159,9 @@ exports.leaveRoom = onRequest(async (req, res) => {
         return;
     }
 
-    let roomExists = await doesRoomExist(roomCode);
-    if (!roomExists) {
-        result.error = errorCodes.roomNotFound;
-        res.json(result);
-        return;
-    }
 
-    let roomData = undefined;
-    try {
-        const doc = await rooms.doc(roomCode).get();
-        if (doc.exists) {
-            roomData = doc.data();
-        }
-    } catch (error) {
-        logger.log("error", error);
-        result.error = errorCodes.roomNotFound;
-        res.json(result);
-        return;
-    }
-
-    if (roomData === undefined) {
+    let roomData = await getRoomData(roomCode);
+    if (roomData == undefined) {
         result.error = errorCodes.roomNotFound;
         res.json(result);
         return;
@@ -212,6 +201,7 @@ exports.leaveRoom = onRequest(async (req, res) => {
 
 // starts the game for a room
 // parameters: roomCode, userID
+// /startGame?userID=a795ec39-0388-4d3f-8178-6a4469091142&roomCode=UEUXDN
 exports.startGame = onRequest(async (req, res) => {
 	const roomCode = req.query.roomCode;
 	const userID = req.query.userID;
@@ -225,22 +215,7 @@ exports.startGame = onRequest(async (req, res) => {
         return;
     }
 
-	let DRE = await doesRoomExist(roomCode);
-	if (!DRE) {
-        result.error = errorCodes.roomNotFound;
-		res.json(result);
-		return;
-	}
-
-	let roomData = undefined;
-    try {
-        const doc = await rooms.doc(roomCode).get();
-        if (doc.exists) {
-            roomData = doc.data();
-        }
-    } catch (error) {
-        logger.log("error", error);
-    }
+	let roomData = await getRoomData(roomCode);
     if (roomData === undefined) {
         result.error = errorCodes.roomNotFound;
         res.json(result);
@@ -307,21 +282,7 @@ exports.getRoomInfo = onRequest(async (req, res) => {
         return;
     }
     console.log(userID);
-    let DRE = await doesRoomExist(roomCode);
-    if (!DRE) {
-        result.error = errorCodes.roomNotFound;
-        res.json(result);
-        return;
-    }
-    let roomData = undefined;
-    try {
-        const doc = await rooms.doc(roomCode).get();
-        if (doc.exists) {
-            roomData = doc.data();
-        }
-    } catch (error) {
-        logger.log("error", error);
-    }
+    let roomData = await getRoomData(roomCode);
     if (roomData === undefined) {
         result.error = errorCodes.roomNotFound;
         res.json(result);
@@ -329,6 +290,7 @@ exports.getRoomInfo = onRequest(async (req, res) => {
     }
     let userInRoom = false;
     console.log(userID);
+    console.log(roomData);
     for(let i = 0; i < roomData.users.length; i++){
         console.log(roomData.users[i].userID);
         if(roomData.users[i].userID == userID) userInRoom = true;
