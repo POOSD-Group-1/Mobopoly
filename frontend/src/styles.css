@@ -33,6 +33,11 @@
     flex-direction: row;
 }
 
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
 .button-row {
     gap: 1rem;
     display: flex;
@@ -129,4 +134,26 @@
 .error-icon {
     color: #721c24;
     margin-right: 0.5rem;
+}
+
+.action-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.dice-container {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.dice-box {
+    height: 3rem;
+    width: 3rem;
+    border: 1px solid black;
+    border-radius: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

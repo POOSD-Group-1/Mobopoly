@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import React, { createContext, useEffect, useRef, useState } from 'react';
-import { Typography, ToggleButtonGroup, ToggleButton, Icon } from '@mui/material';
-import { KeyboardArrowDown } from '@mui/icons-material';
+import { Typography, ToggleButtonGroup, ToggleButton, Icon, Button } from '@mui/material';
+import { KeyboardArrowDown, Casino, AttachMoney } from '@mui/icons-material';
 import { boardWidth, boardHeight } from '../data/board';
 import initialGameJSON from '../data/initialGame.json';
 import initialUserJSON from '../data/initialUser.json';
@@ -9,6 +9,8 @@ import { phaserPieceImgFile } from '../data/util';
 import { GameState, User, fromJSON } from '../data/types';
 import gameScene from "../phaser/gameScene";
 import Player from './Player';
+import ActionMenu from './ActionMenu';
+import "../styles.css";
 
 const gameConfig = {
     type: Phaser.AUTO,
@@ -84,13 +86,14 @@ function Game() {
         <UserContext.Provider value={user}>
             <div className="game-player-container">
                 <div id="game" />
-                <div style={{ display: "flex", flexDirection: "column" }}>
+                <div className="flex-column">
                     <Typography variant="h4" sx={{ display: "inline-block" }}>Players</Typography>
                     <Typography variant="body1" sx={{ display: "inline-block" }}>
                         It's {gameState.players[gameState.turn.playerTurn].name}'s Turn!</Typography>
                     {playerIcons}
                     {selectedUser !== -1 && <Player player={gameState.players[selectedUser]} />}
                 </div>
+                <ActionMenu />
             </div>
         </UserContext.Provider>
     </GameContext.Provider>

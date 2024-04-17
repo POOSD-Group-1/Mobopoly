@@ -5,7 +5,6 @@ import { phaserPieceImgFile } from '../data/util.js';
 import Location from './Location.js';
 
 function Player({ player }) {
-    const gameState = useContext(GameContext);
     const user = useContext(UserContext);
     const { playerID, name, location, numGangMembers, money, hideouts, properties, isAlive } = player;
     const propertyList = properties.map((property) => <Location key={property} location={property} />);
@@ -20,7 +19,7 @@ function Player({ player }) {
                 }} /></Avatar>}
                 title={<div className='flex-row'>
                     <Typography variant="subtitle1">{name + (playerID === user.playerID ? ' (You)' : '')}</Typography>
-                    {!isAlive && <Typography variant="subtitle1" sx={{ color: "red" }}>&nbsp;(Lost Game)</Typography>}
+                    {!isAlive && <Typography variant="subtitle1" sx={{ color: "red" }}>&nbsp;(Deceased)</Typography>}
                 </div>
                 }
             />
