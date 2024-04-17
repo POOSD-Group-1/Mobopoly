@@ -16,8 +16,15 @@ const { v4: uuidv4 } = require('uuid');
 
 // The Cloud Functions for Firebase SDK to create Cloud Functions and triggers.
 const { logger } = require("firebase-functions");
-const { onRequest } = require("firebase-functions/v2/https");
+const { onRequest: onRequestWithoutCors } = require("firebase-functions/v2/https");
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
+const cors = require('cors')({ origin: true });
+const onRequest = (handler) => onRequestWithoutCors(async (req, res) => {
+	cors(req, res, () => {
+		handler(req, res);
+	});
+});
+exports.onRequest = onRequest;
 
 // The Firebase Admin SDK to access Firestore.
 const { initializeApp } = require("firebase-admin/app");
@@ -28,6 +35,7 @@ const { getFirestore } = require("firebase-admin/firestore");
 const firebaseApp = initializeApp()
 
 // Create exports
+exports.logger = logger;
 const db = getFirestore(firebaseApp)
 exports.db = db;
 const rooms = db.collection('rooms');
@@ -50,11 +58,14 @@ const errorCodes = Object.freeze({
 });
 exports.errorCodes = errorCodes;
 
-const { makeRoom, leaveRoom, joinRoom, startGame } = require('./room');
+
+const { makeRoom, leaveRoom, joinRoom, startGame,getRoomInfo, getGameState  } = require('./room');
 exports.makeRoom = makeRoom;
 exports.leaveRoom = leaveRoom;
 exports.joinRoom = joinRoom;
 exports.startGame = startGame;
+exports.getRoomInfo = getRoomInfo;
+exports.getGameState = getGameState;
 
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
