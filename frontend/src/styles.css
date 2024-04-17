@@ -28,6 +28,11 @@
     /* width: 30%; */
 }
 
+.flex-row {
+    display: flex;
+    flex-direction: row;
+}
+
 .button-row {
     gap: 1rem;
     display: flex;
@@ -67,6 +72,17 @@
 .player {
     padding: 1rem;
     border: 1px solid #ccc;
+    /* display: inline-block;
+    width: auto; */
+    /* width: 500px; */
+    /* width: 100%; */
+}
+
+.player-icon {
+    width: 24px; 
+    height: 24px; 
+    object-fit: 'contain';
+    padding: 0.2rem;
 }
 
 .player-header {
@@ -79,6 +95,11 @@
 
 .player-description {
     margin: 0;
+}
+
+.player-icon-container {
+    display: flex;
+    flex-direction: row;
 }
 
 .player-container {

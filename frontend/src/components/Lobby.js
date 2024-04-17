@@ -84,7 +84,7 @@ function Lobby() {
                     variant="square" alt="Player Icon"
                 ><img src={pieceImgFile(i)} style={{ width: 24, height: 24, objectFit: 'contain' }} /></Avatar>}
                 title={
-                    <div style={{ display: "flex", flexDirection: "row" }}>
+                    <div className="flex-row">
                         <Typography variant="subtitle1">
                             {user}
                         </Typography>

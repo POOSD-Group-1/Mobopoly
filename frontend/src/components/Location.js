@@ -9,7 +9,6 @@ function Location({ location }) {
     const [expanded, setExpanded] = useState(false);
     const property = gameState.properties[location];
     const playerID = property.playerID;
-    console.log(playerID)
     const handleExpandClick = () => {
         setExpanded(!expanded);
     };
@@ -22,6 +21,7 @@ function Location({ location }) {
                     onClick={handleExpandClick}
                     aria-expanded={expanded}
                     aria-label="show more"
+                    sx={{marginLeft: "auto"}}
                 >
                     <ExpandMoreIcon />
                 </IconButton>

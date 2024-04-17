@@ -8,7 +8,8 @@
             "numGangMembers": 0,
             "money": 200,
             "hideouts": [],
-            "properties": [1, 8]
+            "properties": [1, 8, 9],
+            "isAlive": true
         },
         {
             "playerID": 1,
@@ -17,7 +18,8 @@
             "numGangMembers": 0,
             "money": 1500,
             "hideouts": [],
-            "properties": []
+            "properties": [],
+            "isAlive": true
         },
         {
             "playerID": 2,
@@ -26,7 +28,8 @@
             "numGangMembers": 3,
             "money": 1500,
             "hideouts": [],
-            "properties": [3]
+            "properties": [3, 4],
+            "isAlive": true
         },
         {
             "playerID": 3,
@@ -35,7 +38,8 @@
             "numGangMembers": 3,
             "money": 1500,
             "hideouts": [],
-            "properties": []
+            "properties": [],
+            "isAlive": true
         },
         {
             "playerID": 4,
@@ -44,7 +48,8 @@
             "numGangMembers": 3,
             "money": 1500,
             "hideouts": [],
-            "properties": []
+            "properties": [],
+            "isAlive": true
         },
         {
             "playerID": 5,
@@ -53,7 +58,8 @@
             "numGangMembers": 3,
             "money": 1500,
             "hideouts": [],
-            "properties": []
+            "properties": [],
+            "isAlive": false
         }
     ],
     "properties": [
@@ -90,7 +96,7 @@
             "cost": 50,
             "rent": 50,
             "location": 4,
-            "playerID": -1
+            "playerID": 2
         },
         {
             "name" : "Light Blue Bar",
@@ -125,7 +131,7 @@
             "cost": 50,
             "rent": 50,
             "location": 9,
-            "playerID": -1
+            "playerID": 0
         },
         {
             "name" : "Magenta Casino",
@@ -255,5 +261,9 @@
         }
     ],
     "ambushes" : [],
-    "playerTurn": 0
+    "turn": {
+        "playerTurn": 2,
+        "hasRolledDice": true,
+        "hasWagered": false
+    }
 }
