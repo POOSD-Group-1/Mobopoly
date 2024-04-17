@@ -52,4 +52,18 @@ function resizeToDim(img, dim) {
     return img.setScale(imgScaleFactor);
 }
 
-export { phaserPieceImgFile, pieceImgFile, resizeToDim, Vector2, validateName, randomName, getNameHelperText, validateRoomCode, getRoomCodeHelperText };
+function getTextColor(backgroundColor) {
+    // Convert the background color to RGB
+    const rgb = parseInt(backgroundColor.slice(1), 16);
+    const r = (rgb >> 16) & 0xff;
+    const g = (rgb >>  8) & 0xff;
+    const b = (rgb >>  0) & 0xff;
+
+    // Calculate the brightness of the background color
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+
+    // Return white for dark backgrounds and black for light backgrounds
+    return brightness > 155 ? 'black' : 'white';
+}
+
+export { phaserPieceImgFile, pieceImgFile, resizeToDim, Vector2, validateName, randomName, getNameHelperText, validateRoomCode, getRoomCodeHelperText, getTextColor };

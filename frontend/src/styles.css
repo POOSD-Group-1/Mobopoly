@@ -108,9 +108,10 @@
 }
 
 .player-container {
-    gap: 0.5rem;
+    gap: 1rem;
     display: flex;
     flex-direction: row;
+    margin: 1rem;
     /* background-color: grey; */
 }
 

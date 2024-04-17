@@ -86,14 +86,17 @@ function Game() {
         <UserContext.Provider value={user}>
             <div className="game-player-container">
                 <div id="game" />
-                <div className="flex-column">
-                    <Typography variant="h4" sx={{ display: "inline-block" }}>Players</Typography>
-                    <Typography variant="body1" sx={{ display: "inline-block" }}>
-                        It's {gameState.players[gameState.turn.playerTurn].name}'s Turn!</Typography>
-                    {playerIcons}
-                    {selectedUser !== -1 && <Player player={gameState.players[selectedUser]} />}
+                <div className='player-container'>
+                    <div className="flex-column">
+                        <Typography variant="h4" sx={{ display: "inline-block" }}>Players</Typography>
+                        <Typography variant="body1" sx={{ display: "inline-block" }}>
+                            It's {gameState.players[gameState.turn.playerTurn].name}'s Turn!</Typography>
+                        {playerIcons}
+                        {selectedUser !== -1 && <Player player={gameState.players[selectedUser]} />}
+                    </div>
+                    <ActionMenu />
+
                 </div>
-                <ActionMenu />
             </div>
         </UserContext.Provider>
     </GameContext.Provider>
