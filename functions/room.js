@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-const { onRequest, rooms, errorCodes, listeners, games } = require('./index');
+const { onRequest, rooms, errorCodes, listeners, games,logger } = require('./index');
 const { generateRandomRoomCode, validateName, updateListener, deepcopy } = require('./utility');
 const defaultRoom = require("./defaultRoom.json")
 const defaultGameState = require("./defaultGameState.json");
@@ -21,6 +21,42 @@ async function doesRoomExist(roomCode) {
     return documentExists;
 }
 exports.doesRoomExist = doesRoomExist;
+async function deleteGame(gameID){
+    if(gameID == -1) return;
+    try {
+        const docRef = await games.doc(gameID);
+        await docRef.delete();
+    }
+    catch (error) {
+        logger.log("error", error);
+    }
+}
+
+async function deleteListener(listenerID){
+    try {
+        const docRef = await listeners.doc(listenerID);
+        await docRef.delete();
+    }
+    catch (error) {
+        logger.log("error", error);
+    }
+}
+
+async function deleteRoom(roomCode){
+    let roomData = await getRoomData(roomCode);
+    let listenData = roomData.listenDocumentID;
+    console.log(listenData);
+    let gameID = roomData.gameID;
+    await deleteListener(listenData);
+    await deleteGame(gameID);
+    try {
+        const docRef = await rooms.doc(roomCode);
+        await docRef.delete();
+    }
+    catch (error) {
+        logger.log("error", error);
+    }
+}
 
 // gets room data, returns undefined if there is an error/no room. (helper function)
 async function getRoomData(roomCode) {
@@ -40,6 +76,28 @@ async function getRoomData(roomCode) {
 
     return roomData;
 }
+
+async function getGameData(gameID){
+    let gameData = undefined;
+    try {
+        const doc = await games.doc(gameID).get();
+        if(doc.exists){
+            gameData = doc.data();
+            return gameData;
+        }else{
+            return undefined;
+        }
+    }
+    catch (error) {
+        logger.log("error", error);
+        return undefined; //currently undefined
+    }
+}
+
+function cleanGame(gameState,userID){
+    return gameState; //implement later?
+}
+
 
 // makes a room with a random room code
 // returns the room code of the room created
@@ -189,6 +247,11 @@ exports.leaveRoom = onRequest(async (req, res) => {
     }
 
     roomData.users.splice(userIndex, 1);
+    if(roomData.users.length == 0){
+        deleteRoom(roomCode);
+        res.json(result);
+        return;
+    }
 
     const writeResult = rooms
         .doc(roomCode)
@@ -314,3 +377,47 @@ exports.getRoomInfo = onRequest(async (req, res) => {
     res.json(result);
     return;
 });
+
+exports.getGameState = onRequest(async (req, res) => {
+	const roomCode = req.query.roomCode;
+	const userID = req.query.userID;
+    const result = {
+        error: errorCodes.noError,
+        gameState: undefined
+    };
+
+    if (roomCode === undefined || userID === undefined) {
+        result.error = errorCodes.missingParameters;
+        res.json(result);
+        return;
+    }
+
+	let roomData = await getRoomData(roomCode);
+    if (roomData === undefined) {
+        result.error = errorCodes.roomNotFound;
+        res.json(result);
+        return;
+    }
+
+    let userInRoom = false;
+    for(let i = 0; i < roomData.users.length; i++){
+        console.log(roomData.users[i].userID);
+        if(roomData.users[i].userID == userID) userInRoom = true;
+    }
+
+    if(!userInRoom) result.error = errorCodes.userNotFound;
+    let gameID = roomData.gameID;
+    let gameState = await getGameData(gameID);
+
+    if(gameState == undefined){
+        result.error = errorCodes.roomNotFound; //new error code????
+    }
+    
+    if (result.error != errorCodes.noError) {
+        res.json(result);
+        return;
+    }
+    result.gameState = gameState;
+	res.json(result);
+	return;
+})

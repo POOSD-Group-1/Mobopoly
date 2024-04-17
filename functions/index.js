@@ -35,6 +35,7 @@ const { getFirestore } = require("firebase-admin/firestore");
 const firebaseApp = initializeApp()
 
 // Create exports
+exports.logger = logger;
 const db = getFirestore(firebaseApp)
 exports.db = db;
 const rooms = db.collection('rooms');
@@ -57,12 +58,14 @@ const errorCodes = Object.freeze({
 });
 exports.errorCodes = errorCodes;
 
-const { makeRoom, leaveRoom, joinRoom, startGame, getRoomInfo } = require('./room');
+
+const { makeRoom, leaveRoom, joinRoom, startGame,getRoomInfo, getGameState  } = require('./room');
 exports.makeRoom = makeRoom;
 exports.leaveRoom = leaveRoom;
 exports.joinRoom = joinRoom;
 exports.startGame = startGame;
 exports.getRoomInfo = getRoomInfo;
+exports.getGameState = getGameState;
 
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
