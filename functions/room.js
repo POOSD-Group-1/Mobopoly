@@ -59,11 +59,11 @@ async function deleteRoom(roomCode){
 }
 
 // gets room data, returns undefined if there is an error/no room. (helper function)
-async function getRoomData(roomCode){
+async function getRoomData(roomCode) {
     let roomExists = await doesRoomExist(roomCode);
     let roomData = undefined;
     if (!roomExists) { return undefined; }
-    
+
     try {
         const doc = await rooms.doc(roomCode).get();
         if (doc.exists) {
@@ -266,8 +266,8 @@ exports.leaveRoom = onRequest(async (req, res) => {
 // parameters: roomCode, userID
 // /startGame?userID=a795ec39-0388-4d3f-8178-6a4469091142&roomCode=UEUXDN
 exports.startGame = onRequest(async (req, res) => {
-	const roomCode = req.query.roomCode;
-	const userID = req.query.userID;
+    const roomCode = req.query.roomCode;
+    const userID = req.query.userID;
     const result = {
         error: errorCodes.noError
     };
@@ -278,17 +278,17 @@ exports.startGame = onRequest(async (req, res) => {
         return;
     }
 
-	let roomData = await getRoomData(roomCode);
+    let roomData = await getRoomData(roomCode);
     if (roomData === undefined) {
         result.error = errorCodes.roomNotFound;
         res.json(result);
         return;
     }
 
-	if (roomData.users.length == 0 ||
-		roomData.users[0].userID != userID) {
-		result.error = errorCodes.invalidHost;
-	}
+    if (roomData.users.length == 0 ||
+        roomData.users[0].userID != userID) {
+        result.error = errorCodes.invalidHost;
+    }
 
     if (!roomData.open) {
         result.error = errorCodes.roomClosed;
@@ -299,30 +299,30 @@ exports.startGame = onRequest(async (req, res) => {
         return;
     }
 
-	const gameID = uuidv4();
-	roomData.gameID = gameID;
-	const myGameState = deepcopy(defaultGameState)
-	myGameState.gameID = gameID;
-	for (let i = 0; i < roomData.users.length; i++) {
-		let currentPlayer = deepcopy(defaultPlayer);
-		currentPlayer.name = roomData.users[i].name;
-		currentPlayer.playerID = i;
-		roomData.users[i].playerID = i;
-		myGameState.players.push(currentPlayer);
-	}
+    const gameID = uuidv4();
+    roomData.gameID = gameID;
+    const myGameState = deepcopy(defaultGameState)
+    myGameState.gameID = gameID;
+    for (let i = 0; i < roomData.users.length; i++) {
+        let currentPlayer = deepcopy(defaultPlayer);
+        currentPlayer.name = roomData.users[i].name;
+        currentPlayer.playerID = i;
+        roomData.users[i].playerID = i;
+        myGameState.players.push(currentPlayer);
+    }
     roomData.open = false;
 
-	const makeGameDocument = await games
-		.doc(gameID)
-		.set(myGameState);
+    const makeGameDocument = await games
+        .doc(gameID)
+        .set(myGameState);
 
-	const changeRoomData = await rooms
-		.doc(roomCode)
-		.set(roomData)
+    const changeRoomData = await rooms
+        .doc(roomCode)
+        .set(roomData)
 
-	await updateListener(roomData.listenDocumentID, true);
-	res.json({ error: errorCodes.noError });
-	return;
+    await updateListener(roomData.listenDocumentID, true);
+    res.json({ error: errorCodes.noError });
+    return;
 })
 
 // gets the lobby information for a room
@@ -335,7 +335,7 @@ exports.getRoomInfo = onRequest(async (req, res) => {
         error: errorCodes.noError,
         host: "",
         requesterIsHost: false,
-        roomListener : "",
+        roomListener: "",
         usersInRoom: []
     }
 
@@ -354,12 +354,12 @@ exports.getRoomInfo = onRequest(async (req, res) => {
     let userInRoom = false;
     console.log(userID);
     console.log(roomData);
-    for(let i = 0; i < roomData.users.length; i++){
+    for (let i = 0; i < roomData.users.length; i++) {
         console.log(roomData.users[i].userID);
-        if(roomData.users[i].userID == userID) userInRoom = true;
+        if (roomData.users[i].userID == userID) userInRoom = true;
     }
 
-    if(!userInRoom){
+    if (!userInRoom) {
         result.error = errorCodes.userNotFound;
         res.json(result);
         return;
@@ -367,11 +367,11 @@ exports.getRoomInfo = onRequest(async (req, res) => {
 
     result.host = roomData.users[0].name;
     result.roomListener = roomData.listenDocumentID;
-    if(userInRoom && roomData.users[0].userID == userID){
+    if (userInRoom && roomData.users[0].userID == userID) {
         result.requesterIsHost = true;
     }
 
-    for(let i = 0; i < roomData.users.length; i++){
+    for (let i = 0; i < roomData.users.length; i++) {
         result.usersInRoom.push(roomData.users[i].name);
     }
     res.json(result);

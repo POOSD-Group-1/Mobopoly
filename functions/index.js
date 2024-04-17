@@ -18,7 +18,7 @@ const { v4: uuidv4 } = require('uuid');
 const { logger } = require("firebase-functions");
 const { onRequest: onRequestWithoutCors } = require("firebase-functions/v2/https");
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
-const cors = require('cors')({origin: true});
+const cors = require('cors')({ origin: true });
 const onRequest = (handler) => onRequestWithoutCors(async (req, res) => {
 	cors(req, res, () => {
 		handler(req, res);
@@ -57,6 +57,7 @@ const errorCodes = Object.freeze({
 	missingParameters: -8,
 });
 exports.errorCodes = errorCodes;
+
 
 const { makeRoom, leaveRoom, joinRoom, startGame,getRoomInfo, getGameState  } = require('./room');
 exports.makeRoom = makeRoom;
