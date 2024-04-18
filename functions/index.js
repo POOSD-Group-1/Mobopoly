@@ -55,17 +55,22 @@ const errorCodes = Object.freeze({
 	invalidHost: -6,
 	userNotFound: -7,
 	missingParameters: -8,
+	invalidAction: -9
 });
 exports.errorCodes = errorCodes;
 
 
 const { makeRoom, leaveRoom, joinRoom, startGame,getRoomInfo, getGameState  } = require('./room');
+const { applyAction, getActionsForTurn } = require('./gameState');
 exports.makeRoom = makeRoom;
 exports.leaveRoom = leaveRoom;
 exports.joinRoom = joinRoom;
 exports.startGame = startGame;
 exports.getRoomInfo = getRoomInfo;
 exports.getGameState = getGameState;
+exports.applyAction = applyAction;
+exports.getActionsForTurn = getActionsForTurn;
+
 
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
