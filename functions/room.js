@@ -94,11 +94,6 @@ async function getGameData(gameID){
     }
 }
 
-function cleanGame(gameState,userID){
-    return gameState; //implement later?
-}
-
-
 // makes a room with a random room code
 // returns the room code of the room created
 // parameters none.
@@ -318,7 +313,7 @@ exports.startGame = onRequest(async (req, res) => {
 
     const changeRoomData = await rooms
         .doc(roomCode)
-        .set(roomData)
+        .set(roomData);
 
     await updateListener(roomData.listenDocumentID, true);
     res.json({ error: errorCodes.noError });

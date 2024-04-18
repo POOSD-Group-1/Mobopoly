@@ -13,69 +13,63 @@ const actionTypes = Object.freeze({
 const HIDEOUTCOST = 150;
 
 
-defaultAction = {
-	type: -1,
-	numGangMembers: 0,
-};
+
 
 // UNTESTED
 function generateAction(gameState) {
-	possibleActions = [];
+	let possibleActions = [];
 
 	// Roll the dice
-	if(gameState.turn.hasRolledDice == false) {
-		let action = { ...defaultAction };
-		action.type = ROLL_DICE;
-		possibleActions.push(action);
+
+	let diceRollAction = { ...defaultAction };
+	diceRollAction.type = ROLL_DICE;
+	if(validateAction(gameState, diceRollAction)) {
+		possibleActions.push(diceRollAction);
 		return possibleActions;
 	}
 
 	let activePlayer = gameState.turn.playerTurn;
-	let playerLocation = gameState.players[activePlayer].location;
 	let playerNumGangMembers = gameState.players[activePlayer].numGangMembers;
 
 	// Wager
 	// Might need to add if there are 0 gang members?
-	if(gameState.turn.hasWagered == false) {
-		let action = { ...defaultAction };
-		action.type = WAGER;
-		action.numGangMembers = gameState.players[activePlayer].numGangMembers;
-		possibleActions.push(action);
+	let wagerAction = { ...defaultAction };
+	wagerAction.type = WAGER;
+	wagerAction.numGangMembers = playerNumGangMembers;
+	if(validateAction(gameState, wagerAction)) {
+		possibleActions.push(wagerAction);
 		return possibleActions;
 	}
 
-	let playerMoney = gameState.players[activePlayer].money;
-
 	// Buy property
-	if(playerMoney >= gameState.properties[playerLocation].cost) {
-		let action = { ...defaultAction };
-		action.type = BUY_PROPERTY;
-		possibleActions.push(action);
+	let buyPropertyAction = { ...defaultAction };
+	buyPropertyAction.type = BUY_PROPERTY;
+	if(validateAction(gameState, buyPropertyAction)) {
+		possibleActions.push(buyPropertyAction);
 	}
 
 	// Create hideout
-	if(playerMoney >= HIDEOUTCOST) {
-		let action = { ...defaultAction };
-		action.type = CREATE_HIDEOUT;
-		possibleActions.push(action);
+	let createHideoutAction = { ...defaultAction };
+	createHideoutAction.type = CREATE_HIDEOUT;
+	if(validateAction(gameState, createHideoutAction)) {
+		possibleActions.push(createHideoutAction);
 	}
 
 	// Create ambush
-	if(playerNumGangMembers > 0) {
-		let action = { ...defaultAction };
-		action.type = CREATE_AMBUSH;
-		action.numGangMembers = playerNumGangMembers;
-		possibleActions.push(action);
+	let createAmbushAction = { ...defaultAction };
+	createAmbushAction.type = CREATE_AMBUSH;
+	createAmbushAction.numGangMembers = playerNumGangMembers;
+	if(validateAction(gameState, createAmbushAction)) {
+		possibleActions.push(createAmbushAction);
 	}
 
 	// End turn
 	let endTurnAction = { ...defaultAction };
 	endTurnAction.action = END_TURN;
-	possibleActions.push(endTurnAction);
+	if(validateAction(gameState, endTurnAction)) {
+		possibleActions.push(endTurnAction);
+	}
 
 	return possibleActions;
 }
 
-exports.getActionsForTurn = onRequest((req, res) => {
-
-});
