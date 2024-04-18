@@ -6,6 +6,7 @@ import JoinRoom from "./components/JoinRoom";
 import CreateRoom from "./components/CreateRoom";
 import Lobby from "./components/Lobby";
 import ErrorPage from "./components/ErrorPage";
+import GameJSON from "./components/GameJSON";
 
 const router = createBrowserRouter([
   {
@@ -15,7 +16,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/game",
-    element: <Game />,
+    element: <GameJSON />,
   },
   {
     path: "/game/:roomCode",
