@@ -28,6 +28,16 @@
     /* width: 30%; */
 }
 
+.flex-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
 .button-row {
     gap: 1rem;
     display: flex;
@@ -67,6 +77,17 @@
 .player {
     padding: 1rem;
     border: 1px solid #ccc;
+    /* display: inline-block;
+    width: auto; */
+    /* width: 500px; */
+    /* width: 100%; */
+}
+
+.player-icon {
+    width: 24px; 
+    height: 24px; 
+    object-fit: 'contain';
+    padding: 0.2rem;
 }
 
 .player-header {
@@ -81,10 +102,16 @@
     margin: 0;
 }
 
-.player-container {
-    gap: 0.5rem;
+.player-icon-container {
     display: flex;
     flex-direction: row;
+}
+
+.player-container {
+    gap: 1rem;
+    display: flex;
+    flex-direction: row;
+    margin: 1rem;
     /* background-color: grey; */
 }
 
@@ -108,4 +135,26 @@
 .error-icon {
     color: #721c24;
     margin-right: 0.5rem;
+}
+
+.action-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.dice-container {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.dice-box {
+    height: 3rem;
+    width: 3rem;
+    border: 1px solid black;
+    border-radius: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
