@@ -2,8 +2,8 @@ import Phaser from 'phaser';
 import React, { createContext, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
 import { doc, onSnapshot } from "firebase/firestore";
-import { Typography, ToggleButtonGroup, ToggleButton, Icon, Tabs, Tab, Box, Grid, Backdrop, CircularProgress } from '@mui/material';
-import { KeyboardArrowDown } from '@mui/icons-material';
+import { Typography, ToggleButtonGroup, ToggleButton, Icon, Tabs, Tab, Box, Grid, Backdrop, CircularProgress, IconButton } from '@mui/material';
+import { KeyboardArrowDown, PaletteOutlined, HelpOutlineOutlined } from '@mui/icons-material';
 import gameScene from "../phaser/gameScene";
 import { boardWidth, boardHeight, MAX_PLAYERS } from '../data/board';
 import initialGameJSON from '../data/initialGame.json';
@@ -165,11 +165,18 @@ function Game() {
             <div className="game-player-container">
                 <div id="game" />
                 <Box sx={{ width: "100%" }}>
-                    <Tabs value={tabIndex} onChange={handleTabIndex} sx={{ borderBottom: "1px solid", borderColor: "divider" }}>
-                        <Tab label="Game Info" />
-                        <Tab label="History" />
-                    </Tabs>
-
+                    <div className="flex-row" style={{ borderBottom: "1px solid", borderColor: "divider" }}>
+                        <Tabs value={tabIndex} onChange={handleTabIndex} >
+                            <Tab label="Game Info" />
+                            <Tab label="History" />
+                        </Tabs>
+                        <div style={{marginLeft: "auto"}}><IconButton>
+                            <PaletteOutlined />
+                        </IconButton>
+                        <IconButton>
+                            <HelpOutlineOutlined />
+                        </IconButton></div>
+                    </div>
                     {tabIndex == 0 && gameState !== null &&
                         <Grid container width="100%" spacing={2}>
                             <Grid item xs={6}>

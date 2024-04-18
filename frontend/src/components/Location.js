@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react';
 import { GameContext } from './Game';
-import { Card, Collapse, Typography, IconButton, CardContent, Box } from '@mui/material';
+import { Card, Collapse, Typography, IconButton, CardContent, Box, Icon } from '@mui/material';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
 import { getLocationColor } from '../data/board';
 import { getTextColor } from '../data/util';
@@ -14,6 +14,11 @@ function Location({ location }) {
         setExpanded(!expanded);
     };
 
+    const isCorner = location % 7 === 0;
+    let icon = <Icon/>;
+    if(!isCorner){
+        icon = expanded ? <ExpandLess /> : <ExpandMore />;
+    }
     return (
         <Card className="location" sx={{ borderLeftColor: getLocationColor(location) }}>
             <div style={{ display: "flex", alignItems: "center" }}>
@@ -24,11 +29,12 @@ function Location({ location }) {
                     aria-expanded={expanded}
                     aria-label="show more"
                     sx={{ marginLeft: "auto" }}
+                    disabled={isCorner}
                 >
-                    {expanded ? <ExpandLess /> : <ExpandMore />}
+                    {icon}
                 </IconButton>
             </div>
-            <Collapse in={expanded} timeout="auto" unmountOnExit>
+            {!isCorner && <Collapse in={expanded} timeout="auto" unmountOnExit>
                 <CardContent>
                     <Box sx={{
                         backgroundColor: getLocationColor(location),
@@ -44,7 +50,7 @@ function Location({ location }) {
                     <Typography variant="body">Tribute: ${property.rent}</Typography><br />
                     <Typography variant="body">Owned by: {playerID == -1 ? "No one" : gameState.players[playerID].name}</Typography>
                 </CardContent>
-            </Collapse>
+            </Collapse>}
         </Card>
     );
 }
