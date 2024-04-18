@@ -103,13 +103,16 @@ function Lobby() {
     const clickStartGame = async () => {
         if (!canStartGame) return;
         try {
+            setLoaded(false);
             const response = await startGame({ roomCode, userID });
+            setLoaded(true);
             if (response === undefined || response.error === undefined || response.error !== errorCodes.noError) {
                 console.log("error:" + response.error)
                 return;
             }
         } catch (err) {
             console.error(err);
+            setLoaded(true);
         }
     };
     return (
