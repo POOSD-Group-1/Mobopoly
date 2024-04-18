@@ -1,13 +1,34 @@
-hideoutCost = 150;
+const { games } = require(".");
+const { deepcopy } = require("./utility");
 
+const hideoutCost = 150;
+const BOARDSIZE = 28;
+const PASSGOREWARD = 200;
+const GOSQUARE = 0;
+const JAILSQUARE = 7;
+const GOTOJAILSQUARE = 21;
+const GANGREWARD = 20;
+const MUGGINGAMOUNT = 50;
 const actionTypes = Object.freeze({
     ROLL_DICE: 0,
     WAGER: 1,
     BUY_PROPERTY: 2,
     CREATE_HIDEOUT: 3,
     CREATE_AMBUSH: 4,
-    END_TURN: 6
+    END_TURN: 5
 });
+
+//
+exampleAction = {
+    type: "action type",
+    numGangMembers: 0,
+}
+
+exampleAmbush = {
+    location: 0,
+    gangMembers: 0,
+    ownerID: 0
+}
 
 function validateAction(gameState, action) {
     // Must roll dice at beginning of turn
@@ -61,7 +82,7 @@ function validateAction(gameState, action) {
         case actionTypes.CREATE_AMBUSH:
             let ambushHere = false;
             for (let i = 0; i < gameState.ambushes.length; i++) {
-                ambush = gameState.ambushes[i];
+                let ambush = gameState.ambushes[i];
                 if (ambush.location == player.location/* && ambush.playerID != playerID*/) {
                     ambushHere = true;
                     break;
@@ -111,8 +132,82 @@ function killPlayer(gameState, playerID) {
 
 function cleanGameState(gameState) {
     const partialGameState = deepcopy(gameState);
+    partialGameState.gameID = -1;
+    partialGameState.ambushes.forEach((ambush) => {
+        let ownerID = ambush.ownerID;
+        partialGameState.players[ownerID].gangMembers+=ambush.gangMembers;
+    });
     partialGameState.ambushes.length = 0;
     for (let i = 0; i < partialGameState.players.length; i++)
         partialGameState.players[i].hideouts.length = 0;
     return partialGameState;
+}
+
+//COMPLETELY UNTESTED AT ALL LIKE SERIOUSLY NOT TESTED FRFR
+function rollDice(){
+    return 1+Math.floor(Math.random()*6);
+}
+//COMPLETELY UNTESTED AT ALL LIKE SERIOUSLY NOT TESTED FRFR
+function movePlayer(gameState, movement){
+    let player = gameState.turn.playerTurn;
+    let oldlocation = gameState.players[player].location;
+    let newLocation = (oldlocation+movement)%BOARDSIZE;
+    let passedGo = newLocation<oldlocation;
+    let sentToJail = false;
+    if(newLocation == GOTOJAILSQUARE){
+        newLocation = JAILSQUARE;
+        sentToJail = true;
+    }
+    if(passedGo){
+        gameState.players[player].money+=PASSGOREWARD;
+    }
+    
+    let passedJail = oldlocation < JAILSQUARE && newLocation >= JAILSQUARE;
+    if(passedJail || sentToJail){
+        gameState.players[player].numGangMembers+=GANGREWARD;
+    }
+
+    return gameState;
+}
+//COMPLETELY UNTESTED AT ALL LIKE SERIOUSLY NOT TESTED FRFR
+function applyAmbush(gameState, ambush){
+    let victim = gameState.turn.playerTurn;
+    let perp = ambush.ownerID;
+    let gangMembersLost = min(ambush.gangMembers*2,gameState.players[perp].gangMembers);
+    let ambushRemainingGangMembers = ambush.gangMembers-gangMembersLost;
+    let moneyLost = ambushRemainingGangMembers*MUGGINGAMOUNT;
+    gameState.players[victim]-=gangMembersLost;
+    gameState.players[victim]-=moneyLost;
+    if(gameState.players[victim] < 0){
+        gameState = killPlayer(gameState,victim);
+    }
+    gameState.players[perp]+=moneyLost;
+    return gameState;
+}
+//COMPLETELY UNTESTED AT ALL LIKE SERIOUSLY NOT TESTED FRFR
+function applyAction(gameState, action){
+    if(!validateAction(gameState,action)) return gameState;
+    let activePlayer = gameState.turn.playerTurn;
+    switch(action.type){
+        case actionTypes.rollDice:
+            gameState.dice1 = rollDice();
+            gameState.dice2 = rollDice();
+            let movementAmount = gameState.dice1+gameState.dice2;
+            gameState = movePlayer(gameState,movementAmount);
+            let newPlayerLocation = gameState.players[activePlayer].location;
+            let newAmbushes = [];
+            let applicableAmbushes = [];
+            gameState.ambushes.forEach((currentAmbush) => {
+                if(currentAmbush.location != newPlayerLocation || 
+                   currentAmbush.ownerID == activePlayer){
+                    newAmbushes.push(currentAmbush);
+                }else{
+                    applicableAmbushes.push(currentAmbush);
+                }
+            });
+
+            applicableAmbushes.forEach((currentAmbush) => {
+                gameState = applyAmbush(gameState,currentAmbush); 
+            });
+    }
 }
