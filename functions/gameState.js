@@ -56,7 +56,7 @@ function validateAction(gameState, action) {
             let hideOutHere = player.hideouts.includes(player.location);
             hasEnoughMoney = player.money >= hideoutCost;
             // Cannot place on corners
-            // Cannot place hideout if player already has a hideout here
+            // Cannot place hideout if same player already has a hideout here
             // Must have enough money
             return !isCorner && !hideOutHere && hasEnoughMoney;
         case actionTypes.CREATE_AMBUSH:
