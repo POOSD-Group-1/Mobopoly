@@ -21,7 +21,13 @@ function Lobby() {
     const [userNames, setUserNames] = useState([]);
     const refreshRoomData = async () => {
         if (userID === null || roomListener === null) return;
-        const response = await getRoomInfo({ roomCode, userID });
+        let response;
+        try {
+            response = await getRoomInfo({ roomCode, userID });
+        } catch (err) {
+            console.error(err);
+            return;
+        }
         if (response === undefined || response.error === undefined || response.error !== errorCodes.noError) {
             console.log("error:" + response.error)
             return;
@@ -47,17 +53,16 @@ function Lobby() {
     }, [roomCode]);
     // Listen for changes in the room
     useEffect(() => {
-        if (roomListener !== null) {
-            const unsubscribe = onSnapshot(doc(db, "listeners", roomListener), (doc) => {
-                const { counter, gameStarted } = doc.data();
-                if (!gameStarted) {
-                    refreshRoomData();
-                } else {
-                    navigate("/game");
-                }
-            });
-            return () => unsubscribe();
-        }
+        if (roomListener === null) return;
+        const unsubscribe = onSnapshot(doc(db, "listeners", roomListener), (doc) => {
+            const { counter, gameStarted } = doc.data();
+            if (!gameStarted) {
+                refreshRoomData();
+            } else {
+                navigate("/game");
+            }
+        });
+        return () => unsubscribe();
     }, [roomListener]);
     // Leave the room
     const clickLeaveRoom = async () => {

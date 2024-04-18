@@ -14,7 +14,7 @@ function phaserPieceImgFile(pieceNum) {
 
 const nameRegex = /^(([a-zA-Z0-9]([a-zA-Z0-9 ]{0,8})[a-zA-Z0-9])|[a-zA-Z0-9])$/;
 
-function validateName(name){
+function validateName(name) {
     return nameRegex.test(name);
 }
 
@@ -34,7 +34,7 @@ function getNameHelperText(name) {
 
 const roomCodeRegex = /^[A-Z]{6}$/;
 
-function validateRoomCode(roomCode){
+function validateRoomCode(roomCode) {
     return roomCodeRegex.test(roomCode);
 }
 
@@ -56,8 +56,8 @@ function getTextColor(backgroundColor) {
     // Convert the background color to RGB
     const rgb = parseInt(backgroundColor.slice(1), 16);
     const r = (rgb >> 16) & 0xff;
-    const g = (rgb >>  8) & 0xff;
-    const b = (rgb >>  0) & 0xff;
+    const g = (rgb >> 8) & 0xff;
+    const b = (rgb >> 0) & 0xff;
 
     // Calculate the brightness of the background color
     const brightness = (r * 299 + g * 587 + b * 114) / 1000;

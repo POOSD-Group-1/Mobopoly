@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { Typography, Button, Card, CardActions } from "@mui/material";
-import { Casino, AttachMoney, Apartment } from "@mui/icons-material";
+import { Casino, AttachMoney, Apartment, Stop } from "@mui/icons-material";
 import { GameContext } from "./Game";
 import "../styles.css";
 import InputSlider from "./InputSlider";
@@ -30,22 +30,21 @@ function ActionMenu() {
         <Button variant="contained" startIcon={<Apartment />}>
             Buy Hideout
         </Button>
-        <Card variant="outlined" sx={{padding: "1rem"}}>
+        <Card variant="outlined" sx={{ padding: "1rem" }}>
             <Typography variant="body1">Gang Members</Typography>
-            <InputSlider min={1} max={20} step={1} value={wagerGangMembers} setValue={setWagerGangMembers} />
-            <Typography variant="body1">Money</Typography>
-            <InputSlider min={1} max={50} step={1} value={wagerMoney} setValue={setWagerMoney} />
+            <InputSlider min={0} max={20} step={1} value={wagerGangMembers} setValue={setWagerGangMembers} />
             <CardActions>
                 <Button variant="contained">Wager</Button>
             </CardActions>
         </Card>
-        <Card variant="outlined" sx={{padding: "1rem"}}>
+        <Card variant="outlined" sx={{ padding: "1rem" }}>
             <Typography variant="body1">Gang Members</Typography>
-            <InputSlider min={1} max={20} step={1}  value={ambushGangMembers} setValue={setAmbushGangMembers} />
+            <InputSlider min={1} max={20} step={1} value={ambushGangMembers} setValue={setAmbushGangMembers} />
             <CardActions>
                 <Button variant="contained">Set Ambush</Button>
             </CardActions>
         </Card>
+        <Button variant="contained" startIcon={<Stop />}>Complete Turn</Button>
     </div>
 }
 

@@ -25,25 +25,27 @@ const JoinRoom = () => {
             setErrorMessage("You have already joined the room.");
             return;
         }
+        let response;
         try {
-            const response = await joinRoom({ roomCode, name });
-            if (response === undefined || response.error === undefined) {
-                console.error("response to joinRoom undefined");
-                return;
-            }
-            if (response.error != errorCodes.noError) {
-                setErrorMessage(getErrorMessage(response.error));
-                return;
-            }
-            setErrorMessage(null);
-            console.log(response);
-            const { userID, roomListener } = response;
-            console.log(userID, roomListener);
-            localStorage.setItem(roomCode, JSON.stringify({ userID, roomListener, name }));
-            navigate(`/room/${roomCode}`);
+            response = await joinRoom({ roomCode, name });
         } catch (err) {
             console.error(err);
+            return;
         }
+        if (response === undefined || response.error === undefined) {
+            console.error("response to joinRoom undefined");
+            return;
+        }
+        if (response.error != errorCodes.noError) {
+            setErrorMessage(getErrorMessage(response.error));
+            return;
+        }
+        setErrorMessage(null);
+        console.log(response);
+        const { userID, roomListener } = response;
+        console.log(userID, roomListener);
+        localStorage.setItem(roomCode, JSON.stringify({ userID, roomListener, name }));
+        navigate(`/room/${roomCode}`);
     };
     return (
         <form className="landing" onSubmit={goToRoom}>
