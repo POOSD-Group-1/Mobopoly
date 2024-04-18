@@ -1,6 +1,10 @@
-const { games } = require(".");
-const { deepcopy } = require("./utility");
-
+const { getRoomData, getGameData } = require("./room");
+const { deepcopy, updateListener } = require("./utility");
+const { v4: uuidv4 } = require('uuid');
+const { onRequest, rooms, listeners,logger, games, errorCodes } = require('./index');
+const defaultRoom = require("./defaultRoom.json")
+const defaultGameState = require("./defaultGameState.json");
+const defaultPlayer = require("./defaultPlayer.json")
 const hideoutCost = 150;
 const BOARDSIZE = 28;
 const PASSGOREWARD = 200;
@@ -162,7 +166,7 @@ function movePlayer(gameState, movement){
     if(passedGo){
         gameState.players[player].money+=PASSGOREWARD;
     }
-    
+
     let passedJail = oldlocation < JAILSQUARE && newLocation >= JAILSQUARE;
     if(passedJail || sentToJail){
         gameState.players[player].numGangMembers+=GANGREWARD;
@@ -233,8 +237,19 @@ function getNextPlayer(gameState, currentPlayer){
     return nextPlayer; 
 }
 
+function mostRecentPlayer(gameState){
+    let playerID = -1;
+    for (let i = 1; i < gameState.players.length; i++) {
+        const idx = (gameState.turn.playerTurn + i) % gameState.players.length;
+        if (gameState.players[idx].isAlive && gameState.players[idx].location == gameState.players[gameState.turn.playerTurn].location) {
+            playerID.players[idx].playerID;
+        }
+    }
+    return playerID;
+}
+
 //COMPLETELY UNTESTED AT ALL LIKE SERIOUSLY NOT TESTED FRFR
-function applyAction(gameState, action){
+function applyActionHelper(gameState, action){
     if(!validateAction(gameState,action)) return gameState;
     let activePlayer = gameState.turn.playerTurn;
     let playerLoc = gameState.players[activePlayer].location;
@@ -293,7 +308,7 @@ function applyAction(gameState, action){
             gameState.players[activePlayer].gangMembers-=action.numGangMembers;
             return gameState;
         case actionTypes.WAGER:
-            let defendingPlayer = gameState.properties[playerLoc].mostRecentPlayer;
+            let defendingPlayer = mostRecentPlayer(gameState);
             let defendingGangMembers = gameState.players[defendingPlayer].numGangMembers;
             let attackerWin = didAttackerWin(defendingGangMembers,action.numGangMembers);
             if(attackerWin){
@@ -316,10 +331,77 @@ function applyAction(gameState, action){
             gameState.turn.hasWagered = true;
             return gameState;
         case actionTypes.END_TURN:
-            gameState.locations[playerLoc].mostRecentPlayer = activePlayer;
             gameState.turn.hasRolledDice = false;
             gameState.turn.hasWagered = false;
             gameState.turn.playerTurn = getNextPlayer(gameState,activePlayer);
             return gameState;
     }
 }
+
+function getPlayerID(roomData,userID){
+    let myPlayerID = -1;
+    for(let i = 0; i < roomData.users.length; i++){
+        if(roomData.users[i].userID == userID){
+            myPlayerID = roomData.users[i].playerID;
+        }
+    }
+    return myPlayerID;
+}
+
+exports.applyAction = onRequest(async (req, res) => {
+	const roomCode = req.query.roomCode;
+	const userID = req.query.userID;
+    const myActionType = req.query.actionType;
+    const myNumGangMembers = req.query.numGangMembers;
+    if(myNumGangMembers == undefined) myNumGangMembers = 0;
+    result = {
+        error: errorCodes.noError
+    }
+    let roomData = await getRoomData(roomCode);
+    if(roomData == undefined){
+        result.error = errorCodes.roomNotFound;
+        res.json(result);
+        return;
+    }
+
+    let requesterPlayerID = getPlayerID(roomData,userID);
+    let gameID = roomData.gameID;
+    let gameState = await getGameData(gameID);
+    action = {
+        type: myActionType,
+        numGangMembers: myNumGangMembers
+    }
+    if(requesterPlayerID != gameState.turn.playerTurn || (validateAction(gameState,action) == false)){
+        result.error = errorCodes.invalidAction;
+        res.json(result);
+        return;
+    }
+
+    gameState = applyActionHelper(gameState,action);
+    await updateListener(roomData.listenerID,true);
+    const writeResult = await games
+    .doc(gameID)
+    .set(gameState);
+    res.json(result);
+    return;
+});
+
+exports.getActionsForTurn = onRequest(async (req, res) => {
+    let roomCode = req.query.roomCode;
+    let userID = req.query.userID;
+    result = {
+        error: errorCodes.noError,
+        actions: []
+    }
+    let roomData = await getRoomData(roomCode);
+    if(roomData == undefined){
+        result.error = errorCodes.roomNotFound;
+        res.json(result);
+        return;
+    }
+    
+    let gameID = roomData.gameID;
+    let gameState = await getGameData(gameID);
+    result.actions = generateActions(gameState);
+    return result;
+});

@@ -58,6 +58,8 @@ async function deleteRoom(roomCode){
     }
 }
 
+
+
 // gets room data, returns undefined if there is an error/no room. (helper function)
 async function getRoomData(roomCode) {
     let roomExists = await doesRoomExist(roomCode);
@@ -77,6 +79,8 @@ async function getRoomData(roomCode) {
     return roomData;
 }
 
+exports.getRoomData = getRoomData;
+
 async function getGameData(gameID){
     let gameData = undefined;
     try {
@@ -93,6 +97,8 @@ async function getGameData(gameID){
         return undefined; //currently undefined
     }
 }
+
+exports.getGameData = getGameData;
 
 function cleanGame(gameState,userID){
     return gameState; //implement later?
