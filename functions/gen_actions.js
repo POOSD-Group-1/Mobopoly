@@ -1,6 +1,6 @@
-exports.getActionsForTurn = onRequest((request, response) => {
-	const user_UUID = request.query.user;
-	const roomCode = request.query.roomCode;
+exports.getActionsForTurn = onRequest((req, res) => {
+	const user_UUID = req.query.user;
+	const roomCode = req.query.roomCode;
 	result = {
 		"error": errorCodes.noError,
 		"userID": ""
