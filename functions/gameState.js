@@ -16,6 +16,7 @@ function validateAction(gameState, action) {
 
     // Current player
     let player = gameState.players[gameState.turn.playerTurn];
+    if (!player.isAlive) return false;
     let isCorner = player.location % 7 == 0;
     let hasEnoughMoney;
 
