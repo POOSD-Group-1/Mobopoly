@@ -204,5 +204,7 @@
         "playerTurn": 0,
         "hasRolledDice": false,
         "hasWagered": false
-    }
+    },
+    "dice1": -1,
+    "dice2": -1
 }

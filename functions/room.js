@@ -312,7 +312,7 @@ exports.startGame = onRequest(async (req, res) => {
     }
     roomData.open = false;
 
-    const makeGameDocument = await games
+    const makeGameapplyDocument = await games
         .doc(gameID)
         .set(myGameState);
 
