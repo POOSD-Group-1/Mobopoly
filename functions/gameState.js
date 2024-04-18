@@ -6,7 +6,7 @@ const actionTypes = Object.freeze({
     BUY_PROPERTY: 2,
     CREATE_HIDEOUT: 3,
     CREATE_AMBUSH: 4,
-    END_TURN: 6
+    END_TURN: 5
 });
 
 function validateAction(gameState, action) {
@@ -22,6 +22,7 @@ function validateAction(gameState, action) {
     // Must wager immediately after dice roll if necessary
     if (!gameState.turn.hasWagered) {
         let opponent = null;
+        // Unnecessary to obtain the opponent but this already works
         for (let i = 1; i < gameState.players.length; i++) {
             // Iterates through players in order of latest to most recent move
             let idx = (i + gameState.turn.playerTurn) % gameState.players.length;
@@ -99,6 +100,12 @@ function killPlayer(gameState, playerID) {
     for (let i = 0; i < player.properties.length; i++) {
         gameState.properties[player.properties[i]].playerID = -1;
     }
+    
+    // Remove player's properties
+    gameState.players[playerIndex].properties.length = 0;
+    
+    // Remove player's hideouts
+    gameState.players[playerIndex].hideouts.length = 0;
     
     // Remove player's ambushes
     gameState.ambushes = gameState.ambushes.filter(ambush => ambush.playerID !== playerID);
