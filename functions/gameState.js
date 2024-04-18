@@ -40,6 +40,7 @@ function validateAction(gameState, action) {
     let isCorner = player.location % 7 == 0;
     let hasEnoughMoney;
 
+    // Must wager immediately after dice roll if necessary
     if (!gameState.turn.hasWagered) {
         let opponent = null;
         for (let i = 1; i < gameState.players.length; i++) {
@@ -93,6 +94,8 @@ function validateAction(gameState, action) {
             // Must have enough gang numGangMembers
             // Must place a positive amount of gang members
             return !isCorner && !ambushHere && validGangMembers;
+        case actionTypes.END_TURN:
+            return true;
     }
 }
 
