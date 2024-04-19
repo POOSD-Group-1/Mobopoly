@@ -6,5 +6,6 @@
     "money": 1000,
     "hideouts": [],
     "properties": [],
-    "isAlive": true
+    "isAlive": true,
+	"isBot": false
 }
