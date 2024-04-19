@@ -24,6 +24,10 @@ const actionTypes = Object.freeze({
 });
 
 
+const eventTypes = Object.freeze({
+    PLAYER_DIES: 0,
+    DICE_ROLLED: 1
+})
 function logGameState(gameState) {
     let newGameState = deepcopy(gameState);
     delete newGameState.properties;
@@ -146,6 +150,10 @@ function killPlayer(gameState, playerID) {
     // Make player a spectator
     gameState.players[playerIndex].isAlive = false;
     gameState.ranking.push(playerIndex);
+    gameState.history.push({
+        eventType: eventTypes.PLAYER_DIES,
+        playerID: playerIndex
+    })
     let numberAlive = 0;
     for(let i = 0; i < gameState.players.length; i++){
         if(gameState.players[i].isAlive) numberAlive++;
@@ -290,13 +298,13 @@ function applyActionHelper(gameState, action){
             let applicableAmbushes = [];
             gameState.ambushes.forEach((currentAmbush) => {
                 if(currentAmbush.location != newPlayerLocation || 
-                   currentAmbush.playerID == activePlayer){
-                    newAmbushes.push(currentAmbush);
+                    currentAmbush.playerID == activePlayer){
+                        newAmbushes.push(currentAmbush);
                 }else{
                     applicableAmbushes.push(currentAmbush);
                 }
             });
-
+                
             applicableAmbushes.forEach((currentAmbush) => {
                 gameState = applyAmbush(gameState,currentAmbush); 
             });
@@ -305,6 +313,7 @@ function applyActionHelper(gameState, action){
                 return gameState;
             }
 
+                
             console.log("applying ambushes")
             logGameState(gameState);
             
@@ -312,16 +321,15 @@ function applyActionHelper(gameState, action){
             let propertyOwner = gameState.properties[newPlayerLocation].playerID;
             if(propertyOwner != -1 && propertyOwner != activePlayer){
                 let amountTransfered = Math.min(gameState.properties[newPlayerLocation].rent,
-                                           gameState.players[activePlayer].money);
-                gameState.players[propertyOwner].money+=amountTransfered;
-                gameState.players[activePlayer].money-=amountTransfered;
-                if(amountTransfered < gameState.properties[newPlayerLocation].rent){
-                    gameState = killPlayer(gameState,activePlayer);
-                    if(gameState.isGameOver == true){
-                        return gameState;
-                    }
-                }
-                    
+                    gameState.players[activePlayer].money);
+                    gameState.players[propertyOwner].money+=amountTransfered;
+                    gameState.players[activePlayer].money-=amountTransfered;
+                    if(amountTransfered < gameState.properties[newPlayerLocation].rent){
+                        gameState = killPlayer(gameState,activePlayer);
+                        if(gameState.isGameOver == true){
+                            return gameState;
+                        }
+                    }    
             }
             if(!gameState.players[activePlayer].isAlive){
                 gameState = applyEndTurn(gameState);
