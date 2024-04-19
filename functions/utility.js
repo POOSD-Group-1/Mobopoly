@@ -1,4 +1,4 @@
-const { db, listeners } = require('./index');
+const { db, listeners, logger } = require('./index');
 
 function generateRandomRoomCode() {
 	const length = 6;

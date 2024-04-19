@@ -60,7 +60,8 @@ function ActionMenu({ roomCode, userID, roomListener }) {
 
     const doAction = async (action) => {
         try {
-            let response = await applyAction({ roomCode, userID, action });
+            let numGangMembers = action.numGangMembers === undefined ? 0 : action.numGangMembers;
+            let response = await applyAction({ roomCode, userID, type: action.type, numGangMembers});
             if (response === undefined || response.error !== errorCodes.noError) {
                 console.log("error:" + response.error);
                 return;
@@ -78,6 +79,7 @@ function ActionMenu({ roomCode, userID, roomListener }) {
             let response;
             try {
                 response = await getActionsForTurn({ roomCode, userID });
+                console.log(response);
             } catch (err) {
                 console.error(err);
                 return;

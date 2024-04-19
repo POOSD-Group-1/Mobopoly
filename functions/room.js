@@ -117,11 +117,11 @@ function cleanGameState(gameState, playerID) {
 	let newAmbushes = [];
 	// add gang members from abushes to public gang member counts except for the current player
     partialGameState.ambushes.forEach((ambush) => {
-        let ownerID = ambush.ownerID;
+        let ownerID = ambush.playerID;
 		if(ownerID == playerID) 
 			newAmbushes.push(ambush);
 		else
-	        partialGameState.players[ownerID].gangMembers+=ambush.gangMembers;
+	        partialGameState.players[ownerID].numGangMembers+=ambush.numGangMembers;
     });
     partialGameState.ambushes = newAmbushes;
 
