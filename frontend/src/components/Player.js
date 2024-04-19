@@ -1,11 +1,10 @@
 import { useContext } from 'react';
 import { Avatar, Card, CardContent, CardHeader, Typography } from '@mui/material';
-import { GameContext, UserContext } from './Game';
-import { phaserPieceImgFile } from '../data/util.js';
+import { GameContext } from './Game';
+import { pieceImgFile } from '../data/util.js';
 import Location from './Location.js';
 
-function Player({ player }) {
-    const user = useContext(UserContext);
+function Player({ player, user }) {
     const { playerID, name, location, numGangMembers, money, hideouts, properties, isAlive } = player;
     const propertyList = properties.map((property) => <Location key={property} location={property} />);
     return (
@@ -14,11 +13,11 @@ function Player({ player }) {
                 avatar={<Avatar
                     sx={{ bgcolor: 'transparent' }}
                     variant="square" alt="Player Icon"
-                ><img src={phaserPieceImgFile(playerID)} style={{
+                ><img src={pieceImgFile(playerID)} style={{
                     width: 24, height: 24, objectFit: 'contain', filter: isAlive ? 'none' : 'grayscale(100%)'
                 }} /></Avatar>}
                 title={<div className='flex-row'>
-                    <Typography variant="subtitle1">{name + (playerID === user.playerID ? ' (You)' : '')}</Typography>
+                    <Typography variant="subtitle1">{name + (name === user ? ' (You)' : '')}</Typography>
                     {!isAlive && <Typography variant="subtitle1" sx={{ color: "red" }}>&nbsp;(Deceased)</Typography>}
                 </div>
                 }

@@ -93,7 +93,7 @@ function getLocationColor(location) {
         return "#2C67A1";
     }
     else {
-        return "transparent";
+        return "#FFFFFF";
     }
 }
 

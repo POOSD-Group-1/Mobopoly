@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, connectFirestoreEmulator  } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: "AIzaSyClh8rI28Fgmrd9n6980D2DTx8NvaFU4Nc",
@@ -16,7 +16,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
-const baseURL = "https://us-central1-mobopoly-866b1.cloudfunctions.net/";
+
+const DEBUG = false;
+if(DEBUG) connectFirestoreEmulator(db, 'localhost', 8080);
+
+const baseURL = DEBUG ? "http://localhost:5001/mobopoly-866b1/us-central1/" : "https://us-central1-mobopoly-866b1.cloudfunctions.net/";
 
 const createFunction = (functionName) => {
     const func = async (params = {}) => {
@@ -27,6 +31,7 @@ const createFunction = (functionName) => {
                 'Content-Type': 'application/json'
             }
         };
+        console.log(params);
         const url = `${baseURL}${functionName}?${queryParams}`;
         console.log(url);
         const response = await fetch(url, options);
@@ -41,17 +46,30 @@ const joinRoom = createFunction("joinRoom");
 const getRoomInfo = createFunction("getRoomInfo");
 const leaveRoom = createFunction("leaveRoom");
 const startGame = createFunction("startGame");
+const getGameState = createFunction("getGameState");
+const getActionsForTurn = createFunction("getActionsForTurn");
+const applyAction = createFunction("applyAction");
 
 const errorCodes = Object.freeze({
-    noError: 0,
-    roomNotFound: -1,
-    invalidName: -2,
-    roomClosed: -3,
-    roomFull: -4,
-    nameDuplicate: -5,
-    invalidHost: -6,
-    userNotFound: -7,
-    missingParameters: -8,
+	noError: 0,
+	roomNotFound: -1,
+	invalidName: -2,
+	roomClosed: -3,
+	roomFull: -4,
+	nameDuplicate: -5,
+	invalidHost: -6,
+	userNotFound: -7,
+	missingParameters: -8,
+	invalidAction: -9
+});
+
+const actionTypes = Object.freeze({
+    ROLL_DICE: 0,
+    WAGER: 1,
+    BUY_PROPERTY: 2,
+    CREATE_HIDEOUT: 3,
+    CREATE_AMBUSH: 4,
+    END_TURN: 5
 });
 
 function getErrorMessage(errorCode) {
@@ -74,9 +92,11 @@ function getErrorMessage(errorCode) {
             return "User not found";
         case errorCodes.missingParameters:
             return "Missing parameters";
+        case errorCodes.invalidAction:
+            return "Invalid action";
         default:
             return "An unknown error occurred";
     }
 }
 
-export { db, errorCodes, getErrorMessage, makeRoom, joinRoom, getRoomInfo, leaveRoom, startGame };
+export { db, errorCodes, actionTypes, getErrorMessage, makeRoom, joinRoom, getRoomInfo, leaveRoom, startGame, getGameState, getActionsForTurn, applyAction };

@@ -10,6 +10,7 @@ class gameScene extends Phaser.Scene {
     super("gameScene");
   }
   preload() {
+    this.load.setBaseURL(window.location.origin);
     this.load.image("board", 'assets/board.png');
     for (let i = 0; i < MAX_PLAYERS; i++) {
       this.load.image(`piece${i}`, `assets/piece${i}.png`);
@@ -37,6 +38,11 @@ class gameScene extends Phaser.Scene {
   updatePlayers(players) {
     const setPlayers = () => {
       for (let i = 0; i < players.length; i++) {
+        if (players[i][0] === -1) {
+          this.players[i].setActive(false);
+          this.players[i].setVisible(false);
+          continue;
+        }
         const index = playerAnchorIndex[players[i][0]];
         const location = center.clone().add(locationAnchors[players[i][0]]).add(playerAnchors[index][players[i][1]]);
         this.players[i].setPosition(location.x, location.y);

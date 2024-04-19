@@ -1,269 +1,208 @@
 {
     "gameID": 1,
-    "players": [
-        {
-            "playerID": 0,
-            "name": "Sachin",
-            "location": 26,
-            "numGangMembers": 0,
-            "money": 200,
-            "hideouts": [],
-            "properties": [1, 8, 9],
-            "isAlive": true
-        },
-        {
-            "playerID": 1,
-            "name": "Thomas",
-            "location": 26,
-            "numGangMembers": 0,
-            "money": 1500,
-            "hideouts": [],
-            "properties": [],
-            "isAlive": true
-        },
-        {
-            "playerID": 2,
-            "name": "Shane",
-            "location": 26,
-            "numGangMembers": 3,
-            "money": 1500,
-            "hideouts": [],
-            "properties": [3, 4],
-            "isAlive": true
-        },
-        {
-            "playerID": 3,
-            "name": "Harrison",
-            "location": 26,
-            "numGangMembers": 3,
-            "money": 1500,
-            "hideouts": [],
-            "properties": [],
-            "isAlive": true
-        },
-        {
-            "playerID": 4,
-            "name": "Keeghan",
-            "location": 26,
-            "numGangMembers": 3,
-            "money": 1500,
-            "hideouts": [],
-            "properties": [],
-            "isAlive": true
-        },
-        {
-            "playerID": 5,
-            "name": "Kurt",
-            "location": 26,
-            "numGangMembers": 3,
-            "money": 1500,
-            "hideouts": [],
-            "properties": [],
-            "isAlive": false
-        }
-    ],
+    "players": [],
     "properties": [
         {
-            "name" : "Go",
+            "name": "Go",
             "cost": 10000000,
             "rent": 0,
             "location": 0,
             "playerID": -1
         },
         {
-            "name" : "Brown Wildcard",
+            "name": "Pool Hall",
             "cost": 50,
             "rent": 50,
             "location": 1,
-            "playerID": 0
+            "playerID": -1
         },
         {
-            "name" : "Brown Bar",
+            "name": "Soft Stone Bar",
             "cost": 50,
             "rent": 50,
             "location": 2,
             "playerID": -1
         },
         {
-            "name" : "Brown Casino",
+            "name": "Soft Stone Casino",
             "cost": 50,
             "rent": 50,
             "location": 3,
-            "playerID": 2
+            "playerID": -1
         },
         {
-            "name" : "Light Blue Wildcard",
+            "name": "Boxing Ring",
             "cost": 50,
             "rent": 50,
             "location": 4,
-            "playerID": 2
+            "playerID": -1
         },
         {
-            "name" : "Light Blue Bar",
+            "name": "The Worldwide Bar",
             "cost": 50,
             "rent": 50,
             "location": 5,
             "playerID": -1
         },
         {
-            "name" : "Light Blue Casino",
+            "name": "The Worldwide Casino",
             "cost": 50,
             "rent": 50,
             "location": 6,
             "playerID": -1
         },
         {
-            "name" : "Jail",
+            "name": "Jail",
             "cost": 10000000,
             "rent": 0,
             "location": 7,
             "playerID": -1
         },
         {
-            "name" : "Magenta Wildcard",
+            "name": "Shooting Range",
             "cost": 50,
             "rent": 50,
             "location": 8,
-            "playerID": 0
+            "playerID": -1
         },
         {
-            "name" : "Magenta Bar",
+            "name": "Dionysus Bar",
             "cost": 50,
             "rent": 50,
             "location": 9,
-            "playerID": 0
+            "playerID": -1
         },
         {
-            "name" : "Magenta Casino",
+            "name": "Dionysus Casino",
             "cost": 50,
             "rent": 50,
             "location": 10,
             "playerID": -1
         },
         {
-            "name" : "Orange Wildcard",
+            "name": "Cigar Lounge",
             "cost": 50,
             "rent": 50,
             "location": 11,
             "playerID": -1
         },
         {
-            "name" : "Orange Bar",
+            "name": "Brutus Plaza Bar",
             "cost": 50,
             "rent": 50,
             "location": 12,
             "playerID": -1
         },
         {
-            "name" : "Orange Casino",
+            "name": "Brutus Plaze Casino",
             "cost": 50,
             "rent": 50,
             "location": 13,
             "playerID": -1
         },
         {
-            "name" : "Betrayal",
+            "name": "Betrayal",
             "cost": 10000000,
             "rent": 0,
             "location": 14,
             "playerID": -1
         },
         {
-            "name" : "Red Wildcard",
+            "name": "Nightclub",
             "cost": 50,
             "rent": 50,
             "location": 15,
             "playerID": -1
         },
         {
-            "name" : "Red Bar",
+            "name": "Royal Flush Bar",
             "cost": 50,
             "rent": 50,
             "location": 16,
             "playerID": -1
         },
         {
-            "name" : "Red Casino",
+            "name": "Royal Flush Casino",
             "cost": 50,
             "rent": 50,
             "location": 17,
             "playerID": -1
         },
         {
-            "name" : "Yellow Wildcard",
+            "name": "Pawn Shop",
             "cost": 50,
             "rent": 50,
             "location": 18,
             "playerID": -1
         },
         {
-            "name" : "Yellow Bar",
+            "name": "The Gold Bar",
             "cost": 50,
             "rent": 50,
             "location": 19,
             "playerID": -1
         },
         {
-            "name" : "Yellow Casino",
+            "name": "The Gold Bar Casino",
             "cost": 50,
             "rent": 50,
             "location": 20,
             "playerID": -1
         },
         {
-            "name" : "Go to Jail",
+            "name": "Go to Jail",
             "cost": 10000000,
             "rent": 0,
             "location": 21,
             "playerID": -1
         },
         {
-            "name" : "Green Wildcard",
+            "name": "East River",
             "cost": 50,
             "rent": 50,
             "location": 22,
             "playerID": -1
         },
         {
-            "name" : "Green Bar",
+            "name": "Last Ante Bar",
             "cost": 50,
             "rent": 50,
             "location": 23,
             "playerID": -1
         },
         {
-            "name" : "Green Casino",
+            "name": "Last Ante Casino",
             "cost": 50,
             "rent": 50,
             "location": 24,
             "playerID": -1
         },
         {
-            "name" : "Dark Blue Wildcard",
+            "name": "Horse Track",
             "cost": 50,
             "rent": 50,
             "location": 25,
             "playerID": -1
         },
         {
-            "name" : "Dark Blue Bar",
+            "name": "Dragon Tail Bar",
             "cost": 50,
             "rent": 50,
             "location": 26,
             "playerID": -1
         },
         {
-            "name" : "Dark Blue Casino",
+            "name": "Dragon Tail Casino",
             "cost": 50,
             "rent": 50,
             "location": 27,
             "playerID": -1
         }
     ],
-    "ambushes" : [],
+    "ambushes": [],
     "turn": {
-        "playerTurn": 2,
-        "hasRolledDice": true,
+        "playerTurn": 0,
+        "hasRolledDice": false,
         "hasWagered": false
     },
     "dice1": -1,

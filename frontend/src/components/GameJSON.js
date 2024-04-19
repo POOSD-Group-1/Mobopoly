@@ -2,17 +2,17 @@ import Phaser from 'phaser';
 import React, { createContext, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
 import { doc, onSnapshot } from "firebase/firestore";
-import { Typography, ToggleButtonGroup, ToggleButton, Icon, Tabs, Tab, Box, Grid, Backdrop, CircularProgress, IconButton } from '@mui/material';
-import { KeyboardArrowDown, PaletteOutlined, HelpOutlineOutlined } from '@mui/icons-material';
-import gameScene from "../phaser/gameScene";
-import { boardWidth, boardHeight, MAX_PLAYERS } from '../data/board';
+import { Typography, ToggleButtonGroup, ToggleButton, Icon, Tabs, Tab, Box, Grid, Backdrop, CircularProgress } from '@mui/material';
+import { KeyboardArrowDown } from '@mui/icons-material';
+import gameScene from "../phaser/gameScene.js";
+import { boardWidth, boardHeight } from '../data/board.js';
 import initialGameJSON from '../data/initialGame.json';
 import initialUserJSON from '../data/initialUser.json';
-import { pieceImgFile } from '../data/util';
-import { GameState, User, fromJSON } from '../data/types';
+import { pieceImgFile } from '../data/util.js';
+import { GameState, User, fromJSON } from '../data/types.js';
 import { db, errorCodes, getGameState } from "../data/firebase.js";
-import Player from './Player';
-import ActionMenu from './ActionMenu';
+import Player from './Player.js';
+import ActionMenu from './ActionMenu.js';
 import "../styles.css";
 
 const gameConfig = {
@@ -23,20 +23,22 @@ const gameConfig = {
     scene: gameScene
 };
 
-const GameContext = createContext(null);
-function Game() {
+const UserContext = createContext(fromJSON(initialUserJSON, User));
+const GameContext = createContext(fromJSON(initialGameJSON, GameState));
+function GameJSON() {
     const navigate = useNavigate();
     const { roomCode } = useParams();
-    if (roomCode === undefined) {
-        navigate("/");
-    }
+    // if (roomCode === undefined) {
+    //     navigate("/");
+    // }
     const phaserGame = useRef(null);
     const [userID, setUserID] = useState(null);
     const [name, setName] = useState(null);
     const [roomListener, setRoomListener] = useState(null);
+    const [actions, setActions] = useState([]);
     const [user, setUser] = useState(fromJSON(initialUserJSON, User));
     const [loaded, setLoaded] = useState(roomCode === undefined);
-    const [gameState, setGameState] = useState(null);
+    const [gameState, setGameState] = useState(fromJSON(initialGameJSON, GameState));
     const [selectedUser, setSelectedUser] = useState(0);
     const [tabIndex, setTabIndex] = useState(0);
 
@@ -92,7 +94,6 @@ function Game() {
         return () => unsubscribe();
     }, [roomListener]);
 
-
     const changeSelectedUser = (event, newSelectedUser) => {
         if (newSelectedUser === null) {
             setSelectedUser(-1);
@@ -106,10 +107,9 @@ function Game() {
     };
 
     const updatePlayers = () => {
-        if (phaserGame.current.scene.getScene('gameScene') && gameState !== null) {
+        if (phaserGame.current.scene.getScene('gameScene')) {
             const freq = gameState.properties.map(() => 0);
-            let locations = [];
-            for (let i = 0; i < MAX_PLAYERS; i++) locations.push([-1, -1]);
+            let locations = gameState.players.map(player => [-1, -1]);
             for (let i = 0; i < gameState.players.length; i++) {
                 const idx = (gameState.turn.playerTurn + i + (gameState.turn.hasRolledDice ? 1 : 0)) % gameState.players.length;
                 if (gameState.players[idx].isAlive) {
@@ -123,7 +123,7 @@ function Game() {
     useEffect(() => {
         if (!phaserGame.current) {
             phaserGame.current = new Phaser.Game(gameConfig);
-            phaserGame.current.scene.start('gameScene', { numPlayers: MAX_PLAYERS });
+            phaserGame.current.scene.start('gameScene', { numPlayers: gameState.players.length });
             phaserGame.current.events.once('ready', () => {
                 updatePlayers();
             });
@@ -138,66 +138,63 @@ function Game() {
     }, []);
     useEffect(() => {
         updatePlayers();
-    }, [gameState]);
+    }, [gameState.players]);
+    const playerIcons =
+        <ToggleButtonGroup value={selectedUser} className="player-icon-container" exclusive
+            onChange={changeSelectedUser}>
+            {gameState.players.map((player, i) =>
+                <ToggleButton key={i} value={i} onClick={() => setSelectedUser(i)} sx={{ width: "5rem" }}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                        {gameState.turn.playerTurn == i ? <KeyboardArrowDown /> : <Icon />}
+                        <img key={i} src={pieceImgFile(player.playerID)} className="player-icon"
+                            style={{
+                                objectFit: 'contain',
+                                filter: player.isAlive ? 'none' : 'grayscale(100%)'
+                            }} />
+                    </div>
+                </ToggleButton>)}
+        </ToggleButtonGroup>
     return <GameContext.Provider value={gameState}>
-        <div className="game-player-container">
-            <div id="game" />
-            <Box sx={{ width: "100%" }}>
-                <div className="flex-row" style={{ borderBottom: "1px solid", borderColor: "divider" }}>
-                    <Tabs value={tabIndex} onChange={handleTabIndex} >
+        <UserContext.Provider value={user}>
+            <div className="game-player-container">
+                <div id="game" />
+                <Box sx={{ width: "100%" }}>
+                    <Tabs value={tabIndex} onChange={handleTabIndex} sx={{ borderBottom: "1px solid", borderColor: "divider" }}>
                         <Tab label="Game Info" />
                         <Tab label="History" />
                     </Tabs>
-                    <div style={{ marginLeft: "auto" }}><IconButton>
-                        <PaletteOutlined />
-                    </IconButton>
-                        <IconButton>
-                            <HelpOutlineOutlined />
-                        </IconButton></div>
-                </div>
-                {tabIndex == 0 && gameState !== null &&
-                    <Grid container width="100%" spacing={2}>
-                        <Grid item xs={6}>
-                            <div className="flex-column">
-                                <Typography variant="h4" sx={{ display: "inline-block" }}>Players</Typography>
-                                <Typography variant="body1" sx={{ display: "inline-block" }}>
-                                    It's {gameState.players[gameState.turn.playerTurn].name}'s Turn!</Typography>
-                                <ToggleButtonGroup value={selectedUser} className="player-icon-container" exclusive
-                                    onChange={changeSelectedUser}>
-                                    {gameState.players.map((player, i) =>
-                                        <ToggleButton key={i} value={i} onClick={() => setSelectedUser(i)} sx={{ width: "5rem" }}>
-                                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                                {gameState.turn.playerTurn == i ? <KeyboardArrowDown /> : <Icon />}
-                                                <img key={i} src={pieceImgFile(player.playerID)} className="player-icon"
-                                                    style={{
-                                                        objectFit: 'contain',
-                                                        filter: player.isAlive ? 'none' : 'grayscale(100%)'
-                                                    }} />
-                                            </div>
-                                        </ToggleButton>)}
-                                </ToggleButtonGroup>
-                                {selectedUser !== -1 && <Player player={gameState.players[selectedUser]} user={name} />}
-                            </div>
 
-                        </Grid>
-                        <Grid item xs={6}>
-                            <ActionMenu roomCode={roomCode} userID={userID} roomListener={roomListener} />
+                    {tabIndex == 0 &&
+                        <Grid container width="100%" spacing={2}>
+                            <Grid item xs={6}>
+                                <div className="flex-column">
+                                    <Typography variant="h4" sx={{ display: "inline-block" }}>Players</Typography>
+                                    <Typography variant="body1" sx={{ display: "inline-block" }}>
+                                        It's {gameState.players[gameState.turn.playerTurn].name}'s Turn!</Typography>
+                                    {playerIcons}
+                                    {selectedUser !== -1 && <Player player={gameState.players[selectedUser]} />}
+                                </div>
 
+                            </Grid>
+                            <Grid item xs={6}>
+                                <ActionMenu />
+
+                            </Grid>
                         </Grid>
-                    </Grid>
-                }
-                {tabIndex == 1 && gameState !== null &&
-                    <Box>
-                        <Typography variant="h4">History</Typography>
-                        <Typography variant="body1">Coming soon...</Typography>
-                    </Box>}
-            </Box>
-            <Backdrop open={!loaded}>
-                <CircularProgress color="inherit" />
-            </Backdrop>
-        </div>
+                    }
+                    {tabIndex == 1 &&
+                        <Box>
+                            <Typography variant="h4">History</Typography>
+                            <Typography variant="body1">Coming soon...</Typography>
+                        </Box>}
+                </Box>
+                <Backdrop open={!loaded}>
+                    <CircularProgress color="inherit" />
+                </Backdrop>
+            </div>
+        </UserContext.Provider>
     </GameContext.Provider>
 }
 
-export { GameContext };
-export default Game;
+export { GameContext, UserContext };
+export default GameJSON;

@@ -4,6 +4,12 @@
     margin-bottom: 10rem;
 }
 
+.logo-rules {
+    width: 50%;
+    height: auto;
+    margin-bottom: 2rem;
+}
+
 .logo-small {
     width: 25%;
     height: auto;
@@ -26,6 +32,14 @@
     display: flex;
     padding: 2rem;
     /* width: 30%; */
+}
+
+.rules {
+    /* align-items: center; */
+    justify-content: center;
+    flex-direction: column;
+    display: flex;
+    padding: 1rem;
 }
 
 .flex-row {

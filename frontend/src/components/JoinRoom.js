@@ -26,6 +26,7 @@ const JoinRoom = () => {
             setErrorMessage("You have already joined the room.");
             return;
         }
+        let response;
         try {
             setJoining(true);
             const response = await joinRoom({ roomCode, name });
