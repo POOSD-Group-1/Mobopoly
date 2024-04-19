@@ -59,7 +59,7 @@ function Lobby() {
             if (!gameStarted) {
                 refreshRoomData();
             } else {
-                navigate("/game");
+                navigate("/game/" + roomCode);
             }
         });
         return () => unsubscribe();

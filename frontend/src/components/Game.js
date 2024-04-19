@@ -35,7 +35,6 @@ function Game() {
     const [userID, setUserID] = useState(null);
     const [name, setName] = useState(null);
     const [roomListener, setRoomListener] = useState(null);
-    const [actions, setActions] = useState([]);
     const [user, setUser] = useState(fromJSON(initialUserJSON, User));
     const [loaded, setLoaded] = useState(roomCode === undefined);
     const [gameState, setGameState] = useState(null);
@@ -94,25 +93,6 @@ function Game() {
         return () => unsubscribe();
     }, [roomListener]);
 
-    // get Player Actions
-    useEffect(() => {
-        const refreshActions = async () => {
-            if (roomListener === null || roomCode === undefined || gameState === null) return;
-            // let response;
-            // try {
-            //     response = await functionCall();
-            // } catch(err) {
-            //     console.error(err);
-            //     return;
-            // }
-            // if (response === undefined || response.error !== errorCodes.noError) {
-            //     console.log("error:" + response.error)
-            //     return;
-            // }
-            // setActions(response.actions);
-        };
-        refreshActions();
-    }, [gameState]);
 
     const changeSelectedUser = (event, newSelectedUser) => {
         if (newSelectedUser === null) {
@@ -203,7 +183,7 @@ function Game() {
 
                             </Grid>
                             <Grid item xs={6}>
-                                <ActionMenu />
+                                <ActionMenu roomCode={roomCode} userID={userID} roomListener={roomListener} />
 
                             </Grid>
                         </Grid>

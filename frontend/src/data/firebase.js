@@ -42,17 +42,29 @@ const getRoomInfo = createFunction("getRoomInfo");
 const leaveRoom = createFunction("leaveRoom");
 const startGame = createFunction("startGame");
 const getGameState = createFunction("getGameState");
+const getActionsForTurn = createFunction("getActionsForTurn");
+const applyAction = createFunction("applyAction");
 
 const errorCodes = Object.freeze({
-    noError: 0,
-    roomNotFound: -1,
-    invalidName: -2,
-    roomClosed: -3,
-    roomFull: -4,
-    nameDuplicate: -5,
-    invalidHost: -6,
-    userNotFound: -7,
-    missingParameters: -8,
+	noError: 0,
+	roomNotFound: -1,
+	invalidName: -2,
+	roomClosed: -3,
+	roomFull: -4,
+	nameDuplicate: -5,
+	invalidHost: -6,
+	userNotFound: -7,
+	missingParameters: -8,
+	invalidAction: -9
+});
+
+const actionTypes = Object.freeze({
+    ROLL_DICE: 0,
+    WAGER: 1,
+    BUY_PROPERTY: 2,
+    CREATE_HIDEOUT: 3,
+    CREATE_AMBUSH: 4,
+    END_TURN: 5
 });
 
 function getErrorMessage(errorCode) {
@@ -75,9 +87,11 @@ function getErrorMessage(errorCode) {
             return "User not found";
         case errorCodes.missingParameters:
             return "Missing parameters";
+        case errorCodes.invalidAction:
+            return "Invalid action";
         default:
             return "An unknown error occurred";
     }
 }
 
-export { db, errorCodes, getErrorMessage, makeRoom, joinRoom, getRoomInfo, leaveRoom, startGame, getGameState };
+export { db, errorCodes, actionTypes, getErrorMessage, makeRoom, joinRoom, getRoomInfo, leaveRoom, startGame, getGameState, getActionsForTurn, applyAction };
