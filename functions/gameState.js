@@ -186,7 +186,14 @@ function movePlayer(gameState, movement){
         newLocation = JAILSQUARE;
         sentToJail = true;
     }
-
+    
+    gameState.history.push({
+        playerID: player,
+        from: oldlocation,
+        to: newLocation,
+        wasSentToJail: sentToJail
+    });
+    
     if(newLocation == BETRAYALSQUARE){
         const lossAmount = 50;
         let tenPercentOfGangMembers = Math.floor(.01+(gameState.players[activePlayer].numGangMembers/10));
