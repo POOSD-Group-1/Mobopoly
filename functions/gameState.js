@@ -1,4 +1,4 @@
-const { getRoomData, getGameData } = require("./room");
+const { getPlayerID, getRoomData, getGameData } = require("./room");
 const { deepcopy, updateListener } = require("./utility");
 const { v4: uuidv4 } = require('uuid');
 const { onRequest, rooms, listeners,logger, games, errorCodes } = require('./index');
@@ -23,6 +23,14 @@ const actionTypes = Object.freeze({
     END_TURN: 5
 });
 
+
+function logGameState(gameState) {
+    let newGameState = deepcopy(gameState);
+    delete newGameState.properties;
+    console.log("gameState:");
+    console.log(newGameState);
+}
+
 //
 defaultAction = {
 	type: -1,
@@ -31,11 +39,13 @@ defaultAction = {
 
 exampleAmbush = {
     location: 0,
-    gangMembers: 0,
-    ownerID: 0
+    numGangMembers: 0,
+    playerID: 0
 }
 
 function validateAction(gameState, action) {
+    console.log("validateAction" + action.type);
+    logGameState(gameState)
     // Must roll dice at beginning of turn
     if (gameState.turn.hasRolledDice == false)
         return action.type == actionTypes.ROLL_DICE;
@@ -78,7 +88,7 @@ function validateAction(gameState, action) {
             // Must have enough money
             return !isCorner && !propertyOwned && hasEnoughMoney;
         case actionTypes.CREATE_HIDEOUT:
-            let hideOutHere = player.hideouts.includes(playerLocation);
+            let hideOutHere = player.hideouts.includes(player.location);
             hasEnoughMoney = player.money >= hideoutCost;
             // Cannot place on corners
             // Cannot place hideout if player already has a hideout here
@@ -100,7 +110,10 @@ function validateAction(gameState, action) {
             // Must place a positive amount of gang members
             return !isCorner && !ambushHere && validGangMembers;
         case actionTypes.END_TURN:
+            console.log("end turn");
             return true;
+        default:
+            return false;
     }
 }
 
@@ -135,31 +148,6 @@ function killPlayer(gameState, playerID) {
     return gameState;
 }
 
-function cleanGameState(gameState, userID) {
-    const partialGameState = deepcopy(gameState);
-    partialGameState.gameID = -1;
-
-	let newAmbushes = [];
-	// add gang members from abushes to public gang member counts except for the current player
-    partialGameState.ambushes.forEach((ambush) => {
-        let ownerID = ambush.ownerID;
-		if(ownerID == userID) 
-			newAmbushes.push(ambush);
-		else
-	        partialGameState.players[ownerID].gangMembers+=ambush.gangMembers;
-    });
-    partialGameState.ambushes = newAmbushes;
-
-	// remove all hideouts except the current player's
-    for (let i = 0; i < partialGameState.players.length; i++) 
-		if(i != playerID)
-			partialGameState.players[i].hideouts.length = 0;
-	
-    return partialGameState;
-}
-
-exports.cleanGameState = cleanGameState;
-
 //COMPLETELY UNTESTED AT ALL LIKE SERIOUSLY NOT TESTED FRFR
 function rollDice(){
     return 1+Math.floor(Math.random()*6);
@@ -184,6 +172,8 @@ function movePlayer(gameState, movement){
         gameState.players[player].numGangMembers+=GANGREWARD;
     }
 
+    gameState.players[player].location = newLocation;
+
     return gameState;
 }
 
@@ -197,11 +187,11 @@ function prevLoc(square){
 
 function applyAmbush(gameState, ambush){
     let victim = gameState.turn.playerTurn;
-    let perp = ambush.ownerID;
+    let perp = ambush.playerID;
     let safeFromAmbush = false;
-    gameState.player[victim].hideoutCost.forEach((hideOutLocation) => {
+    gameState.players[victim].hideouts.forEach((hideOutLocation) => {
         let nextToHideOut1 = nextLoc(hideOutLocation);
-        let nextToHideOut2 = prevLoc(hideoutLocation);
+        let nextToHideOut2 = prevLoc(hideOutLocation);
         if(nextToHideOut1 == ambush.location ||
            nextToHideOut2 == ambush.location ||
            hideOutLocation == ambush.location){
@@ -213,16 +203,16 @@ function applyAmbush(gameState, ambush){
         return gameState;
     }
 
-    let gangMembersLost = min(ambush.gangMembers*2,gameState.players[perp].gangMembers);
-    let ambushRemainingGangMembers = ambush.gangMembers-gangMembersLost;
+    let gangMembersLost = min(ambush.numGangMembers*2,gameState.players[perp].numGangMembers);
+    let ambushRemainingGangMembers = ambush.numGangMembers-gangMembersLost;
     let moneyLost = ambushRemainingGangMembers*MUGGINGAMOUNT;
-    gameState.players[victim]-=gangMembersLost;
-    gameState.players[victim]-=moneyLost;
-    if(gameState.players[victim] < 0){
+    gameState.players[victim].numGangMembers-=gangMembersLost;
+    gameState.players[victim].money-=moneyLost;
+    if(gameState.players[victim].money < 0){
         gameState = killPlayer(gameState,victim);
     }
     
-    gameState.players[perp]+=moneyLost;
+    gameState.players[perp].money+=moneyLost;
     return gameState;
 }
 
@@ -236,17 +226,14 @@ function didAttackerWin(numDefenders,numAttackers){
     return Math.random() < prob;
 }
 
-function getNextPlayer(gameState, currentPlayer){
-    let seenCurrent = false;
-    let nextPlayer = currentPlayer;
-    for(let i = 0; i < gameState.players.length; i++){
-        if(seenCurrent == true && gameState.player[i].isAlive){
-            nextPlayer = gameState.player[i].playerID;
-            break;
+function getNextPlayer(gameState){
+    for(let i = 1; i < gameState.players.length; i++){
+        let idx = (gameState.turn.playerTurn+i)%gameState.players.length;
+        if(gameState.players[idx].isAlive){
+            return gameState.players[idx].playerID;
         }
-        if(gameState.players[i].playerID == currentPlayer) seenCurrent = true;
     }
-    return nextPlayer; 
+    return -1;
 }
 
 function mostRecentPlayer(gameState){
@@ -254,7 +241,7 @@ function mostRecentPlayer(gameState){
     for (let i = 1; i < gameState.players.length; i++) {
         const idx = (gameState.turn.playerTurn + i) % gameState.players.length;
         if (gameState.players[idx].isAlive && gameState.players[idx].location == gameState.players[gameState.turn.playerTurn].location) {
-            playerID.players[idx].playerID;
+            playerID = gameState.players[idx].playerID;
         }
     }
     return playerID;
@@ -262,21 +249,25 @@ function mostRecentPlayer(gameState){
 
 //COMPLETELY UNTESTED AT ALL LIKE SERIOUSLY NOT TESTED FRFR
 function applyActionHelper(gameState, action){
+    console.log("applyActionHelper");
     if(!validateAction(gameState,action)) return gameState;
     let activePlayer = gameState.turn.playerTurn;
     let playerLoc = gameState.players[activePlayer].location;
+    console.log(action)
     switch(action.type){
-        case actionTypes.rollDice:
+        case actionTypes.ROLL_DICE:
+            console.log("rolling dice");
             gameState.dice1 = rollDice();
             gameState.dice2 = rollDice();
             let movementAmount = gameState.dice1+gameState.dice2;
             gameState = movePlayer(gameState,movementAmount);
+            logGameState(gameState);
             let newPlayerLocation = gameState.players[activePlayer].location;
             let newAmbushes = [];
             let applicableAmbushes = [];
             gameState.ambushes.forEach((currentAmbush) => {
                 if(currentAmbush.location != newPlayerLocation || 
-                   currentAmbush.ownerID == activePlayer){
+                   currentAmbush.playerID == activePlayer){
                     newAmbushes.push(currentAmbush);
                 }else{
                     applicableAmbushes.push(currentAmbush);
@@ -286,6 +277,8 @@ function applyActionHelper(gameState, action){
             applicableAmbushes.forEach((currentAmbush) => {
                 gameState = applyAmbush(gameState,currentAmbush); 
             });
+            console.log("applying ambushes")
+            logGameState(gameState);
             
             //paying rent to property owners
             let propertyOwner = gameState.properties[newPlayerLocation].playerID;
@@ -297,48 +290,56 @@ function applyActionHelper(gameState, action){
                 if(amountTransfered < gameState.properties[newPlayerLocation].rent)
                     gameState = killPlayer(gameState,activePlayer);
             }
-            
+            console.log("paying rent")
+            logGameState(gameState);
+
+            let playersOnSameSquare = gameState.players.filter((player) => player.isAlive && player.location == newPlayerLocation);
             gameState.turn.hasRolledDice = true;
+            if(playersOnSameSquare.length <= 1){
+                gameState.turn.hasWagered = true;
+            }
+            
             return gameState;
         case actionTypes.BUY_PROPERTY:
             let propertyCost = gameState.properties[playerLoc].cost;
             gameState.players[activePlayer].money-=propertyCost;
             gameState.properties[playerLoc].playerID = activePlayer;
-            gameState.players[activePlayer].push(playerLoc);
+            gameState.players[activePlayer].properties.push(playerLoc);
             return gameState;
         case actionTypes.CREATE_HIDEOUT:
             gameState.players[activePlayer].hideouts.push(playerLoc);
             gameState.players[activePlayer].money-=hideoutCost;
             return gameState;
         case actionTypes.CREATE_AMBUSH:
-            myAmbush = {
+            let myAmbush = {
                 location: playerLoc,
-                gangMembers: action.numGangMembers,
-                ownerID: activePlayer
+                numGangMembers: action.numGangMembers,
+                playerID: activePlayer
             }
             gameState.ambushes.push(myAmbush);
-            gameState.players[activePlayer].gangMembers-=action.numGangMembers;
+            gameState.players[activePlayer].numGangMembers-=action.numGangMembers;
             return gameState;
         case actionTypes.WAGER:
             let defendingPlayer = mostRecentPlayer(gameState);
             let defendingGangMembers = gameState.players[defendingPlayer].numGangMembers;
             let attackerWin = didAttackerWin(defendingGangMembers,action.numGangMembers);
             if(attackerWin){
-                let numDefenderLost = min(gameState.players[defendingPlayer],2*action.numGangMembers);
-                gameState.players[defendingPlayer].gangMembers-=numDefenderLost;
-                let attackersRemain = (2*action.numGangMembers)>gameState.players[defendingPlayer];
-                if(attackersRemain){
+                let attackers = 2 * action.numGangMembers;
+                let numDefenderLost = min(gameState.players[defendingPlayer].numGangMembers,attackers);
+                attackers -= numDefenderLost;
+                gameState.players[defendingPlayer].numGangMembers-=numDefenderLost;
+                if(attackers > 0){
                     let defenderMoney = gameState.players[defendingPlayer].money;
-                    let moneyLost = max(MINWAGERLOSS,math.floor(0.2*defenderMoney+0.1));
+                    let moneyLost = max(MINWAGERLOSS,Math.floor(0.2*defenderMoney+0.1));
                     let moneyGain = min(moneyLost,defenderMoney);
                     gameState.players[activePlayer].money+=moneyGain;
                     gameState.players[defendingPlayer].money-=moneyLost;
-                    if(MINWAGERLOSS > defenderMoney){
+                    if(gameState.players[defendingPlayer].money < 0){
                         killPlayer(gameState,defendingPlayer);
                     }
                 }
             }else{
-                gameState.players[activePlayer].gangMembers-=action.numGangMembers;
+                gameState.players[activePlayer].numGangMembers-=action.numGangMembers;
             }
             gameState.turn.hasWagered = true;
             return gameState;
@@ -350,25 +351,13 @@ function applyActionHelper(gameState, action){
     }
 }
 
-function getPlayerID(roomData,userID){
-    let myPlayerID = -1;
-    for(let i = 0; i < roomData.users.length; i++){
-        if(roomData.users[i].userID == userID){
-            myPlayerID = roomData.users[i].playerID;
-        }
-    }
-  return myPlayerID;
-}
-
-exports.getPlayerID = getPlayerID;
-
 // UNTESTED
 function generateActions(gameState) {
 	let possibleActions = [];
 
 	// Roll the dice
 	let diceRollAction = { ...defaultAction };
-	diceRollAction.type = ROLL_DICE;
+	diceRollAction.type = actionTypes.ROLL_DICE;
 	if(validateAction(gameState, diceRollAction)) {
 		possibleActions.push(diceRollAction);
 		return possibleActions;
@@ -380,7 +369,7 @@ function generateActions(gameState) {
 	// Wager
 	// Might need to add if there are 0 gang members?
 	let wagerAction = { ...defaultAction };
-	wagerAction.type = WAGER;
+	wagerAction.type = actionTypes.WAGER;
 	wagerAction.numGangMembers = playerNumGangMembers;
 	if(validateAction(gameState, wagerAction)) {
 		possibleActions.push(wagerAction);
@@ -389,21 +378,21 @@ function generateActions(gameState) {
 
 	// Buy property
 	let buyPropertyAction = { ...defaultAction };
-	buyPropertyAction.type = BUY_PROPERTY;
+	buyPropertyAction.type = actionTypes.BUY_PROPERTY;
 	if(validateAction(gameState, buyPropertyAction)) {
 		possibleActions.push(buyPropertyAction);
 	}
 
 	// Create hideout
 	let createHideoutAction = { ...defaultAction };
-	createHideoutAction.type = CREATE_HIDEOUT;
+	createHideoutAction.type = actionTypes.CREATE_HIDEOUT;
 	if(validateAction(gameState, createHideoutAction)) {
 		possibleActions.push(createHideoutAction);
 	}
 
 	// Create ambush
 	let createAmbushAction = { ...defaultAction };
-	createAmbushAction.type = CREATE_AMBUSH;
+	createAmbushAction.type = actionTypes.CREATE_AMBUSH;
 	createAmbushAction.numGangMembers = playerNumGangMembers;
 	if(validateAction(gameState, createAmbushAction)) {
 		possibleActions.push(createAmbushAction);
@@ -411,7 +400,7 @@ function generateActions(gameState) {
 
 	// End turn
 	let endTurnAction = { ...defaultAction };
-	endTurnAction.action = END_TURN;
+	endTurnAction.type = actionTypes.END_TURN;
 	if(validateAction(gameState, endTurnAction)) {
 		possibleActions.push(endTurnAction);
 	}
@@ -422,11 +411,23 @@ function generateActions(gameState) {
 exports.applyAction = onRequest(async (req, res) => {
 	const roomCode = req.query.roomCode;
 	const userID = req.query.userID;
-    const myActionType = req.query.actionType;
-    const myNumGangMembers = req.query.numGangMembers;
-    if(myNumGangMembers == undefined) myNumGangMembers = 0;
-    result = {
+    let myActionType = req.query.type;
+    let result = {
         error: errorCodes.noError
+    }
+    let myNumGangMembers = req.query.numGangMembers;
+    if(myActionType === undefined) {
+        result.error = errorCodes.missingParameters;
+        res.json(result);
+        return;
+    }
+    if(myNumGangMembers == undefined) myNumGangMembers = 0;
+    myActionType = parseInt(myActionType);
+    myNumGangMembers = parseInt(myNumGangMembers);
+    if(isNaN(myActionType) || isNaN(myNumGangMembers)){
+        result.error = errorCodes.missingParameters;
+        res.json(result);
+        return;
     }
     let roomData = await getRoomData(roomCode);
     if(roomData == undefined){
@@ -438,18 +439,32 @@ exports.applyAction = onRequest(async (req, res) => {
     let requesterPlayerID = getPlayerID(roomData,userID);
     let gameID = roomData.gameID;
     let gameState = await getGameData(gameID);
-    action = {
+    if(gameState == undefined){
+        result.error = errorCodes.roomNotFound;
+        res.json(result);
+        return;
+    }
+    let action = {
         type: myActionType,
         numGangMembers: myNumGangMembers
     }
+    console.log(action);
+    
     if(requesterPlayerID != gameState.turn.playerTurn || (validateAction(gameState,action) == false)){
+        console.log(requesterPlayerID,gameState.turn.playerTurn,validateAction(gameState,action));
+        // logGameState(gameState);
+        console.log(action);
         result.error = errorCodes.invalidAction;
         res.json(result);
         return;
     }
+    console.log("valid action");
 
     gameState = applyActionHelper(gameState,action);
-    await updateListener(roomData.listenerID,true);
+    console.log("applied action");
+    logGameState(gameState);
+    await updateListener(roomData.listenDocumentID, false);
+
     const writeResult = await games
     .doc(gameID)
     .set(gameState);
@@ -473,6 +488,17 @@ exports.getActionsForTurn = onRequest(async (req, res) => {
     
     let gameID = roomData.gameID;
     let gameState = await getGameData(gameID);
+    if(gameState == undefined){
+        result.error = errorCodes.roomNotFound;
+        res.json(result);
+        return;
+    }
+    let requesterPlayerID = getPlayerID(roomData,userID);
+    if(requesterPlayerID != gameState.turn.playerTurn){
+        res.json(result);
+        return;
+    }
     result.actions = generateActions(gameState);
-    return result;
+    res.json(result);
+    return;
 });

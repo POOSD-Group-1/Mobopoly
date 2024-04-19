@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import {Button} from '@mui/material';
+import { Button } from '@mui/material';
 import "../styles.css";
 
 const Landing = () => {
@@ -8,7 +8,7 @@ const Landing = () => {
         <div className="landing">
             <img src="/assets/logo.png" alt="Monopoly Logo" className="logo"  />
             <div className="button-row">
-                <Button variant="contained" onClick={() => navigate("/createroom")}>Create a Room</Button>
+                <Button variant="contained" onClick={() => navigate("/create")}>Create a Room</Button>
                 <Button variant="contained" onClick={() => navigate("/join")}>Join a Room</Button>
             </div>
         </div>
