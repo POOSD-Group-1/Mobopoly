@@ -108,7 +108,9 @@ async function getGameData(gameID){
     }
 }
 
-function cleanGameState(gameState, userID) {
+exports.getGameData = getGameData;
+
+function cleanGameState(gameState, playerID) {
     const partialGameState = deepcopy(gameState);
     partialGameState.gameID = -1;
 
@@ -116,7 +118,7 @@ function cleanGameState(gameState, userID) {
 	// add gang members from abushes to public gang member counts except for the current player
     partialGameState.ambushes.forEach((ambush) => {
         let ownerID = ambush.ownerID;
-		if(ownerID == userID) 
+		if(ownerID == playerID) 
 			newAmbushes.push(ambush);
 		else
 	        partialGameState.players[ownerID].gangMembers+=ambush.gangMembers;
