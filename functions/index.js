@@ -48,7 +48,7 @@ exports.errorCodes = errorCodes;
 
 
 const { makeRoom, leaveRoom, joinRoom, startGame,getRoomInfo, getGameState  } = require('./room');
-const { applyAction, getActionsForTurn } = require('./gameState');
+const { applyAction, getActionsForTurn, quitGame } = require('./gameState');
 exports.makeRoom = makeRoom;
 exports.leaveRoom = leaveRoom;
 exports.joinRoom = joinRoom;
@@ -57,3 +57,4 @@ exports.getRoomInfo = getRoomInfo;
 exports.getGameState = getGameState;
 exports.applyAction = applyAction;
 exports.getActionsForTurn = getActionsForTurn;
+exports.quitGame = quitGame;
