@@ -1,4 +1,4 @@
-const { getRoomData, getGameData } = require("./room");
+const { getPlayerID, getRoomData, getGameData } = require("./room");
 const { deepcopy, updateListener } = require("./utility");
 const { v4: uuidv4 } = require('uuid');
 const { onRequest, rooms, listeners,logger, games, errorCodes } = require('./index');
@@ -134,31 +134,6 @@ function killPlayer(gameState, playerID) {
 
     return gameState;
 }
-
-function cleanGameState(gameState, userID) {
-    const partialGameState = deepcopy(gameState);
-    partialGameState.gameID = -1;
-
-	let newAmbushes = [];
-	// add gang members from abushes to public gang member counts except for the current player
-    partialGameState.ambushes.forEach((ambush) => {
-        let ownerID = ambush.ownerID;
-		if(ownerID == userID) 
-			newAmbushes.push(ambush);
-		else
-	        partialGameState.players[ownerID].gangMembers+=ambush.gangMembers;
-    });
-    partialGameState.ambushes = newAmbushes;
-
-	// remove all hideouts except the current player's
-    for (let i = 0; i < partialGameState.players.length; i++) 
-		if(i != playerID)
-			partialGameState.players[i].hideouts.length = 0;
-	
-    return partialGameState;
-}
-
-exports.cleanGameState = cleanGameState;
 
 //COMPLETELY UNTESTED AT ALL LIKE SERIOUSLY NOT TESTED FRFR
 function rollDice(){
@@ -349,18 +324,6 @@ function applyActionHelper(gameState, action){
             return gameState;
     }
 }
-
-function getPlayerID(roomData,userID){
-    let myPlayerID = -1;
-    for(let i = 0; i < roomData.users.length; i++){
-        if(roomData.users[i].userID == userID){
-            myPlayerID = roomData.users[i].playerID;
-        }
-    }
-  return myPlayerID;
-}
-
-exports.getPlayerID = getPlayerID;
 
 // UNTESTED
 function generateActions(gameState) {

@@ -1,7 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
 const { onRequest, rooms, errorCodes, listeners, games,logger } = require('./index');
 const { generateRandomRoomCode, validateName, updateListener, deepcopy } = require('./utility');
-const { cleanGameState, getPlayerID } = require('./gameState');
 const defaultRoom = require("./defaultRoom.json")
 const defaultGameState = require("./defaultGameState.json");
 const defaultPlayer = require("./defaultPlayer.json")
@@ -59,6 +58,18 @@ async function deleteRoom(roomCode){
     }
 }
 
+function getPlayerID(roomData,userID){
+    let myPlayerID = -1;
+    for(let i = 0; i < roomData.users.length; i++){
+        if(roomData.users[i].userID == userID){
+            myPlayerID = roomData.users[i].playerID;
+        }
+    }
+  return myPlayerID;
+}
+
+exports.getPlayerID = getPlayerID;
+
 // gets room data, returns undefined if there is an error/no room. (helper function)
 async function getRoomData(roomCode) {
     let roomExists = await doesRoomExist(roomCode);
@@ -95,6 +106,29 @@ async function getGameData(gameID){
         logger.log("error", error);
         return undefined; //currently undefined
     }
+}
+
+function cleanGameState(gameState, userID) {
+    const partialGameState = deepcopy(gameState);
+    partialGameState.gameID = -1;
+
+	let newAmbushes = [];
+	// add gang members from abushes to public gang member counts except for the current player
+    partialGameState.ambushes.forEach((ambush) => {
+        let ownerID = ambush.ownerID;
+		if(ownerID == userID) 
+			newAmbushes.push(ambush);
+		else
+	        partialGameState.players[ownerID].gangMembers+=ambush.gangMembers;
+    });
+    partialGameState.ambushes = newAmbushes;
+
+	// remove all hideouts except the current player's
+    for (let i = 0; i < partialGameState.players.length; i++) 
+		if(i != playerID)
+			partialGameState.players[i].hideouts.length = 0;
+	
+    return partialGameState;
 }
 
 // makes a room with a random room code
