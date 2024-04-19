@@ -14,6 +14,8 @@ const GOTOJAILSQUARE = 21;
 const GANGREWARD = 20;
 const MUGGINGAMOUNT = 50;
 const MINWAGERLOSS = 500;
+const BETRAYALSQUARE = 14;
+
 const actionTypes = Object.freeze({
     ROLL_DICE: 0,
     WAGER: 1,
@@ -184,6 +186,15 @@ function movePlayer(gameState, movement){
         newLocation = JAILSQUARE;
         sentToJail = true;
     }
+
+    if(newLocation == BETRAYALSQUARE){
+        const lossAmount = 50;
+        let tenPercentOfGangMembers = Math.floor(.01+(gameState.players[activePlayer].numGangMembers/10));
+        gameState.players[activePlayer].numGangMembers-=tenPercentOfGangMembers;
+        let moneyLossed = Math.min(gameState.players[activePlayer].money,lossAmount*tenPercentOfGangMembers);
+        gameState.players[activePlayer].money-=(moneyLossed);
+    }
+
     if(passedGo){
         gameState.players[player].money+=PASSGOREWARD;
     }
