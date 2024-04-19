@@ -1,6 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 const { onRequest, rooms, errorCodes, listeners, games,logger } = require('./index');
 const { generateRandomRoomCode, validateName, updateListener, deepcopy } = require('./utility');
+const { cleanGameState, getPlayerID } = require('./gameState');
 const defaultRoom = require("./defaultRoom.json")
 const defaultGameState = require("./defaultGameState.json");
 const defaultPlayer = require("./defaultPlayer.json")
@@ -57,8 +58,6 @@ async function deleteRoom(roomCode){
         logger.log("error", error);
     }
 }
-
-
 
 // gets room data, returns undefined if there is an error/no room. (helper function)
 async function getRoomData(roomCode) {
@@ -416,7 +415,11 @@ exports.getGameState = onRequest(async (req, res) => {
         res.json(result);
         return;
     }
+    
+	let playerID = getPlayerID(roomData, userID);
+	gameState = cleanGameState(gameState, playerID);
     result.gameState = gameState;
+
 	res.json(result);
 	return;
 })
