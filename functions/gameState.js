@@ -488,7 +488,7 @@ exports.applyAction = onRequest(async (req, res) => {
 exports.getActionsForTurn = onRequest(async (req, res) => {
     let roomCode = req.query.roomCode;
     let userID = req.query.userID;
-    result = {
+    let result = {
         error: errorCodes.noError,
         actions: []
     }
@@ -507,6 +507,7 @@ exports.getActionsForTurn = onRequest(async (req, res) => {
         return;
     }
     let requesterPlayerID = getPlayerID(roomData,userID);
+    console.log("playerID: " + requesterPlayerID,gameState.turn.playerTurn);
     if(requesterPlayerID != gameState.turn.playerTurn){
         res.json(result);
         return;
