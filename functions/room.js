@@ -58,7 +58,17 @@ async function deleteRoom(roomCode){
     }
 }
 
+function getPlayerID(roomData,userID){
+    let myPlayerID = -1;
+    for(let i = 0; i < roomData.users.length; i++){
+        if(roomData.users[i].userID == userID){
+            myPlayerID = roomData.users[i].playerID;
+        }
+    }
+  return myPlayerID;
+}
 
+exports.getPlayerID = getPlayerID;
 
 // gets room data, returns undefined if there is an error/no room. (helper function)
 async function getRoomData(roomCode) {
@@ -98,12 +108,28 @@ async function getGameData(gameID){
     }
 }
 
-exports.getGameData = getGameData;
+function cleanGameState(gameState, userID) {
+    const partialGameState = deepcopy(gameState);
+    partialGameState.gameID = -1;
 
-function cleanGame(gameState,userID){
-    return gameState; //implement later?
+	let newAmbushes = [];
+	// add gang members from abushes to public gang member counts except for the current player
+    partialGameState.ambushes.forEach((ambush) => {
+        let ownerID = ambush.ownerID;
+		if(ownerID == userID) 
+			newAmbushes.push(ambush);
+		else
+	        partialGameState.players[ownerID].gangMembers+=ambush.gangMembers;
+    });
+    partialGameState.ambushes = newAmbushes;
+
+	// remove all hideouts except the current player's
+    for (let i = 0; i < partialGameState.players.length; i++) 
+		if(i != playerID)
+			partialGameState.players[i].hideouts.length = 0;
+	
+    return partialGameState;
 }
-
 
 // makes a room with a random room code
 // returns the room code of the room created
@@ -324,7 +350,7 @@ exports.startGame = onRequest(async (req, res) => {
 
     const changeRoomData = await rooms
         .doc(roomCode)
-        .set(roomData)
+        .set(roomData);
 
     await updateListener(roomData.listenDocumentID, true);
     res.json({ error: errorCodes.noError });
@@ -423,7 +449,11 @@ exports.getGameState = onRequest(async (req, res) => {
         res.json(result);
         return;
     }
+    
+	let playerID = getPlayerID(roomData, userID);
+	gameState = cleanGameState(gameState, playerID);
     result.gameState = gameState;
+
 	res.json(result);
 	return;
 })

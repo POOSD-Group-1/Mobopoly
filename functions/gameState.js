@@ -1,4 +1,4 @@
-const { getRoomData, getGameData } = require("./room");
+const { getPlayerID, getRoomData, getGameData } = require("./room");
 const { deepcopy, updateListener } = require("./utility");
 const { v4: uuidv4 } = require('uuid');
 const { onRequest, rooms, listeners,logger, games, errorCodes } = require('./index');
@@ -24,10 +24,10 @@ const actionTypes = Object.freeze({
 });
 
 //
-exampleAction = {
-    type: "action type",
-    numGangMembers: 0,
-}
+defaultAction = {
+	type: -1,
+	numGangMembers: 0,
+};
 
 exampleAmbush = {
     location: 0,
@@ -133,19 +133,6 @@ function killPlayer(gameState, playerID) {
     gameState.players[playerIndex].isAlive = false;
 
     return gameState;
-}
-
-function cleanGameState(gameState) {
-    const partialGameState = deepcopy(gameState);
-    partialGameState.gameID = -1;
-    partialGameState.ambushes.forEach((ambush) => {
-        let ownerID = ambush.ownerID;
-        partialGameState.players[ownerID].gangMembers+=ambush.gangMembers;
-    });
-    partialGameState.ambushes.length = 0;
-    for (let i = 0; i < partialGameState.players.length; i++)
-        partialGameState.players[i].hideouts.length = 0;
-    return partialGameState;
 }
 
 //COMPLETELY UNTESTED AT ALL LIKE SERIOUSLY NOT TESTED FRFR
@@ -338,15 +325,62 @@ function applyActionHelper(gameState, action){
     }
 }
 
-function getPlayerID(roomData,userID){
-    let myPlayerID = -1;
-    for(let i = 0; i < roomData.users.length; i++){
-        if(roomData.users[i].userID == userID){
-            myPlayerID = roomData.users[i].playerID;
-        }
-    }
-    return myPlayerID;
-}
+// UNTESTED
+function generateActions(gameState) {
+	let possibleActions = [];
+
+	// Roll the dice
+	let diceRollAction = { ...defaultAction };
+	diceRollAction.type = ROLL_DICE;
+	if(validateAction(gameState, diceRollAction)) {
+		possibleActions.push(diceRollAction);
+		return possibleActions;
+	}
+
+	let activePlayer = gameState.turn.playerTurn;
+	let playerNumGangMembers = gameState.players[activePlayer].numGangMembers;
+
+	// Wager
+	// Might need to add if there are 0 gang members?
+	let wagerAction = { ...defaultAction };
+	wagerAction.type = WAGER;
+	wagerAction.numGangMembers = playerNumGangMembers;
+	if(validateAction(gameState, wagerAction)) {
+		possibleActions.push(wagerAction);
+		return possibleActions;
+	}
+
+	// Buy property
+	let buyPropertyAction = { ...defaultAction };
+	buyPropertyAction.type = BUY_PROPERTY;
+	if(validateAction(gameState, buyPropertyAction)) {
+		possibleActions.push(buyPropertyAction);
+	}
+
+	// Create hideout
+	let createHideoutAction = { ...defaultAction };
+	createHideoutAction.type = CREATE_HIDEOUT;
+	if(validateAction(gameState, createHideoutAction)) {
+		possibleActions.push(createHideoutAction);
+	}
+
+	// Create ambush
+	let createAmbushAction = { ...defaultAction };
+	createAmbushAction.type = CREATE_AMBUSH;
+	createAmbushAction.numGangMembers = playerNumGangMembers;
+	if(validateAction(gameState, createAmbushAction)) {
+		possibleActions.push(createAmbushAction);
+	}
+
+	// End turn
+	let endTurnAction = { ...defaultAction };
+	endTurnAction.action = END_TURN;
+	if(validateAction(gameState, endTurnAction)) {
+		possibleActions.push(endTurnAction);
+	}
+
+	return possibleActions;
+}    
 
 exports.applyAction = onRequest(async (req, res) => {
 	const roomCode = req.query.roomCode;
