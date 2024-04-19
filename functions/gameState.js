@@ -203,7 +203,7 @@ function applyAmbush(gameState, ambush){
         return gameState;
     }
 
-    let gangMembersLost = min(ambush.numGangMembers*2,gameState.players[perp].numGangMembers);
+    let gangMembersLost = Math.min(ambush.numGangMembers*2,gameState.players[perp].numGangMembers);
     let ambushRemainingGangMembers = ambush.numGangMembers-gangMembersLost;
     let moneyLost = ambushRemainingGangMembers*MUGGINGAMOUNT;
     gameState.players[victim].numGangMembers-=gangMembersLost;
@@ -213,6 +213,13 @@ function applyAmbush(gameState, ambush){
     }
     
     gameState.players[perp].money+=moneyLost;
+    return gameState;
+}
+
+function applyEndTurn(gameState){
+    gameState.turn.hasRolledDice = false;
+    gameState.turn.hasWagered = false;
+    gameState.turn.playerTurn = getNextPlayer(gameState);
     return gameState;
 }
 
@@ -277,18 +284,27 @@ function applyActionHelper(gameState, action){
             applicableAmbushes.forEach((currentAmbush) => {
                 gameState = applyAmbush(gameState,currentAmbush); 
             });
+            if (!gameState.players[activePlayer].isAlive){
+                gameState = applyEndTurn(gameState);
+                return gameState;
+            }
+
             console.log("applying ambushes")
             logGameState(gameState);
             
             //paying rent to property owners
             let propertyOwner = gameState.properties[newPlayerLocation].playerID;
             if(propertyOwner != -1 && propertyOwner != activePlayer){
-                let amountTransfered = min(gameState.properties[newPlayerLocation].rent,
+                let amountTransfered = Math.min(gameState.properties[newPlayerLocation].rent,
                                            gameState.players[activePlayer].money);
                 gameState.players[propertyOwner].money+=amountTransfered;
                 gameState.players[activePlayer].money-=amountTransfered;
                 if(amountTransfered < gameState.properties[newPlayerLocation].rent)
                     gameState = killPlayer(gameState,activePlayer);
+            }
+            if(!gameState.players[activePlayer].isAlive){
+                gameState = applyEndTurn(gameState);
+                return gameState;
             }
             console.log("paying rent")
             logGameState(gameState);
@@ -325,17 +341,17 @@ function applyActionHelper(gameState, action){
             let attackerWin = didAttackerWin(defendingGangMembers,action.numGangMembers);
             if(attackerWin){
                 let attackers = 2 * action.numGangMembers;
-                let numDefenderLost = min(gameState.players[defendingPlayer].numGangMembers,attackers);
+                let numDefenderLost = Math.min(gameState.players[defendingPlayer].numGangMembers,attackers);
                 attackers -= numDefenderLost;
                 gameState.players[defendingPlayer].numGangMembers-=numDefenderLost;
                 if(attackers > 0){
                     let defenderMoney = gameState.players[defendingPlayer].money;
-                    let moneyLost = max(MINWAGERLOSS,Math.floor(0.2*defenderMoney+0.1));
-                    let moneyGain = min(moneyLost,defenderMoney);
+                    let moneyLost = Math.max(MINWAGERLOSS,Math.floor(0.2*defenderMoney+0.1));
+                    let moneyGain = Math.min(moneyLost,defenderMoney);
                     gameState.players[activePlayer].money+=moneyGain;
                     gameState.players[defendingPlayer].money-=moneyLost;
                     if(gameState.players[defendingPlayer].money < 0){
-                        killPlayer(gameState,defendingPlayer);
+                        gameState = killPlayer(gameState,defendingPlayer);
                     }
                 }
             }else{
@@ -344,10 +360,7 @@ function applyActionHelper(gameState, action){
             gameState.turn.hasWagered = true;
             return gameState;
         case actionTypes.END_TURN:
-            gameState.turn.hasRolledDice = false;
-            gameState.turn.hasWagered = false;
-            gameState.turn.playerTurn = getNextPlayer(gameState,activePlayer);
-            return gameState;
+            return applyEndTurn(gameState);
     }
 }
 
