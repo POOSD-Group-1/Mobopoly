@@ -67,34 +67,17 @@ const playerAnchorsUnscaled = [
 ];
 const playerAnchors = playerAnchorsUnscaled.map((anchorArr) => anchorArr.map((anchor)=>anchor.clone().scale(scaleFactor)));
 console.log(locationAnchorsUnscaled);
-function getLocationColor(location) {
-    if (initialGameJSON.properties[location].name.includes("Brown")) {
-        return "#784D3C";
+function getLocationColor(location, boardcolor=false) {
+    const lower = [1, 4, 8, 11, 15, 18, 22, 25, 0];
+    const upper = [3, 6, 10, 13, 17, 20, 24, 27, 27];
+    const colors = ["#784D3C", "#8BB0C6", "#A93A7F", "#D58A37", "#BB292C", "#FFF039", "#5EA45C", "#2C67A1", "#FFFFFF"];
+    const othercolors = ["#DFDFDF", "#8BB0C6", "#27445F", "#D58A37", "#FF2C7D", "#FFF039", "#4E0100", "#2C67A1", "#FFFFFF"]
+    for(let i = 0; i < lower.length; i++) {
+        if(lower[i] <= location && location <= upper[i]) {
+            return boardcolor ? othercolors[i] : colors[i];
+        }
     }
-    else if (initialGameJSON.properties[location].name.includes("Light Blue")) {
-        return "#B9DAED";
-    }
-    else if (initialGameJSON.properties[location].name.includes("Magenta")) {
-        return "#A93A7F";
-    }
-    else if (initialGameJSON.properties[location].name.includes("Orange")) {
-        return "#D58A37";
-    }
-    else if (initialGameJSON.properties[location].name.includes("Red")) {
-        return "#BB292C";
-    }
-    else if (initialGameJSON.properties[location].name.includes("Yellow")) {
-        return "#FFF039";
-    }
-    else if (initialGameJSON.properties[location].name.includes("Green")) {
-        return "#5EA45C";
-    }
-    else if (initialGameJSON.properties[location].name.includes("Dark Blue")) {
-        return "#2C67A1";
-    }
-    else {
-        return "#FFFFFF";
-    }
+    return colors[colors.length - 1];
 }
 
 
