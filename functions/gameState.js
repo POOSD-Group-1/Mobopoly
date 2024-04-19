@@ -44,6 +44,7 @@ exampleAmbush = {
 }
 
 function validateAction(gameState, action) {
+    if(gameState.isGameOver == true) return false;
     console.log("validateAction" + action.type);
     logGameState(gameState)
     // Must roll dice at beginning of turn
@@ -144,7 +145,19 @@ function killPlayer(gameState, playerID) {
 
     // Make player a spectator
     gameState.players[playerIndex].isAlive = false;
-
+    gameState.ranking.push(playerIndex);
+    let numberAlive = 0;
+    for(let i = 0; i < gameState.players.length; i++){
+        if(gameState.players[i].isAlive) numberAlive++;
+    }
+    if(numberAlive == 1){
+        for(let i = 0; i < gameState.players.length; i++){
+            if(gameState.players[i].isAlive){
+                gameState.ranking.push(gameState.players[i].playerID);
+            }
+        }
+        gameState.isGameOver = true;
+    }
     return gameState;
 }
 
@@ -210,6 +223,9 @@ function applyAmbush(gameState, ambush){
     gameState.players[victim].money-=moneyLost;
     if(gameState.players[victim].money < 0){
         gameState = killPlayer(gameState,victim);
+        if(gameState.isGameOver == true){
+            return gameState;
+        }
     }
     
     gameState.players[perp].money+=moneyLost;
@@ -299,8 +315,13 @@ function applyActionHelper(gameState, action){
                                            gameState.players[activePlayer].money);
                 gameState.players[propertyOwner].money+=amountTransfered;
                 gameState.players[activePlayer].money-=amountTransfered;
-                if(amountTransfered < gameState.properties[newPlayerLocation].rent)
+                if(amountTransfered < gameState.properties[newPlayerLocation].rent){
                     gameState = killPlayer(gameState,activePlayer);
+                    if(gameState.isGameOver == true){
+                        return gameState;
+                    }
+                }
+                    
             }
             if(!gameState.players[activePlayer].isAlive){
                 gameState = applyEndTurn(gameState);
@@ -352,6 +373,9 @@ function applyActionHelper(gameState, action){
                     gameState.players[defendingPlayer].money-=moneyLost;
                     if(gameState.players[defendingPlayer].money < 0){
                         gameState = killPlayer(gameState,defendingPlayer);
+                        if(gameState.isGameOver == true){
+                            return gameState;
+                        }
                     }
                 }
             }else{
