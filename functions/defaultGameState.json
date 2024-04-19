@@ -1,0 +1,239 @@
+{
+    "gameID": 1,
+    "players": [],
+    "properties": [
+        {
+            "name": "Go",
+            "cost": 10000000,
+            "rent": 0,
+            "location": 0,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Pool Hall",
+            "cost": 50,
+            "rent": 50,
+            "location": 1,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Soft Stone Bar",
+            "cost": 50,
+            "rent": 50,
+            "location": 2,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Soft Stone Casino",
+            "cost": 50,
+            "rent": 50,
+            "location": 3,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Boxing Ring",
+            "cost": 50,
+            "rent": 50,
+            "location": 4,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "The Worldwide Bar",
+            "cost": 50,
+            "rent": 50,
+            "location": 5,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "The Worldwide Casino",
+            "cost": 50,
+            "rent": 50,
+            "location": 6,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Jail",
+            "cost": 10000000,
+            "rent": 0,
+            "location": 7,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Shooting Range",
+            "cost": 50,
+            "rent": 50,
+            "location": 8,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Dionysus Bar",
+            "cost": 50,
+            "rent": 50,
+            "location": 9,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Dionysus Casino",
+            "cost": 50,
+            "rent": 50,
+            "location": 10,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Cigar Lounge",
+            "cost": 50,
+            "rent": 50,
+            "location": 11,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Brutus Plaza Bar",
+            "cost": 50,
+            "rent": 50,
+            "location": 12,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Brutus Plaze Casino",
+            "cost": 50,
+            "rent": 50,
+            "location": 13,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Betrayal",
+            "cost": 10000000,
+            "rent": 0,
+            "location": 14,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Nightclub",
+            "cost": 50,
+            "rent": 50,
+            "location": 15,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Royal Flush Bar",
+            "cost": 50,
+            "rent": 50,
+            "location": 16,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Royal Flush Casino",
+            "cost": 50,
+            "rent": 50,
+            "location": 17,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Pawn Shop",
+            "cost": 50,
+            "rent": 50,
+            "location": 18,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "The Gold Bar",
+            "cost": 50,
+            "rent": 50,
+            "location": 19,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "The Gold Bar Casino",
+            "cost": 50,
+            "rent": 50,
+            "location": 20,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Go to Jail",
+            "cost": 10000000,
+            "rent": 0,
+            "location": 21,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "East River",
+            "cost": 50,
+            "rent": 50,
+            "location": 22,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Last Ante Bar",
+            "cost": 50,
+            "rent": 50,
+            "location": 23,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Last Ante Casino",
+            "cost": 50,
+            "rent": 50,
+            "location": 24,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Horse Track",
+            "cost": 50,
+            "rent": 50,
+            "location": 25,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Dragon Tail Bar",
+            "cost": 50,
+            "rent": 50,
+            "location": 26,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        },
+        {
+            "name": "Dragon Tail Casino",
+            "cost": 50,
+            "rent": 50,
+            "location": 27,
+            "playerID": -1,
+			"mostRecentPlayer": -1
+        }
+    ],
+    "ambushes": [],
+    "turn": {
+        "playerTurn": 0,
+        "hasRolledDice": false,
+        "hasWagered": false,
+		"deniedProperty": false
+    },
+    "dice1": -1,
+    "dice2": -1
+}
