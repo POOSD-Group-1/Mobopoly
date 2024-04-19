@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, connectFirestoreEmulator  } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: "AIzaSyClh8rI28Fgmrd9n6980D2DTx8NvaFU4Nc",
@@ -16,7 +16,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
-const baseURL = "https://us-central1-mobopoly-866b1.cloudfunctions.net/";
+
+const DEBUG = false;
+if(DEBUG) connectFirestoreEmulator(db, 'localhost', 8080);
+
+const baseURL = DEBUG ? "http://localhost:5001/mobopoly-866b1/us-central1/" : "https://us-central1-mobopoly-866b1.cloudfunctions.net/";
 
 const createFunction = (functionName) => {
     const func = async (params = {}) => {
@@ -27,6 +31,7 @@ const createFunction = (functionName) => {
                 'Content-Type': 'application/json'
             }
         };
+        console.log(params);
         const url = `${baseURL}${functionName}?${queryParams}`;
         console.log(url);
         const response = await fetch(url, options);

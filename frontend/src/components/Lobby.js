@@ -40,6 +40,7 @@ function Lobby() {
         setUserNames(usersInRoom);
         setLoaded(true);
     }
+    console.log(roomListener, roomCode, userID);
     // Load data from local storage
     useEffect(() => {
         const data = localStorage.getItem(roomCode);
@@ -57,6 +58,8 @@ function Lobby() {
     useEffect(() => {
         if (roomListener === null) return;
         const unsubscribe = onSnapshot(doc(db, "listeners", roomListener), (doc) => {
+            const data = doc.data();
+            console.log(data);
             const { counter, gameStarted } = doc.data();
             if (!gameStarted) {
                 refreshRoomData();
