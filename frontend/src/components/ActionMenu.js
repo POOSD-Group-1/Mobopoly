@@ -44,6 +44,7 @@ function ActionMenu({ roomCode, userID, roomListener }) {
     };
     const clickWager = () => {
         doAction({ type: actionTypes.WAGER, numGangMembers: wagerGangMembers });
+        setWagerGangMembers(0);
     };
     const clickBuyProperty = () => {
         doAction({ type: actionTypes.BUY_PROPERTY });
@@ -53,6 +54,7 @@ function ActionMenu({ roomCode, userID, roomListener }) {
     };
     const clickCreateAmbush = () => {
         doAction({ type: actionTypes.CREATE_AMBUSH, numGangMembers: ambushGangMembers });
+        setAmbushGangMembers(1);
     };
     const clickEndTurn = () => {
         doAction({ type: actionTypes.END_TURN });
@@ -93,7 +95,7 @@ function ActionMenu({ roomCode, userID, roomListener }) {
         refreshActions();
     }, [gameState]);
 
-    const hasActions = diceActions.length > 0 || wagerActions.length > 0 || buyPropertyActions.length > 0 || createHideoutActions.length > 0 || createAmbushActions.length > 0 || endTurnActions.length > 0;
+    let hasActions = (diceActions.length > 0 || wagerActions.length > 0 || buyPropertyActions.length > 0 || createHideoutActions.length > 0 || createAmbushActions.length > 0 || endTurnActions.length > 0);
 
     return <div className="action-menu">
         <Typography variant="h5">Actions</Typography>
