@@ -5,6 +5,8 @@ import { resizeToDim } from "../data/util";
 
 class gameScene extends Phaser.Scene {
   players = [];
+  board = null;
+  coloredBoard = null;
   createCalled = false;
   constructor() {
     super("gameScene");
@@ -12,15 +14,24 @@ class gameScene extends Phaser.Scene {
   preload() {
     this.load.setBaseURL(window.location.origin);
     this.load.image("board", 'assets/board.png');
+    this.load.image("boardcolor", 'assets/boardcolor.png');
     for (let i = 0; i < MAX_PLAYERS; i++) {
       this.load.image(`piece${i}`, `assets/piece${i}.png`);
     }
   }
   create(config) {
-    const board = this.add.image(center.x, center.y, "board");
-    resizeToDim(board, boardWidth);
+    this.board = this.add.image(center.x, center.y, "board");
+    resizeToDim(this.board, boardWidth);
+    this.coloredBoard = this.add.image(center.x, center.y, "boardcolor");
+    resizeToDim(this.coloredBoard, boardWidth);
+    this.coloredBoard.setVisible(false);
     this.setPlayercount(config.numPlayers);
     this.createCalled = true;
+  }
+
+  toggleBoardColor() {
+    this.coloredBoard.setVisible(!this.coloredBoard.visible);
+    this.board.setVisible(!this.board.visible);
   }
 
   setPlayercount(playerCount) {

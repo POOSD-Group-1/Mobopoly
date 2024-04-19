@@ -104,7 +104,7 @@ function Lobby() {
                 }
             />
             {name === user && <IconButton variant="contained" onClick={clickLeaveRoom} sx={{ marginLeft: "auto" }}>
-                <CloseIcon />
+                <CloseIcon style={{color: "red"}} />
             </IconButton>}
         </Card>
     );

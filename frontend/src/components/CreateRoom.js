@@ -73,7 +73,7 @@ const CreateRoom = () => {
             <div className="button-row">
                 <Button variant="contained" disabled={error} type="submit" sx={{ marginTop: "1rem" }}
                     startIcon={creating ? <CircularProgress size={20} color="inherit" /> : null}
-                >Create Room</Button>
+                >{creating ? "Creating" : "Create"} Room</Button>
             </div>
         </form>
     );

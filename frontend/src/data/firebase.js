@@ -49,6 +49,7 @@ const startGame = createFunction("startGame");
 const getGameState = createFunction("getGameState");
 const getActionsForTurn = createFunction("getActionsForTurn");
 const applyAction = createFunction("applyAction");
+const quitGame = createFunction("quitGame");
 
 const errorCodes = Object.freeze({
 	noError: 0,
@@ -99,4 +100,4 @@ function getErrorMessage(errorCode) {
     }
 }
 
-export { db, errorCodes, actionTypes, getErrorMessage, makeRoom, joinRoom, getRoomInfo, leaveRoom, startGame, getGameState, getActionsForTurn, applyAction };
+export { db, errorCodes, actionTypes, getErrorMessage, makeRoom, joinRoom, getRoomInfo, leaveRoom, startGame, getGameState, getActionsForTurn, applyAction, quitGame };

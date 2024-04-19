@@ -16,7 +16,7 @@ const JoinRoom = () => {
         setName(e.target.value);
     }
     const changeRoomCode = (e) => {
-        setRoomCode(e.target.value);
+        setRoomCode(e.target.value.toUpperCase());
     }
     const canJoin = validateName(name) && validateRoomCode(roomCode);
     const goToRoom = async (event) => {
@@ -67,7 +67,7 @@ const JoinRoom = () => {
             <div className="button-row">
                 <Button variant="contained" disabled={!canJoin} type="submit" 
                 sx={{ marginTop: "1rem" }} startIcon={joining ? <CircularProgress size={20} color="inherit"/> : null}>
-                    Join Room</Button>
+                    {joining ? "Joining" : "Join"} Room</Button>
             </div>
         </form>
     );
