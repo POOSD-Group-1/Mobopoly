@@ -208,5 +208,6 @@
     "dice1": -1,
     "dice2": -1,
     "ranking": [],
-    "isGameOver": false
+    "isGameOver": false,
+    "history": []
 }
