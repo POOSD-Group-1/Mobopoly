@@ -1,14 +1,19 @@
 .logo {
-    /* background-color: #282c34; */
-    /* min-height: 100vh; */
     width: 50%;
     height: auto;
     margin-bottom: 10rem;
-    /* flex-direction: column; */
-    /* align-items: center; */
-    /* justify-content: center; */
-    /* font-size: calc(10px + 2vmin); */
-    /* color: white; */
+}
+
+.logo-rules {
+    width: 50%;
+    height: auto;
+    margin-bottom: 2rem;
+}
+
+.logo-small {
+    width: 25%;
+    height: auto;
+    margin-bottom: 2rem;
 }
 
 
@@ -18,6 +23,33 @@
     flex-direction: column;
     display: flex;
     padding: 2rem;
+}
+
+.lobby {
+    /* align-items: center; */
+    justify-content: center;
+    flex-direction: column;
+    display: flex;
+    padding: 2rem;
+    /* width: 30%; */
+}
+
+.rules {
+    /* align-items: center; */
+    justify-content: center;
+    flex-direction: column;
+    display: flex;
+    padding: 1rem;
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
 }
 
 .button-row {
@@ -53,20 +85,30 @@
 .game-player-container {
     display: flex;
     gap: 1rem;
+    /* background-color: red; */
 }
 
 .player {
     padding: 1rem;
     border: 1px solid #ccc;
-    border-radius: 0.5rem;
-    background-color: #f9f9f9;
+    /* display: inline-block;
+    width: auto; */
+    /* width: 500px; */
+    /* width: 100%; */
+}
+
+.player-icon {
+    width: 24px; 
+    height: 24px; 
+    object-fit: 'contain';
+    padding: 0.2rem;
 }
 
 .player-header {
     display: flex;
     flex-direction: row;
     align-items: center;
-    background-color: green;
+    /* background-color: green; */
     gap: 1rem;
 }
 
@@ -74,9 +116,59 @@
     margin: 0;
 }
 
+.player-icon-container {
+    display: flex;
+    flex-direction: row;
+}
+
 .player-container {
-    gap: 0.5rem;
+    gap: 1rem;
+    display: flex;
+    flex-direction: row;
+    margin: 1rem;
+    /* background-color: grey; */
+}
+
+.location {
+    border-left-width: 0.5rem;
+    border-left-style: solid;
+    /* padding: 0rem; */
+    display: inline-block;
+}
+
+.error-box {
+    padding: 1rem;
+    /* border: 1px solid red; */
+    border-radius: 0.5rem;
+    background-color: #f8d7da;
+    color: #721c24;
+    margin-top: 1rem;
+    display: flex;
+}
+
+.error-icon {
+    color: #721c24;
+    margin-right: 0.5rem;
+}
+
+.action-menu {
     display: flex;
     flex-direction: column;
-    /* background-color: grey; */
+    gap: 1rem;
+}
+
+.dice-container {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.dice-box {
+    height: 3rem;
+    width: 3rem;
+    border: 1px solid black;
+    border-radius: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
