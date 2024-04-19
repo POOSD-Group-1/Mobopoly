@@ -138,16 +138,27 @@ function killPlayer(gameState, playerID) {
 function cleanGameState(gameState, userID) {
     const partialGameState = deepcopy(gameState);
     partialGameState.gameID = -1;
+
+	let newAmbushes = [];
+	// add gang members from abushes to public gang member counts except for the current player
     partialGameState.ambushes.forEach((ambush) => {
         let ownerID = ambush.ownerID;
-		if(ownerID == userID) {}
-        partialGameState.players[ownerID].gangMembers+=ambush.gangMembers;
+		if(ownerID == userID) 
+			newAmbushes.push(ambush);
+		else
+	        partialGameState.players[ownerID].gangMembers+=ambush.gangMembers;
     });
-    partialGameState.ambushes.length = 0;
-    for (let i = 0; i < partialGameState.players.length; i++)
-        partialGameState.players[i].hideouts.length = 0;
+    partialGameState.ambushes = newAmbushes;
+
+	// remove all hideouts except the current player's
+    for (let i = 0; i < partialGameState.players.length; i++) 
+		if(i != playerID)
+			partialGameState.players[i].hideouts.length = 0;
+	
     return partialGameState;
 }
+
+exports.cleanGameState = cleanGameState;
 
 //COMPLETELY UNTESTED AT ALL LIKE SERIOUSLY NOT TESTED FRFR
 function rollDice(){
@@ -349,8 +360,10 @@ function getPlayerID(roomData,userID){
   return myPlayerID;
 }
 
+exports.getPlayerID = getPlayerID;
+
 // UNTESTED
-function generateAction(gameState) {
+function generateActions(gameState) {
 	let possibleActions = [];
 
 	// Roll the dice

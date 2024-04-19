@@ -19,7 +19,7 @@
 			"mostRecentPlayer": -1
         },
         {
-            "name": "Brown Bar",
+            "name": "Soft Stone Bar",
             "cost": 50,
             "rent": 50,
             "location": 2,
@@ -27,7 +27,7 @@
 			"mostRecentPlayer": -1
         },
         {
-            "name": "Brown Casino",
+            "name": "Soft Stone Casino",
             "cost": 50,
             "rent": 50,
             "location": 3,
@@ -43,7 +43,7 @@
 			"mostRecentPlayer": -1
         },
         {
-            "name": "Light Blue Bar",
+            "name": "The Worldwide Bar",
             "cost": 50,
             "rent": 50,
             "location": 5,
@@ -51,7 +51,7 @@
 			"mostRecentPlayer": -1
         },
         {
-            "name": "Light Blue Casino",
+            "name": "The Worldwide Casino",
             "cost": 50,
             "rent": 50,
             "location": 6,
@@ -75,7 +75,7 @@
 			"mostRecentPlayer": -1
         },
         {
-            "name": "Magenta Bar",
+            "name": "Dionysus Bar",
             "cost": 50,
             "rent": 50,
             "location": 9,
@@ -83,7 +83,7 @@
 			"mostRecentPlayer": -1
         },
         {
-            "name": "Magenta Casino",
+            "name": "Dionysus Casino",
             "cost": 50,
             "rent": 50,
             "location": 10,
@@ -99,7 +99,7 @@
 			"mostRecentPlayer": -1
         },
         {
-            "name": "Orange Bar",
+            "name": "Brutus Plaza Bar",
             "cost": 50,
             "rent": 50,
             "location": 12,
@@ -107,7 +107,7 @@
 			"mostRecentPlayer": -1
         },
         {
-            "name": "Orange Casino",
+            "name": "Brutus Plaze Casino",
             "cost": 50,
             "rent": 50,
             "location": 13,
@@ -131,7 +131,7 @@
 			"mostRecentPlayer": -1
         },
         {
-            "name": "Red Bar",
+            "name": "Royal Flush Bar",
             "cost": 50,
             "rent": 50,
             "location": 16,
@@ -139,7 +139,7 @@
 			"mostRecentPlayer": -1
         },
         {
-            "name": "Red Casino",
+            "name": "Royal Flush Casino",
             "cost": 50,
             "rent": 50,
             "location": 17,
@@ -155,7 +155,7 @@
 			"mostRecentPlayer": -1
         },
         {
-            "name": "Yellow Bar",
+            "name": "The Gold Bar",
             "cost": 50,
             "rent": 50,
             "location": 19,
@@ -163,7 +163,7 @@
 			"mostRecentPlayer": -1
         },
         {
-            "name": "Yellow Casino",
+            "name": "The Gold Bar Casino",
             "cost": 50,
             "rent": 50,
             "location": 20,
@@ -187,7 +187,7 @@
 			"mostRecentPlayer": -1
         },
         {
-            "name": "Green Bar",
+            "name": "Last Ante Bar",
             "cost": 50,
             "rent": 50,
             "location": 23,
@@ -195,7 +195,7 @@
 			"mostRecentPlayer": -1
         },
         {
-            "name": "Green Casino",
+            "name": "Last Ante Casino",
             "cost": 50,
             "rent": 50,
             "location": 24,
@@ -211,7 +211,7 @@
 			"mostRecentPlayer": -1
         },
         {
-            "name": "Dark Blue Bar",
+            "name": "Dragon Tail Bar",
             "cost": 50,
             "rent": 50,
             "location": 26,
@@ -219,7 +219,7 @@
 			"mostRecentPlayer": -1
         },
         {
-            "name": "Dark Blue Casino",
+            "name": "Dragon Tail Casino",
             "cost": 50,
             "rent": 50,
             "location": 27,
