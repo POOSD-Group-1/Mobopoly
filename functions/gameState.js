@@ -206,13 +206,13 @@ function applyAmbush(gameState, ambush){
     let gangMembersLost = min(ambush.numGangMembers*2,gameState.players[perp].numGangMembers);
     let ambushRemainingGangMembers = ambush.numGangMembers-gangMembersLost;
     let moneyLost = ambushRemainingGangMembers*MUGGINGAMOUNT;
-    gameState.players[victim]-=gangMembersLost;
-    gameState.players[victim]-=moneyLost;
-    if(gameState.players[victim] < 0){
+    gameState.players[victim].numGangMembers-=gangMembersLost;
+    gameState.players[victim].money-=moneyLost;
+    if(gameState.players[victim].money < 0){
         gameState = killPlayer(gameState,victim);
     }
     
-    gameState.players[perp]+=moneyLost;
+    gameState.players[perp].money+=moneyLost;
     return gameState;
 }
 
@@ -293,7 +293,7 @@ function applyActionHelper(gameState, action){
             console.log("paying rent")
             logGameState(gameState);
 
-            let playersOnSameSquare = gameState.players.filter((player) => player.location == newPlayerLocation);
+            let playersOnSameSquare = gameState.players.filter((player) => player.isAlive && player.location == newPlayerLocation);
             gameState.turn.hasRolledDice = true;
             if(playersOnSameSquare.length <= 1){
                 gameState.turn.hasWagered = true;
@@ -311,7 +311,7 @@ function applyActionHelper(gameState, action){
             gameState.players[activePlayer].money-=hideoutCost;
             return gameState;
         case actionTypes.CREATE_AMBUSH:
-            myAmbush = {
+            let myAmbush = {
                 location: playerLoc,
                 numGangMembers: action.numGangMembers,
                 playerID: activePlayer
@@ -324,16 +324,17 @@ function applyActionHelper(gameState, action){
             let defendingGangMembers = gameState.players[defendingPlayer].numGangMembers;
             let attackerWin = didAttackerWin(defendingGangMembers,action.numGangMembers);
             if(attackerWin){
-                let numDefenderLost = min(gameState.players[defendingPlayer],2*action.numGangMembers);
+                let attackers = 2 * action.numGangMembers;
+                let numDefenderLost = min(gameState.players[defendingPlayer].numGangMembers,attackers);
+                attackers -= numDefenderLost;
                 gameState.players[defendingPlayer].numGangMembers-=numDefenderLost;
-                let attackersRemain = (2*action.numGangMembers)>gameState.players[defendingPlayer];
-                if(attackersRemain){
+                if(attackers > 0){
                     let defenderMoney = gameState.players[defendingPlayer].money;
-                    let moneyLost = max(MINWAGERLOSS,math.floor(0.2*defenderMoney+0.1));
+                    let moneyLost = max(MINWAGERLOSS,Math.floor(0.2*defenderMoney+0.1));
                     let moneyGain = min(moneyLost,defenderMoney);
                     gameState.players[activePlayer].money+=moneyGain;
                     gameState.players[defendingPlayer].money-=moneyLost;
-                    if(MINWAGERLOSS > defenderMoney){
+                    if(gameState.players[defendingPlayer].money < 0){
                         killPlayer(gameState,defendingPlayer);
                     }
                 }
@@ -438,6 +439,11 @@ exports.applyAction = onRequest(async (req, res) => {
     let requesterPlayerID = getPlayerID(roomData,userID);
     let gameID = roomData.gameID;
     let gameState = await getGameData(gameID);
+    if(gameState == undefined){
+        result.error = errorCodes.roomNotFound;
+        res.json(result);
+        return;
+    }
     let action = {
         type: myActionType,
         numGangMembers: myNumGangMembers
