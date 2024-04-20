@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button, CircularProgress, TextField } from '@mui/material';
 import ErrorMessage from "./ErrorMessage.js";
 import { randomName, validateName, getNameHelperText } from "../data/util.js";
@@ -16,6 +16,7 @@ const CreateRoom = () => {
         setName(e.target.value);
     }
     const createRoom = async (event) => {
+        if (creating) return;
         event.preventDefault();
         if (error) {
             return;
@@ -63,7 +64,9 @@ const CreateRoom = () => {
     };
     return (
         <form className="landing" onSubmit={createRoom}>
-            <img src="/assets/logo.png" alt="Monopoly Logo" className="logo" />
+            <Link to="/" style={{display: "flex", justifyContent: "center", flexDirection: "row"}}>
+                <img src="/assets/logo.png" alt="Monopoly Logo" className="logo" />
+            </Link>
             <TextField variant="outlined" label="Enter a Name" required
                 value={name}
                 onChange={changeName}

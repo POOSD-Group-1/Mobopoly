@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button, TextField, FormHelperText, CircularProgress } from '@mui/material';
 import ErrorMessage from "./ErrorMessage.js";
 import { joinRoom, errorCodes, getErrorMessage } from "../data/firebase.js";
@@ -21,7 +21,7 @@ const JoinRoom = () => {
     const canJoin = validateName(name) && validateRoomCode(roomCode);
     const goToRoom = async (event) => {
         event.preventDefault();
-        if (!canJoin) return;
+        if (!canJoin || joining) return;
         if (localStorage.getItem(roomCode) !== null) {
             setErrorMessage("You have already joined the room.");
             return;
@@ -51,7 +51,9 @@ const JoinRoom = () => {
     };
     return (
         <form className="landing" onSubmit={goToRoom}>
-            <img src="/assets/logo.png" alt="Monopoly Logo" className="logo" />
+            <Link to="/" style={{display: "flex", justifyContent: "center", flexDirection: "row"}}>
+                <img src="/assets/logo.png" alt="Monopoly Logo" className="logo" />
+            </Link>
             <TextField variant="outlined" label="Enter a Name" required
                 value={name}
                 onChange={changeName}

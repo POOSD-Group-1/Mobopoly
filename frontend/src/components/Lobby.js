@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button, Card, Typography, CardHeader, Avatar, IconButton, Backdrop, CircularProgress } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
@@ -104,7 +104,7 @@ function Lobby() {
                 }
             />
             {name === user && <IconButton variant="contained" onClick={clickLeaveRoom} sx={{ marginLeft: "auto" }}>
-                <CloseIcon style={{color: "red"}} />
+                <CloseIcon style={{ color: "red" }} />
             </IconButton>}
         </Card>
     );
@@ -125,7 +125,9 @@ function Lobby() {
     };
     return (
         <div className="landing">
-            <img src="/assets/logo.png" alt="Monopoly Logo" className="logo-small" />
+            <Link to="/" style={{ display: "flex", justifyContent: "center", flexDirection: "row" }}>
+                <img src="/assets/logo.png" alt="Monopoly Logo" className="logo-small" />
+            </Link>
             <div style={{ position: "relative" }}>
                 <Card className="lobby" raised>
                     <Typography variant="h3">Room Code: {roomCode}</Typography>
@@ -137,7 +139,7 @@ function Lobby() {
                         Waiting for host to start the game...</Typography>}
                 </Card>
                 <Backdrop open={!loaded} sx={{ position: "absolute" }}>
-                    <CircularProgress color="inherit"/>
+                    <CircularProgress color="inherit" />
                 </Backdrop>
             </div>
         </div>)

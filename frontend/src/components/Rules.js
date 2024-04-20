@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Typography, List, ListItem, ListItemText } from "@mui/material";
 import "../styles.css";
 
@@ -20,7 +21,9 @@ function Rules() {
     ];
     return <div className="rules">
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <img src="/assets/logo.png" alt="Monopoly Logo" className="logo-rules" />
+            <Link to="/" style={{ display: "flex", justifyContent: "center", flexDirection: "row" }}>
+                <img src="/assets/logo.png" alt="Monopoly Logo" className="logo-rules" />
+            </Link>
             {/* <Typography variant="h4">Rules</Typography> */}
         </div>
         <div className="mafia-theme">

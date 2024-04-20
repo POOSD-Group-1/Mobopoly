@@ -180,7 +180,21 @@ function Game() {
     if (gameState !== null && gameState.isGameOver) {
         navigate("/end/" + roomCode);
     }
-
+    let meIdx = gameState !== null ? gameState.players.findIndex(player => player.name === name) : -1;
+    let rotPlayerArr = gameState !== null ? gameState.players.slice(meIdx).concat(gameState.players.slice(0, meIdx)) : null;
+    let playerIcons = gameState !== null ? rotPlayerArr.map((player, i) =>
+        <ToggleButton key={i} value={i} onClick={() => setSelectedUser(i)} 
+        sx={{ width: "5rem", backgroundColor: player.name === name ? "#B4EFF0" : "transparent" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                {gameState.turn.playerTurn == i ? <KeyboardArrowDown /> : <Icon />}
+                <img key={i} src={pieceImgFile(player.playerID)} className="player-icon"
+                    style={{
+                        objectFit: 'contain',
+                        filter: player.isAlive ? 'none' : 'grayscale(100%)'
+                    }} />
+            </div>
+        </ToggleButton>) : null;
+    
     return <GameContext.Provider value={gameState}>
         <ColorContext.Provider value={boardColor}>
         <div className="game-player-container">
@@ -212,19 +226,9 @@ function Game() {
                                     It's {gameState.players[gameState.turn.playerTurn].name}'s Turn!</Typography>
                                 <ToggleButtonGroup value={selectedUser} className="player-icon-container" exclusive
                                     onChange={changeSelectedUser}>
-                                    {gameState.players.map((player, i) =>
-                                        <ToggleButton key={i} value={i} onClick={() => setSelectedUser(i)} sx={{ width: "5rem" }}>
-                                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                                {gameState.turn.playerTurn == i ? <KeyboardArrowDown /> : <Icon />}
-                                                <img key={i} src={pieceImgFile(player.playerID)} className="player-icon"
-                                                    style={{
-                                                        objectFit: 'contain',
-                                                        filter: player.isAlive ? 'none' : 'grayscale(100%)'
-                                                    }} />
-                                            </div>
-                                        </ToggleButton>)}
+                                    {playerIcons}
                                 </ToggleButtonGroup>
-                                {selectedUser !== -1 && <Player player={gameState.players[selectedUser]} user={name} />}
+                                {selectedUser !== -1 && <Player player={rotPlayerArr[selectedUser]} user={name} />}
                             </div>
 
                         </Grid>
