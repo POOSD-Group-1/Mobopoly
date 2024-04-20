@@ -5,7 +5,7 @@ import { pieceImgFile } from '../data/util.js';
 import Location from './Location.js';
 
 function Player({ player, user }) {
-    const { playerID, name, location, numGangMembers, money, hideouts, properties, isAlive } = player;
+    const { playerID, name, location, numGangMembers, money, hideouts, properties, isAlive, isBot } = player;
     const propertyList = properties.map((property) => <Location key={property} location={property} />);
     return (
         <Card className="player">
@@ -17,7 +17,7 @@ function Player({ player, user }) {
                     width: 24, height: 24, objectFit: 'contain', filter: isAlive ? 'none' : 'grayscale(100%)'
                 }} /></Avatar>}
                 title={<div className='flex-row'>
-                    <Typography variant="subtitle1">{name + (name === user ? ' (You)' : '')}</Typography>
+                    <Typography variant="subtitle1">{name + (name === user ? ' (You)' : '') + (isBot ? ' \u{1F916}' : "")}</Typography>
                     {!isAlive && <Typography variant="subtitle1" sx={{ color: "red" }}>&nbsp;(Deceased)</Typography>}
                 </div>
                 }
