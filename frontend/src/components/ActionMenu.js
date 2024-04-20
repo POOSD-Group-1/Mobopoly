@@ -20,6 +20,7 @@ function ActionMenu({ roomCode, userID, roomListener }) {
     const [maxWager, setMaxWager] = useState(0);
     const minAmbush = 1;
     const [maxAmbush, setMaxAmbush] = useState(0);
+    const [canClick, setCanClick] = useState(true);
 
 
     const extractActions = (actions) => {
@@ -67,6 +68,8 @@ function ActionMenu({ roomCode, userID, roomListener }) {
     };
 
     const doAction = async (action) => {
+        if (!canClick) return;
+        setCanClick(false);
         try {
             let numGangMembers = action.numGangMembers === undefined ? 0 : action.numGangMembers;
             let response = await applyAction({ roomCode, userID, type: action.type, numGangMembers });
@@ -97,6 +100,7 @@ function ActionMenu({ roomCode, userID, roomListener }) {
                 return;
             }
             extractActions(response.actions);
+            setCanClick(true);
         };
         refreshActions();
     }, [gameState]);
@@ -123,10 +127,11 @@ function ActionMenu({ roomCode, userID, roomListener }) {
                     </div>}
             </div>
             {wagerActions.length > 0 && <Card variant="outlined" sx={{ padding: "1rem" }}>
-                <Typography variant="body1">Gang Members</Typography>
+                <Typography variant="h5">Turf War</Typography>
+                <Typography variant="body1">Gang Members:</Typography>
                 <InputSlider min={minWager} max={maxWager} step={1} value={wagerGangMembers} setValue={setWagerGangMembers} />
                 <CardActions>
-                    <Button variant="contained" onClick={clickWager}>Wager</Button>
+                    <Button variant="contained" onClick={clickWager}>Start Turf War</Button>
                 </CardActions>
             </Card>}
             {buyPropertyActions.length > 0 && <Button variant="contained" startIcon={<AttachMoney />} onClick={clickBuyProperty}>
@@ -136,7 +141,8 @@ function ActionMenu({ roomCode, userID, roomListener }) {
                 Buy Hideout
             </Button>}
             {createAmbushActions.length > 0 && <Card variant="outlined" sx={{ padding: "1rem" }}>
-                <Typography variant="body1">Gang Members</Typography>
+                <Typography variant="h5">Ambush</Typography>
+                <Typography variant="body1">Gang Members:</Typography>
                 <InputSlider min={minAmbush} max={maxAmbush} step={1} value={ambushGangMembers} setValue={setAmbushGangMembers} />
                 <CardActions>
                     <Button variant="contained" onClick={clickCreateAmbush}>Set Ambush</Button>

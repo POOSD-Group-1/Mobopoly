@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button, Card, Typography, CardHeader, Avatar, IconButton, Backdrop, CircularProgress } from "@mui/material";
 import { EmojiEvents, HighlightOff } from "@mui/icons-material";
@@ -79,7 +79,9 @@ function End() {
 
     return (
         <div className="landing">
-            <img src="/assets/logo.png" alt="Monopoly Logo" className="logo-small" />
+            <Link to="/" style={{ display: "flex", justifyContent: "center", flexDirection: "row" }}>
+                <img src="/assets/logo.png" alt="Monopoly Logo" className="logo-small" />
+            </Link>
 
             <div style={{ position: "relative" }}>
                 <Card className="lobby" raised>

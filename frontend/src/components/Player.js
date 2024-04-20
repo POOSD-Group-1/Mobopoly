@@ -27,7 +27,7 @@ function Player({ player, user }) {
                 <Location location={location} /><br />
                 <Typography variant="body">Money: {money}</Typography><br />
                 <Typography variant="body">Gang Members: {numGangMembers}</Typography><br />
-                <Typography variant="body">Hideouts: {hideouts.length}</Typography><br />
+                {name === user && <><Typography variant="body">Hideouts: {hideouts.length}</Typography><br /></>}
                 <Typography variant="body">Properties Owned: {properties.length}</Typography>
                 <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column" }}>
                     {propertyList}
