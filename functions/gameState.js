@@ -265,6 +265,7 @@ function applyEndTurn(gameState) {
 
 	let newPlayer = gameState.turn.playerTurn;
 
+	console.log("infinite loop?");
 	if (gameState.players[newPlayer].isBot)
 		gameState = makeBotMove(gameState);
 
@@ -595,10 +596,18 @@ function makeBotMove(gameState) {
 	if (checkAllBots(gameState)) return;
 	let playerID = gameState.turn.playerTurn;
 
-	while (gameState.isGameOver == false && gameState.turn.playerTurn == playerID) {
+	let action = { ...defaultAction };
+	while (gameState.isGameOver == false && gameState.turn.playerTurn == playerID && action.type != actionTypes.END_TURN) {
 		// Get an array of all possible actions
+		console.log("getiing available actions!")
 		let possibleActions = generateActions(gameState);
 
+		console.log("count: ", possibleActions.length);
+		for(let i = 0; i < possibleActions.length; i++) {
+			console.log("possible action: ", possibleActions[i].type);
+		}
+
+		if(possibleActions.length == 0) break;
 		// Randomly pick one
 		let moveNumber = getRandomNumber(possibleActions.length);
 		let action = { ...possibleActions[moveNumber] };
@@ -629,6 +638,7 @@ function makeBotMove(gameState) {
 		}
 
 		// Make the action
+		console.log("making the bot's action");
 		gameState = applyActionHelper(gameState, action);
 	}
 
@@ -636,6 +646,7 @@ function makeBotMove(gameState) {
 }
 
 exports.quitGame = onRequest(async (req, res) => {
+	console.log("in quitGame");
 	let roomCode = req.query.roomCode;
 	let userID = req.query.userID;
 	let result = {
@@ -662,8 +673,11 @@ exports.quitGame = onRequest(async (req, res) => {
 		return;
 	}
 
+	console.log("quitGame: ", playerID);
 	gameState.players[playerID].isBot = true;
-
+	const writeResult = await games
+		.doc(gameID)
+		.set(gameState);
 	res.json(result);
 	return;
 });
