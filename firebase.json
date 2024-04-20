@@ -25,14 +25,15 @@
         ".git",
         "firebase-debug.log",
         "firebase-debug.*.log"
-      ],
-      "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" run lint"
       ]
     }
   ],
   "hosting": {
-    "public": "public",
+    "public": "frontend/build",
+    "rewrites": [{
+      "source": "**",
+      "destination": "/index.html"
+    }],
     "ignore": [
       "firebase.json",
       "**/.*",
