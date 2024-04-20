@@ -171,7 +171,7 @@ function killPlayer(gameState, playerID) {
 
 //COMPLETELY UNTESTED AT ALL LIKE SERIOUSLY NOT TESTED FRFR
 function rollDice() {
-	return 1 + Math.floor(Math.random() * 6);
+	return 1 + Math.floor(Math.random() * 4);
 }
 //COMPLETELY UNTESTED AT ALL LIKE SERIOUSLY NOT TESTED FRFR
 function movePlayer(gameState, movement) {
