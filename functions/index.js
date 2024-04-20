@@ -42,7 +42,8 @@ const errorCodes = Object.freeze({
 	userNotFound: -7,
 	missingParameters: -8,
 	invalidAction: -9,
-	gameNotFound: -10
+	gameNotFound: -10,
+	playerIsBot: -11
 });
 exports.errorCodes = errorCodes;
 

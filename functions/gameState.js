@@ -196,10 +196,10 @@ function movePlayer(gameState, movement) {
 
 	if (newLocation == BETRAYALSQUARE) {
 		const lossAmount = 50;
-		let tenPercentOfGangMembers = Math.floor(.01 + (gameState.players[activePlayer].numGangMembers / 10));
-		gameState.players[activePlayer].numGangMembers -= tenPercentOfGangMembers;
-		let moneyLossed = Math.min(gameState.players[activePlayer].money, lossAmount * tenPercentOfGangMembers);
-		gameState.players[activePlayer].money -= (moneyLossed);
+		let tenPercentOfGangMembers = Math.floor(.01 + (gameState.players[player].numGangMembers / 10));
+		gameState.players[player].numGangMembers -= tenPercentOfGangMembers;
+		let moneyLossed = Math.min(gameState.players[player].money, lossAmount * tenPercentOfGangMembers);
+		gameState.players[player].money -= (moneyLossed);
 	}
 
 	if (passedGo) {
@@ -513,6 +513,13 @@ exports.applyAction = onRequest(async (req, res) => {
 		res.json(result);
 		return;
 	}
+
+	if(gameState.players[requesterPlayerID].isBot) {
+		result.error = errorCodes.playerIsBot;
+		res.json(result);
+		return;
+	}
+
 	let action = {
 		type: myActionType,
 		numGangMembers: myNumGangMembers
@@ -568,6 +575,12 @@ exports.getActionsForTurn = onRequest(async (req, res) => {
 		res.json(result);
 		return;
 	}
+	if(gameState.players[requesterPlayerID].isBot) {
+		result.error = errorCodes.playerIsBot;
+		res.json(result);
+		return;
+	}
+
 	result.actions = generateActions(gameState);
 	res.json(result);
 	return;
@@ -603,11 +616,11 @@ function makeBotMove(gameState) {
 		let possibleActions = generateActions(gameState);
 
 		console.log("count: ", possibleActions.length);
-		for(let i = 0; i < possibleActions.length; i++) {
+		for (let i = 0; i < possibleActions.length; i++) {
 			console.log("possible action: ", possibleActions[i].type);
 		}
 
-		if(possibleActions.length == 0) break;
+		if (possibleActions.length == 0) break;
 		// Randomly pick one
 		let moveNumber = getRandomNumber(0, possibleActions.length);
 		console.log("move number", moveNumber);
@@ -638,6 +651,7 @@ function makeBotMove(gameState) {
 			// do nothing special
 		} else {
 			console.log("here's the real type:", action.type);
+			break;
 		}
 
 		// Make the action
@@ -675,12 +689,22 @@ exports.quitGame = onRequest(async (req, res) => {
 		res.json(result);
 		return;
 	}
+	if(gameState.players[playerID].isBot) {
+		result.error = errorCodes.playerIsBot;
+		res.json(result);
+		return;
+	}
 
 	console.log("quitGame: ", playerID);
 	gameState.players[playerID].isBot = true;
+	if(gameState.turn.playerTurn == playerID) {
+		makeBotMove(gameState);
+	}
+
 	const writeResult = await games
 		.doc(gameID)
 		.set(gameState);
+
 	res.json(result);
 	return;
 });
