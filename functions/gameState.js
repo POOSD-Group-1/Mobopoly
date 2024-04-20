@@ -227,6 +227,8 @@ function prevLoc(square) {
 function applyAmbush(gameState, ambush) {
 	let victim = gameState.turn.playerTurn;
 	let perp = ambush.playerID;
+
+	// Check if the victim is within range of a hideout
 	let safeFromAmbush = false;
 	gameState.players[victim].hideouts.forEach((hideOutLocation) => {
 		let nextToHideOut1 = nextLoc(hideOutLocation);
@@ -242,11 +244,16 @@ function applyAmbush(gameState, ambush) {
 		return gameState;
 	}
 
-	let gangMembersLost = Math.min(ambush.numGangMembers * 2, gameState.players[perp].numGangMembers);
+	// Calculate ambush values
+	let gangMembersLost = Math.min(ambush.numGangMembers * 2, gameState.players[victim].numGangMembers);
 	let ambushRemainingGangMembers = ambush.numGangMembers - gangMembersLost;
 	let moneyLost = ambushRemainingGangMembers * MUGGINGAMOUNT;
+
+	// Apply ambush values
 	gameState.players[victim].numGangMembers -= gangMembersLost;
 	gameState.players[victim].money -= moneyLost;
+
+	// Victim died from ambush
 	if (gameState.players[victim].money < 0) {
 		gameState = killPlayer(gameState, victim);
 		if (gameState.isGameOver == true) {
