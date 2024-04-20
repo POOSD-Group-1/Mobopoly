@@ -2,9 +2,9 @@ const { getPlayerID, getRoomData, getGameData } = require("./room");
 const { deepcopy, updateListener } = require("./utility");
 const { v4: uuidv4 } = require('uuid');
 const { onRequest, rooms, listeners, logger, games, errorCodes } = require('./index');
-const defaultRoom = require("./defaultRoom.json")
+const defaultRoom = require("./defaultRoom.json");
 const defaultGameState = require("./defaultGameState.json");
-const defaultPlayer = require("./defaultPlayer.json")
+const defaultPlayer = require("./defaultPlayer.json");
 const hideoutCost = 150;
 const BOARDSIZE = 28;
 const PASSGOREWARD = 200;
@@ -15,7 +15,9 @@ const GANGREWARD = 20;
 const MUGGINGAMOUNT = 50;
 const MINWAGERLOSS = 500;
 const BETRAYALSQUARE = 14;
+const BETRAYALSQUARELOST = 50;
 
+// List of action types
 const actionTypes = Object.freeze({
 	ROLL_DICE: 0,
 	WAGER: 1,
@@ -25,18 +27,19 @@ const actionTypes = Object.freeze({
 	END_TURN: 5
 });
 
-
+// List of event types
 const eventTypes = Object.freeze({
 	PLAYER_DIES: 0,
 	DICE_ROLLED: 1
-})
+});
+
+// 
 function logGameState(gameState) {
 	let newGameState = deepcopy(gameState);
 	delete newGameState.properties;
 	console.log("gameState:");
 	console.log(newGameState);
 }
-
 
 defaultAction = {
 	type: -1,
@@ -47,7 +50,7 @@ exampleAmbush = {
 	location: 0,
 	numGangMembers: 0,
 	playerID: 0
-}
+};
 
 function validateAction(gameState, action) {
 	if (gameState.isGameOver == true) return false;
@@ -152,14 +155,12 @@ function killPlayer(gameState, playerID) {
 	// Make player a spectator
 	gameState.players[playerIndex].isAlive = false;
 	gameState.ranking.push(playerIndex);
-	gameState.history.push({
-		eventType: eventTypes.PLAYER_DIES,
-		playerID: playerIndex
-	})
 	let numberAlive = 0;
 	for (let i = 0; i < gameState.players.length; i++) {
 		if (gameState.players[i].isAlive) numberAlive++;
 	}
+
+	// Check if there is a winner
 	if (numberAlive == 1) {
 		for (let i = 0; i < gameState.players.length; i++) {
 			if (gameState.players[i].isAlive) {
@@ -173,7 +174,7 @@ function killPlayer(gameState, playerID) {
 
 //COMPLETELY UNTESTED AT ALL LIKE SERIOUSLY NOT TESTED FRFR
 function rollDice() {
-	return 1 + Math.floor(Math.random() * 6);
+	return 1 + Math.floor(Math.random() * 4);
 }
 //COMPLETELY UNTESTED AT ALL LIKE SERIOUSLY NOT TESTED FRFR
 function movePlayer(gameState, movement) {
@@ -182,35 +183,35 @@ function movePlayer(gameState, movement) {
 	let newLocation = (oldlocation + movement) % BOARDSIZE;
 	let passedGo = newLocation < oldlocation;
 	let sentToJail = false;
+
+	// Check for go to jail square
 	if (newLocation == GOTOJAILSQUARE) {
 		newLocation = JAILSQUARE;
 		sentToJail = true;
 	}
 
-	gameState.history.push({
-		playerID: player,
-		from: oldlocation,
-		to: newLocation,
-		wasSentToJail: sentToJail
-	});
-
+	// Check for betrayal square
 	if (newLocation == BETRAYALSQUARE) {
-		const lossAmount = 50;
 		let tenPercentOfGangMembers = Math.floor(.01 + (gameState.players[player].numGangMembers / 10));
 		gameState.players[player].numGangMembers -= tenPercentOfGangMembers;
-		let moneyLossed = Math.min(gameState.players[player].money, lossAmount * tenPercentOfGangMembers);
-		gameState.players[player].money -= (moneyLossed);
+
+		// Player cannot die from a betrayal
+		let moneyLost = Math.min(gameState.players[player].money, BETRAYALSQUARELOST * tenPercentOfGangMembers);
+		gameState.players[player].money -= (moneyLost);
 	}
 
+	// Check if passed go
 	if (passedGo) {
 		gameState.players[player].money += PASSGOREWARD;
 	}
 
+	// Check if passed jail
 	let passedJail = oldlocation < JAILSQUARE && newLocation >= JAILSQUARE;
 	if (passedJail || sentToJail) {
 		gameState.players[player].numGangMembers += GANGREWARD;
 	}
 
+	// Update player location
 	gameState.players[player].location = newLocation;
 
 	return gameState;
@@ -247,7 +248,7 @@ function applyAmbush(gameState, ambush) {
 	// Calculate ambush values
 	let gangMembersLost = Math.min(ambush.numGangMembers * 2, gameState.players[victim].numGangMembers);
 	let ambushRemainingGangMembers = ambush.numGangMembers - gangMembersLost;
-	let moneyLost = ambushRemainingGangMembers * MUGGINGAMOUNT;
+	let moneyLost = Math.max(0, ambushRemainingGangMembers * MUGGINGAMOUNT);
 
 	// Apply ambush values
 	gameState.players[victim].numGangMembers -= gangMembersLost;
@@ -265,6 +266,7 @@ function applyAmbush(gameState, ambush) {
 	return gameState;
 }
 
+// Ends the current player's turn
 function applyEndTurn(gameState) {
 	gameState.turn.hasRolledDice = false;
 	gameState.turn.hasWagered = false;
@@ -272,7 +274,7 @@ function applyEndTurn(gameState) {
 
 	let newPlayer = gameState.turn.playerTurn;
 
-	console.log("infinite loop?");
+	// Recursively makes bots move until the next player is a human
 	if (gameState.players[newPlayer].isBot)
 		gameState = makeBotMove(gameState);
 
@@ -289,6 +291,7 @@ function didAttackerWin(numDefenders, numAttackers) {
 	return Math.random() < prob;
 }
 
+// Finds the next player who is still alive
 function getNextPlayer(gameState) {
 	for (let i = 1; i < gameState.players.length; i++) {
 		let idx = (gameState.turn.playerTurn + i) % gameState.players.length;
@@ -299,6 +302,7 @@ function getNextPlayer(gameState) {
 	return -1;
 }
 
+// Finds the most recent living player that landed on a square and currently occupies it
 function mostRecentPlayer(gameState) {
 	let playerID = -1;
 	for (let i = 1; i < gameState.players.length; i++) {
@@ -313,19 +317,33 @@ function mostRecentPlayer(gameState) {
 //COMPLETELY UNTESTED AT ALL LIKE SERIOUSLY NOT TESTED FRFR
 function applyActionHelper(gameState, action) {
 	console.log("applyActionHelper");
+
+	// Check if action is invalid
 	if (!validateAction(gameState, action)) return gameState;
+
 	let activePlayer = gameState.turn.playerTurn;
 	let playerLoc = gameState.players[activePlayer].location;
 	console.log(action)
+
+	// Check which action it is
 	switch (action.type) {
+		// Check if rolling dice
 		case actionTypes.ROLL_DICE:
 			console.log("rolling dice");
+
+			// Roll the two dice
 			gameState.dice1 = rollDice();
 			gameState.dice2 = rollDice();
+
+			// Move the player the corresponding amount
 			let movementAmount = gameState.dice1 + gameState.dice2;
 			gameState = movePlayer(gameState, movementAmount);
 			logGameState(gameState);
+
+			// Get the new location
 			let newPlayerLocation = gameState.players[activePlayer].location;
+
+			// Find which ambushes are applicable or not
 			let newAmbushes = [];
 			let applicableAmbushes = [];
 			gameState.ambushes.forEach((currentAmbush) => {
@@ -337,9 +355,15 @@ function applyActionHelper(gameState, action) {
 				}
 			});
 
+			// Delete applicable ambushes from gameState
+			gameState.ambushes = newAmbushes;
+
+			// Apply all applicable ambushes
 			applicableAmbushes.forEach((currentAmbush) => {
 				gameState = applyAmbush(gameState, currentAmbush);
 			});
+
+			// Check if player died from ambushes
 			if (!gameState.players[activePlayer].isAlive) {
 				gameState = applyEndTurn(gameState);
 				return gameState;
@@ -348,27 +372,36 @@ function applyActionHelper(gameState, action) {
 			console.log("applying ambushes")
 			logGameState(gameState);
 
-			//paying rent to property owners
+			// Check if property is owned
 			let propertyOwner = gameState.properties[newPlayerLocation].playerID;
 			if (propertyOwner != -1 && propertyOwner != activePlayer) {
-				let amountTransfered = Math.min(gameState.properties[newPlayerLocation].rent,
+				// Get the rent amount
+				let amountTransferred = Math.min(gameState.properties[newPlayerLocation].rent,
 					gameState.players[activePlayer].money);
-				gameState.players[propertyOwner].money += amountTransfered;
-				gameState.players[activePlayer].money -= amountTransfered;
-				if (amountTransfered < gameState.properties[newPlayerLocation].rent) {
+
+				// Transfer the money
+				gameState.players[propertyOwner].money += amountTransferred;
+				gameState.players[activePlayer].money -= amountTransferred;
+
+				// Check if player ran out of money (died)
+				if (amountTransferred < gameState.properties[newPlayerLocation].rent) {
 					gameState = killPlayer(gameState, activePlayer);
 					if (gameState.isGameOver == true) {
 						return gameState;
 					}
 				}
 			}
+
+			// Check if player died
 			if (!gameState.players[activePlayer].isAlive) {
 				gameState = applyEndTurn(gameState);
 				return gameState;
 			}
+
 			console.log("paying rent")
 			logGameState(gameState);
 
+			// Check if a wager is needed
 			let playersOnSameSquare = gameState.players.filter((player) => player.isAlive && player.location == newPlayerLocation);
 			gameState.turn.hasRolledDice = true;
 			if (playersOnSameSquare.length <= 1) {
@@ -376,40 +409,76 @@ function applyActionHelper(gameState, action) {
 			}
 
 			return gameState;
+
+		// Check if buying property
 		case actionTypes.BUY_PROPERTY:
+			// Get cost
 			let propertyCost = gameState.properties[playerLoc].cost;
+
+			// Apply cost
 			gameState.players[activePlayer].money -= propertyCost;
+
+			// Update property with new owner
 			gameState.properties[playerLoc].playerID = activePlayer;
+
 			gameState.players[activePlayer].properties.push(playerLoc);
 			return gameState;
+
+		// Check if creating hideout
 		case actionTypes.CREATE_HIDEOUT:
+			// Add hideout to player object
 			gameState.players[activePlayer].hideouts.push(playerLoc);
+
+			// Apply cost
 			gameState.players[activePlayer].money -= hideoutCost;
+
 			return gameState;
+
+		// Check if creating ambush
 		case actionTypes.CREATE_AMBUSH:
+			// Create the ambush object
 			let myAmbush = {
 				location: playerLoc,
 				numGangMembers: action.numGangMembers,
 				playerID: activePlayer
 			}
+
+			// Add ambush to gameState
 			gameState.ambushes.push(myAmbush);
+
+			// Remove gang members
 			gameState.players[activePlayer].numGangMembers -= action.numGangMembers;
+
 			return gameState;
+
+		// Check if wagering
 		case actionTypes.WAGER:
 			let defendingPlayer = mostRecentPlayer(gameState);
 			let defendingGangMembers = gameState.players[defendingPlayer].numGangMembers;
+
+			// Find who wins
 			let attackerWin = didAttackerWin(defendingGangMembers, action.numGangMembers);
 			if (attackerWin) {
+				// Compute turf war numbers
 				let attackers = 2 * action.numGangMembers;
 				let numDefenderLost = Math.min(gameState.players[defendingPlayer].numGangMembers, attackers);
+				
+				// Apply numbers
 				attackers -= numDefenderLost;
 				gameState.players[defendingPlayer].numGangMembers -= numDefenderLost;
+
+				// Check if there are remaining attackers
 				if (attackers > 0) {
+					// Compute theft numbers
 					let defenderMoney = gameState.players[defendingPlayer].money;
 					let moneyLost = Math.max(MINWAGERLOSS, Math.floor(0.2 * defenderMoney + 0.1));
 					let moneyGain = Math.min(moneyLost, defenderMoney);
+
+					// Apply theft numbers
 					gameState.players[activePlayer].money += moneyGain;
 					gameState.players[defendingPlayer].money -= moneyLost;
+
+					// Check if player died
 					if (gameState.players[defendingPlayer].money < 0) {
 						gameState = killPlayer(gameState, defendingPlayer);
 						if (gameState.isGameOver == true) {
@@ -422,6 +491,8 @@ function applyActionHelper(gameState, action) {
 			}
 			gameState.turn.hasWagered = true;
 			return gameState;
+		
+		// Check if ending turn
 		case actionTypes.END_TURN:
 			return applyEndTurn(gameState);
 	}
@@ -443,7 +514,6 @@ function generateActions(gameState) {
 	let playerNumGangMembers = gameState.players[activePlayer].numGangMembers;
 
 	// Wager
-	// Might need to add if there are 0 gang members?
 	let wagerAction = { ...defaultAction };
 	wagerAction.type = actionTypes.WAGER;
 	wagerAction.numGangMembers = playerNumGangMembers;
@@ -488,23 +558,33 @@ exports.applyAction = onRequest(async (req, res) => {
 	const roomCode = req.query.roomCode;
 	const userID = req.query.userID;
 	let myActionType = req.query.type;
+	let myNumGangMembers = req.query.numGangMembers;
 	let result = {
 		error: errorCodes.noError
 	}
-	let myNumGangMembers = req.query.numGangMembers;
+
+	// Check that action type is valid
 	if (myActionType === undefined) {
 		result.error = errorCodes.missingParameters;
 		res.json(result);
 		return;
 	}
+
+	// Check if numGangMembers is valid
 	if (myNumGangMembers == undefined) myNumGangMembers = 0;
+
+	// Parse the action
 	myActionType = parseInt(myActionType);
 	myNumGangMembers = parseInt(myNumGangMembers);
+
+	// Check parse validity
 	if (isNaN(myActionType) || isNaN(myNumGangMembers)) {
 		result.error = errorCodes.missingParameters;
 		res.json(result);
 		return;
 	}
+
+	// Check if room exists
 	let roomData = await getRoomData(roomCode);
 	if (roomData == undefined) {
 		result.error = errorCodes.roomNotFound;
@@ -512,6 +592,7 @@ exports.applyAction = onRequest(async (req, res) => {
 		return;
 	}
 
+	// Check if game exists
 	let requesterPlayerID = getPlayerID(roomData, userID);
 	let gameID = roomData.gameID;
 	let gameState = await getGameData(gameID);
@@ -521,7 +602,15 @@ exports.applyAction = onRequest(async (req, res) => {
 		return;
 	}
 
-	if(gameState.players[requesterPlayerID].isBot) {
+	// Check if player is valid
+	if(requesterPlayerID == -1) {
+		result.error = errorCodes.userNotFound;
+		res.json(result);
+		return;
+	}
+
+	// Check if player is a bot
+	if (gameState.players[requesterPlayerID].isBot) {
 		result.error = errorCodes.playerIsBot;
 		res.json(result);
 		return;
@@ -533,6 +622,7 @@ exports.applyAction = onRequest(async (req, res) => {
 	}
 	console.log(action);
 
+	// Check if action is valid
 	if (requesterPlayerID != gameState.turn.playerTurn || (validateAction(gameState, action) == false)) {
 		console.log(requesterPlayerID, gameState.turn.playerTurn, validateAction(gameState, action));
 		// logGameState(gameState);
@@ -543,14 +633,19 @@ exports.applyAction = onRequest(async (req, res) => {
 	}
 	console.log("valid action");
 
+	// Apply the action
 	gameState = applyActionHelper(gameState, action);
 	console.log("applied action");
 	logGameState(gameState);
-	await updateListener(roomData.listenDocumentID, false);
 
+	// Update database
 	const writeResult = await games
 		.doc(gameID)
 		.set(gameState);
+
+	// Update the listener
+	await updateListener(roomData.listenDocumentID, false);
+
 	res.json(result);
 	return;
 });
@@ -562,6 +657,8 @@ exports.getActionsForTurn = onRequest(async (req, res) => {
 		error: errorCodes.noError,
 		actions: []
 	}
+
+	// Check if room exists
 	let roomData = await getRoomData(roomCode);
 	if (roomData == undefined) {
 		result.error = errorCodes.roomNotFound;
@@ -569,6 +666,7 @@ exports.getActionsForTurn = onRequest(async (req, res) => {
 		return;
 	}
 
+	// Check if game exists
 	let gameID = roomData.gameID;
 	let gameState = await getGameData(gameID);
 	if (gameState == undefined) {
@@ -576,13 +674,18 @@ exports.getActionsForTurn = onRequest(async (req, res) => {
 		res.json(result);
 		return;
 	}
+
+	// Check if player has their turn right now
 	let requesterPlayerID = getPlayerID(roomData, userID);
 	console.log("playerID: " + requesterPlayerID, gameState.turn.playerTurn);
 	if (requesterPlayerID != gameState.turn.playerTurn) {
+		result.error = errorCodes.invalidAction;
 		res.json(result);
 		return;
 	}
-	if(gameState.players[requesterPlayerID].isBot) {
+
+	// Check if player is a bot
+	if (gameState.players[requesterPlayerID].isBot) {
 		result.error = errorCodes.playerIsBot;
 		res.json(result);
 		return;
@@ -676,6 +779,8 @@ exports.quitGame = onRequest(async (req, res) => {
 	let result = {
 		error: errorCodes.noError
 	}
+
+	// Check if room exists
 	let roomData = await getRoomData(roomCode);
 	if (roomData == undefined) {
 		result.error = errorCodes.roomNotFound;
@@ -683,6 +788,7 @@ exports.quitGame = onRequest(async (req, res) => {
 		return;
 	}
 
+	// Check if game exists
 	let gameID = roomData.gameID;
 	let gameState = await getGameData(gameID);
 	if (gameState == undefined) {
@@ -690,27 +796,38 @@ exports.quitGame = onRequest(async (req, res) => {
 		res.json(result);
 		return;
 	}
+
+	// Check if useer exists
 	let playerID = getPlayerID(roomData, userID);
 	if (playerID == -1) {
 		result.error = errorCodes.userNotFound;
 		res.json(result);
 		return;
 	}
-	if(gameState.players[playerID].isBot) {
+
+	// CHeck if user is a bot
+	if (gameState.players[playerID].isBot) {
 		result.error = errorCodes.playerIsBot;
 		res.json(result);
 		return;
 	}
 
+	// Update player to be a bot
 	console.log("quitGame: ", playerID);
 	gameState.players[playerID].isBot = true;
-	if(gameState.turn.playerTurn == playerID) {
+
+	// CHeck if user is mid turn
+	if (gameState.turn.playerTurn == playerID) {
 		makeBotMove(gameState);
 	}
 
+	// Update firestore
 	const writeResult = await games
 		.doc(gameID)
 		.set(gameState);
+
+	// Update the listener
+	await updateListener(roomData.listenDocumentID, false);
 
 	res.json(result);
 	return;
