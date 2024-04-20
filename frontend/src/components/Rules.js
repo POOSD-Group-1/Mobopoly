@@ -7,16 +7,13 @@ function Rules() {
         "The game is played on a board divided into squares. Each square represents a property or an action.",
         "Players take turns rolling dice and moving their tokens around the board.",
         "When a player lands on a property, they can choose to buy it if it's available.",
-        "If a player owns all the properties of a color group, they can build houses and hotels on them.",
-        "When another player lands on a property owned by someone else, they have to pay rent.",
+        "When another player lands on a property owned by someone else, they have to pay tribute.",
         "The goal of the game is to bankrupt the other players and become the wealthiest player."
     ];
     const additionalRules = [
-        "Chance and Community Chest cards provide special instructions and can change the course of the game.",
-        "Landing on Income Tax or Luxury Tax squares requires the player to pay a certain amount of money.",
         "Jail is a special square. Players can be sent to jail if they land on the 'Go to Jail' square or draw a certain card.",
-        "Players can get out of jail by paying a fine, using a 'Get Out of Jail Free' card, or rolling doubles.",
-        "Free Parking is just a resting place and does not have any special rules.",
+        "Players can also be sent to jail because the Go to Jail square.",
+        "Betrayal is a key square in the game. Gang members desert the player's gang and steal some of their money.",
         "The game ends when only one player is left standing."
     ];
     return <div className="rules">
@@ -35,10 +32,19 @@ function Rules() {
                 The gameplay in Mobopoly revolves around the world of organized crime. Players take turns rolling dice and moving their tokens around the board, just like in Monopoly. However, instead of collecting rent from other players, players can extort protection money from rival mafia families who land on their controlled properties.
             </Typography>
             <Typography variant="body1">
-                The game introduces new elements to enhance the mafia theme. For example, instead of Chance and Community Chest cards, Mobopoly features "Hitman" and "Informant" cards that can either help players eliminate rival gang members or provide valuable information about their opponents' activities.
+                Gang Members are a secondary currency in Mobopoly. They help players attack other players through turf wars and ambushes. Gang members also defend players during turf wars and ambushes.
             </Typography>
             <Typography variant="body1">
-                Jail in Mobopoly represents a safehouse for incarcerated gang members. Players can send rival gang members to jail by landing on specific squares or using certain cards. To get out of jail, players must either pay a hefty bail, use their connections to secure a release, or roll doubles to escape.
+                You can set ambushes on squares so that when unsuspecting players land on them, they lose money and gang members.
+            </Typography>
+            <Typography variant="body1">
+                If two players land on the same square, then the second player that landed on the square can wager some of their gang members for the chance to attack and defeat the other player's gang members and take some of their money.
+            </Typography>
+            <Typography variant="body1">
+                You can set hideouts to prevent yourself from being ambushed by other players.
+            </Typography>
+            <Typography variant="body1">
+                Jail in Mobopoly is helpful to players. It gives gang members to any player who passes by. 
             </Typography>
             <Typography variant="body1">
                 The objective of Mobopoly remains the same as Monopoly: to bankrupt the other players and become the wealthiest player. However, in Mobopoly, players achieve this by expanding their criminal empire, eliminating rival gangs, and controlling lucrative illegal operations.
