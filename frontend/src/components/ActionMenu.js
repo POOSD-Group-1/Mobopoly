@@ -111,12 +111,12 @@ function ActionMenu({ roomCode, userID, roomListener }) {
                 Roll Dice
             </Button>
             <div className='dice-container'>
-                {gameState.dice1 != -1 && hasActions ?
+                {gameState.dice1 != -1 && diceActions.length == 0 ?
                     <img src={"/assets/dice" + gameState.dice1 + ".png"} style={{ width: "3rem", height: "3rem" }} alt="Dice 1" /> :
                     <div className='dice-box'>
                         <Typography variant='h6'></Typography>
                     </div>}
-                {gameState.dice2 != -1 && hasActions ?
+                {gameState.dice2 != -1 && diceActions.length == 0 ?
                     <img src={"/assets/dice" + gameState.dice2 + ".png"} style={{ width: "3rem", height: "3rem" }} alt="Dice 2" /> :
                     <div className='dice-box'>
                         <Typography variant='h6'></Typography>
