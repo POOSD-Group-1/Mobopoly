@@ -248,7 +248,7 @@ function applyAmbush(gameState, ambush) {
 	// Calculate ambush values
 	let gangMembersLost = Math.min(ambush.numGangMembers * 2, gameState.players[victim].numGangMembers);
 	let ambushRemainingGangMembers = ambush.numGangMembers - gangMembersLost;
-	let moneyLost = max(0, ambushRemainingGangMembers * MUGGINGAMOUNT);
+	let moneyLost = Math.max(0, ambushRemainingGangMembers * MUGGINGAMOUNT);
 
 	// Apply ambush values
 	gameState.players[victim].numGangMembers -= gangMembersLost;
@@ -558,23 +558,33 @@ exports.applyAction = onRequest(async (req, res) => {
 	const roomCode = req.query.roomCode;
 	const userID = req.query.userID;
 	let myActionType = req.query.type;
+	let myNumGangMembers = req.query.numGangMembers;
 	let result = {
 		error: errorCodes.noError
 	}
-	let myNumGangMembers = req.query.numGangMembers;
+
+	// Check that action type is valid
 	if (myActionType === undefined) {
 		result.error = errorCodes.missingParameters;
 		res.json(result);
 		return;
 	}
+
+	// Check if numGangMembers is valid
 	if (myNumGangMembers == undefined) myNumGangMembers = 0;
+
+	// Parse the action
 	myActionType = parseInt(myActionType);
 	myNumGangMembers = parseInt(myNumGangMembers);
+
+	// Check parse validity
 	if (isNaN(myActionType) || isNaN(myNumGangMembers)) {
 		result.error = errorCodes.missingParameters;
 		res.json(result);
 		return;
 	}
+
+	// Check if room exists
 	let roomData = await getRoomData(roomCode);
 	if (roomData == undefined) {
 		result.error = errorCodes.roomNotFound;
@@ -582,6 +592,7 @@ exports.applyAction = onRequest(async (req, res) => {
 		return;
 	}
 
+	// Check if game exists
 	let requesterPlayerID = getPlayerID(roomData, userID);
 	let gameID = roomData.gameID;
 	let gameState = await getGameData(gameID);
@@ -591,6 +602,14 @@ exports.applyAction = onRequest(async (req, res) => {
 		return;
 	}
 
+	// Check if player is valid
+	if(requesterPlayerID == -1) {
+		result.error = errorCodes.userNotFound;
+		res.json(result);
+		return;
+	}
+
+	// Check if player is a bot
 	if (gameState.players[requesterPlayerID].isBot) {
 		result.error = errorCodes.playerIsBot;
 		res.json(result);
@@ -603,6 +622,7 @@ exports.applyAction = onRequest(async (req, res) => {
 	}
 	console.log(action);
 
+	// Check if action is valid
 	if (requesterPlayerID != gameState.turn.playerTurn || (validateAction(gameState, action) == false)) {
 		console.log(requesterPlayerID, gameState.turn.playerTurn, validateAction(gameState, action));
 		// logGameState(gameState);
@@ -613,14 +633,17 @@ exports.applyAction = onRequest(async (req, res) => {
 	}
 	console.log("valid action");
 
+	// Apply the action
 	gameState = applyActionHelper(gameState, action);
 	console.log("applied action");
 	logGameState(gameState);
 
+	// Update database
 	const writeResult = await games
 		.doc(gameID)
 		.set(gameState);
 
+	// Update the listener
 	await updateListener(roomData.listenDocumentID, false);
 
 	res.json(result);
@@ -634,6 +657,8 @@ exports.getActionsForTurn = onRequest(async (req, res) => {
 		error: errorCodes.noError,
 		actions: []
 	}
+
+	// Check if room exists
 	let roomData = await getRoomData(roomCode);
 	if (roomData == undefined) {
 		result.error = errorCodes.roomNotFound;
@@ -641,6 +666,7 @@ exports.getActionsForTurn = onRequest(async (req, res) => {
 		return;
 	}
 
+	// Check if game exists
 	let gameID = roomData.gameID;
 	let gameState = await getGameData(gameID);
 	if (gameState == undefined) {
@@ -648,12 +674,17 @@ exports.getActionsForTurn = onRequest(async (req, res) => {
 		res.json(result);
 		return;
 	}
+
+	// Check if player has their turn right now
 	let requesterPlayerID = getPlayerID(roomData, userID);
 	console.log("playerID: " + requesterPlayerID, gameState.turn.playerTurn);
 	if (requesterPlayerID != gameState.turn.playerTurn) {
+		result.error = errorCodes.invalidAction;
 		res.json(result);
 		return;
 	}
+
+	// Check if player is a bot
 	if (gameState.players[requesterPlayerID].isBot) {
 		result.error = errorCodes.playerIsBot;
 		res.json(result);
@@ -748,6 +779,8 @@ exports.quitGame = onRequest(async (req, res) => {
 	let result = {
 		error: errorCodes.noError
 	}
+
+	// Check if room exists
 	let roomData = await getRoomData(roomCode);
 	if (roomData == undefined) {
 		result.error = errorCodes.roomNotFound;
@@ -755,6 +788,7 @@ exports.quitGame = onRequest(async (req, res) => {
 		return;
 	}
 
+	// Check if game exists
 	let gameID = roomData.gameID;
 	let gameState = await getGameData(gameID);
 	if (gameState == undefined) {
@@ -762,28 +796,37 @@ exports.quitGame = onRequest(async (req, res) => {
 		res.json(result);
 		return;
 	}
+
+	// Check if useer exists
 	let playerID = getPlayerID(roomData, userID);
 	if (playerID == -1) {
 		result.error = errorCodes.userNotFound;
 		res.json(result);
 		return;
 	}
+
+	// CHeck if user is a bot
 	if (gameState.players[playerID].isBot) {
 		result.error = errorCodes.playerIsBot;
 		res.json(result);
 		return;
 	}
 
+	// Update player to be a bot
 	console.log("quitGame: ", playerID);
 	gameState.players[playerID].isBot = true;
+
+	// CHeck if user is mid turn
 	if (gameState.turn.playerTurn == playerID) {
 		makeBotMove(gameState);
 	}
 
+	// Update firestore
 	const writeResult = await games
 		.doc(gameID)
 		.set(gameState);
 
+	// Update the listener
 	await updateListener(roomData.listenDocumentID, false);
 
 	res.json(result);
