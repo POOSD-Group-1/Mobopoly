@@ -609,7 +609,8 @@ function makeBotMove(gameState) {
 
 		if(possibleActions.length == 0) break;
 		// Randomly pick one
-		let moveNumber = getRandomNumber(possibleActions.length);
+		let moveNumber = getRandomNumber(0, possibleActions.length);
+		console.log("move number", moveNumber);
 		let action = { ...possibleActions[moveNumber] };
 
 		// Do speical things if needed
@@ -635,6 +636,8 @@ function makeBotMove(gameState) {
 			action.numGangMembers = numGangMembersWager;
 		} else if (action.type == actionTypes.END_TURN) {
 			// do nothing special
+		} else {
+			console.log("here's the real type:", action.type);
 		}
 
 		// Make the action
