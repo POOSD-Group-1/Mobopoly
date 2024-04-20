@@ -8,23 +8,31 @@ const referenceDim = 600;
 const scaleFactor = minDim / referenceDim;
 
 const playerDim = 20 * scaleFactor;
+const ambushDim = 30 * scaleFactor;
 
 
 
 const MAX_PLAYERS = 6;
+const MAX_LOCATIONS = 28;
 
 const center = new Vector2(boardWidth / 2, boardHeight / 2);
 
-let playerAnchorIndex = [];
+let anchorIndexes = [];
 for (let i = 0; i < 8; i++) {
-    playerAnchorIndex.push(0);
+    anchorIndexes.push(0);
 }
-for (let i = 0; i < 7 + 7 + 6; i++) {
-    playerAnchorIndex.push(1);
+for(let i = 0; i < 7; i++) {
+    anchorIndexes.push(1);
+}
+for (let i = 0; i < 7; i++) {
+    anchorIndexes.push(2);
+}
+for (let i = 0; i < 6; i++) {
+    anchorIndexes.push(3);
 }
 
 // the anchor for where the players should be placed on each location on the board
-const bottomRowY = 230;
+const bottomRowY = 258;
 const bottomRowStartX = 183;
 const bottomRowOffset = -73.2;
 let locationAnchorsUnscaled = [new Vector2(260, bottomRowY), new Vector2(bottomRowStartX, bottomRowY)];
@@ -39,7 +47,7 @@ locationAnchorsUnscaled.push(new Vector2(leftColumnX, leftColumnStartY));
 for (let i = 0; i < 6; i++) {
     locationAnchorsUnscaled.push(new Vector2(leftColumnX, locationAnchorsUnscaled[locationAnchorsUnscaled.length - 1].y + leftColumnOffset));
 }
-const topRowY = -253;
+const topRowY = -254;
 const topRowOffset = -bottomRowOffset;
 const topRowStartX = -257 + topRowOffset;
 locationAnchorsUnscaled.push(new Vector2(topRowStartX, topRowY));
@@ -61,10 +69,25 @@ const locationAnchors = locationAnchorsUnscaled.map((anchor) => anchor.clone().s
 
 const playerAnchorsUnscaled = [
     [new Vector2(-25, 0), new Vector2(0, 0), new Vector2(25, 0),
-        new Vector2(-25, 55), new Vector2(0, 55), new Vector2(25, 55)],
-    [new Vector2(-25, 0), new Vector2(0, 0), new Vector2(25, 0),
-        new Vector2(-25, 22), new Vector2(0, 22), new Vector2(25, 22)]
+        new Vector2(-25, 27), new Vector2(0, 27), new Vector2(25, 27)],
+    [new Vector2(-25, -22), new Vector2(0, -22),
+        new Vector2(-25, 0), new Vector2(0, 0),
+        new Vector2(-25, 22), new Vector2(0, 22)],
+    [new Vector2(-25, -27), new Vector2(0, -27), new Vector2(25, -27),
+        new Vector2(-25, 0), new Vector2(0, 0), new Vector2(25, 0)],
+    [new Vector2(0, -22), new Vector2(25, -22),
+        new Vector2(0, 0), new Vector2(25, 0),
+        new Vector2(0, 22), new Vector2(25, 22)],
 ];
+
+let propAnchorsUnscaled = [
+    [new Vector2(-25, -27), new Vector2(0, -27), new Vector2(25, -27)],
+    [new Vector2(25, -22), new Vector2(25, 0), new Vector2(25, 22)],
+    [new Vector2(-25, 27), new Vector2(0, 22), new Vector2(25, 27)],
+    [new Vector2(-25, -22), new Vector2(-25, 0), new Vector2(-25, 22)],
+];
+const propAnchors = propAnchorsUnscaled.map((anchorArr) => anchorArr.map((anchor)=>anchor.clone().scale(scaleFactor)));
+
 const playerAnchors = playerAnchorsUnscaled.map((anchorArr) => anchorArr.map((anchor)=>anchor.clone().scale(scaleFactor)));
 console.log(locationAnchorsUnscaled);
 function getLocationColor(location, boardcolor=false) {
@@ -81,4 +104,4 @@ function getLocationColor(location, boardcolor=false) {
 }
 
 
-export { boardWidth, boardHeight, playerDim, scaleFactor, center, locationAnchors, playerAnchors, playerAnchorIndex, MAX_PLAYERS, getLocationColor };
+export { boardWidth, boardHeight, playerDim, ambushDim, scaleFactor, center, locationAnchors, playerAnchors, propAnchors, anchorIndexes, MAX_PLAYERS, MAX_LOCATIONS, getLocationColor };

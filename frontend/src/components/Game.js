@@ -121,6 +121,20 @@ function Game() {
             phaserGame.current.scene.getScene('gameScene').updatePlayers(locations);
         }
     };
+    const updateAmbushes = () => {
+        if (phaserGame.current.scene.getScene('gameScene')) {
+            phaserGame.current.scene.getScene('gameScene').updateAmbushes(gameState.ambushes.map((ambush) => ambush.location));
+        }
+    };
+    const updateHideouts = () => {
+        if (phaserGame.current.scene.getScene('gameScene')) {
+            gameState.players.forEach((player) => {
+                if (player.name === name) {
+                    phaserGame.current.scene.getScene('gameScene').updateHideouts(player.hideouts);
+                }
+            });
+        }
+    };
     const toggleBoardColor = () => {
         if (phaserGame.current.scene.getScene('gameScene')) {
             phaserGame.current.scene.getScene('gameScene').toggleBoardColor();
@@ -159,6 +173,8 @@ function Game() {
     }, []);
     useEffect(() => {
         updatePlayers();
+        updateAmbushes();
+        updateHideouts();
     }, [gameState]);
 
     if (gameState !== null && gameState.isGameOver) {
