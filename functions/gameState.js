@@ -2,9 +2,9 @@ const { getPlayerID, getRoomData, getGameData } = require("./room");
 const { deepcopy, updateListener } = require("./utility");
 const { v4: uuidv4 } = require('uuid');
 const { onRequest, rooms, listeners, logger, games, errorCodes } = require('./index');
-const defaultRoom = require("./defaultRoom.json")
+const defaultRoom = require("./defaultRoom.json");
 const defaultGameState = require("./defaultGameState.json");
-const defaultPlayer = require("./defaultPlayer.json")
+const defaultPlayer = require("./defaultPlayer.json");
 const hideoutCost = 150;
 const BOARDSIZE = 28;
 const PASSGOREWARD = 200;
@@ -16,6 +16,7 @@ const MUGGINGAMOUNT = 50;
 const MINWAGERLOSS = 500;
 const BETRAYALSQUARE = 14;
 
+// List of action types
 const actionTypes = Object.freeze({
 	ROLL_DICE: 0,
 	WAGER: 1,
@@ -25,18 +26,19 @@ const actionTypes = Object.freeze({
 	END_TURN: 5
 });
 
-
+// List of event types
 const eventTypes = Object.freeze({
 	PLAYER_DIES: 0,
 	DICE_ROLLED: 1
-})
+});
+
+// 
 function logGameState(gameState) {
 	let newGameState = deepcopy(gameState);
 	delete newGameState.properties;
 	console.log("gameState:");
 	console.log(newGameState);
 }
-
 
 defaultAction = {
 	type: -1,
@@ -152,10 +154,6 @@ function killPlayer(gameState, playerID) {
 	// Make player a spectator
 	gameState.players[playerIndex].isAlive = false;
 	gameState.ranking.push(playerIndex);
-	gameState.history.push({
-		eventType: eventTypes.PLAYER_DIES,
-		playerID: playerIndex
-	})
 	let numberAlive = 0;
 	for (let i = 0; i < gameState.players.length; i++) {
 		if (gameState.players[i].isAlive) numberAlive++;
@@ -186,13 +184,6 @@ function movePlayer(gameState, movement) {
 		newLocation = JAILSQUARE;
 		sentToJail = true;
 	}
-
-	gameState.history.push({
-		playerID: player,
-		from: oldlocation,
-		to: newLocation,
-		wasSentToJail: sentToJail
-	});
 
 	if (newLocation == BETRAYALSQUARE) {
 		const lossAmount = 50;
@@ -521,7 +512,7 @@ exports.applyAction = onRequest(async (req, res) => {
 		return;
 	}
 
-	if(gameState.players[requesterPlayerID].isBot) {
+	if (gameState.players[requesterPlayerID].isBot) {
 		result.error = errorCodes.playerIsBot;
 		res.json(result);
 		return;
@@ -546,11 +537,13 @@ exports.applyAction = onRequest(async (req, res) => {
 	gameState = applyActionHelper(gameState, action);
 	console.log("applied action");
 	logGameState(gameState);
-	await updateListener(roomData.listenDocumentID, false);
 
 	const writeResult = await games
 		.doc(gameID)
 		.set(gameState);
+
+	await updateListener(roomData.listenDocumentID, false);
+
 	res.json(result);
 	return;
 });
@@ -582,7 +575,7 @@ exports.getActionsForTurn = onRequest(async (req, res) => {
 		res.json(result);
 		return;
 	}
-	if(gameState.players[requesterPlayerID].isBot) {
+	if (gameState.players[requesterPlayerID].isBot) {
 		result.error = errorCodes.playerIsBot;
 		res.json(result);
 		return;
@@ -696,7 +689,7 @@ exports.quitGame = onRequest(async (req, res) => {
 		res.json(result);
 		return;
 	}
-	if(gameState.players[playerID].isBot) {
+	if (gameState.players[playerID].isBot) {
 		result.error = errorCodes.playerIsBot;
 		res.json(result);
 		return;
@@ -704,13 +697,15 @@ exports.quitGame = onRequest(async (req, res) => {
 
 	console.log("quitGame: ", playerID);
 	gameState.players[playerID].isBot = true;
-	if(gameState.turn.playerTurn == playerID) {
+	if (gameState.turn.playerTurn == playerID) {
 		makeBotMove(gameState);
 	}
 
 	const writeResult = await games
 		.doc(gameID)
 		.set(gameState);
+
+	await updateListener(roomData.listenDocumentID, false);
 
 	res.json(result);
 	return;
