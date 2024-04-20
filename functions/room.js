@@ -297,7 +297,7 @@ exports.leaveRoom = onRequest(async (req, res) => {
 	}
 
 	// If user is only one in room, delete the room
-	roomData.users.splice(userIndex, 1);
+	roomData.users.splice(userInRoom, 1);
 	if (roomData.users.length == 0) {
 		deleteRoom(roomCode);
 		res.json(result);
