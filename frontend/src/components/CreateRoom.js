@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, TextField } from '@mui/material';
+import { Button, CircularProgress, TextField } from '@mui/material';
 import ErrorMessage from "./ErrorMessage.js";
 import { randomName, validateName, getNameHelperText } from "../data/util.js";
 import { errorCodes, makeRoom, joinRoom } from "../data/firebase.js";
@@ -10,6 +10,7 @@ const CreateRoom = () => {
     const navigate = useNavigate();
     const [name, setName] = useState(randomName());
     const [errorMessage, setErrorMessage] = useState(null);
+    const [creating, setCreating] = useState(false);
     const error = !validateName(name);
     const changeName = (e) => {
         setName(e.target.value);
@@ -20,13 +21,15 @@ const CreateRoom = () => {
             return;
         }
         try {
+            setCreating(true);
             let response = await makeRoom();
+            setCreating(false);
             if (response === undefined || response.error === undefined) {
                 console.error("response to makeRoom undefined");
                 return;
             }
-            if(response.error != errorCodes.noError) {
-                switch(response.error) {
+            if (response.error != errorCodes.noError) {
+                switch (response.error) {
                     case errorCodes.invalidName:
                         setErrorMessage("Invalid name");
                         break;
@@ -42,7 +45,9 @@ const CreateRoom = () => {
             setErrorMessage(null);
             const { roomCode } = response;
             console.log(roomCode);
+            setCreating(true);
             response = await joinRoom({ roomCode, name });
+            setCreating(false);
             if (response === undefined || response.error === undefined || response.error !== errorCodes.noError) {
                 console.log("error:" + response.error)
                 return;
@@ -52,7 +57,7 @@ const CreateRoom = () => {
             console.log(userID, roomListener);
             localStorage.setItem(roomCode, JSON.stringify({ userID, roomListener, name }));
             navigate(`/room/${roomCode}`);
-        } catch(err) {
+        } catch (err) {
             console.error(err);
         }
     };
@@ -66,8 +71,9 @@ const CreateRoom = () => {
                 helperText={getNameHelperText(name)} />
             {errorMessage !== null && <ErrorMessage error={errorMessage} />}
             <div className="button-row">
-                <Button variant="contained" disabled={error} type="submit"
-                    sx={{ marginTop: "1rem" }}>Create Room</Button>
+                <Button variant="contained" disabled={error} type="submit" sx={{ marginTop: "1rem" }}
+                    startIcon={creating ? <CircularProgress size={20} color="inherit" /> : null}
+                >{creating ? "Creating" : "Create"} Room</Button>
             </div>
         </form>
     );

@@ -3,14 +3,14 @@ import React, { createContext, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
 import { doc, onSnapshot } from "firebase/firestore";
 import { Typography, ToggleButtonGroup, ToggleButton, Icon, Tabs, Tab, Box, Grid, Backdrop, CircularProgress, IconButton } from '@mui/material';
-import { KeyboardArrowDown, PaletteOutlined, HelpOutlineOutlined } from '@mui/icons-material';
+import { KeyboardArrowDown, PaletteOutlined, HelpOutlineOutlined, Logout } from '@mui/icons-material';
 import gameScene from "../phaser/gameScene";
 import { boardWidth, boardHeight, MAX_PLAYERS } from '../data/board';
 import initialGameJSON from '../data/initialGame.json';
 import initialUserJSON from '../data/initialUser.json';
 import { pieceImgFile } from '../data/util';
 import { GameState, User, fromJSON } from '../data/types';
-import { db, errorCodes, getGameState } from "../data/firebase.js";
+import { db, errorCodes, getGameState, quitGame } from "../data/firebase.js";
 import Player from './Player';
 import ActionMenu from './ActionMenu';
 import "../styles.css";
@@ -23,8 +23,8 @@ const gameConfig = {
     scene: gameScene
 };
 
-const UserContext = createContext(fromJSON(initialUserJSON, User));
 const GameContext = createContext(null);
+const ColorContext = createContext(false);
 function Game() {
     const navigate = useNavigate();
     const { roomCode } = useParams();
@@ -35,11 +35,11 @@ function Game() {
     const [userID, setUserID] = useState(null);
     const [name, setName] = useState(null);
     const [roomListener, setRoomListener] = useState(null);
-    const [user, setUser] = useState(fromJSON(initialUserJSON, User));
     const [loaded, setLoaded] = useState(roomCode === undefined);
     const [gameState, setGameState] = useState(null);
     const [selectedUser, setSelectedUser] = useState(0);
     const [tabIndex, setTabIndex] = useState(0);
+    const [boardColor, setBoardColor] = useState(false);
 
     const refreshGameData = async () => {
         if (userID === null || roomListener === null) return;
@@ -121,6 +121,26 @@ function Game() {
             phaserGame.current.scene.getScene('gameScene').updatePlayers(locations);
         }
     };
+    const toggleBoardColor = () => {
+        if (phaserGame.current.scene.getScene('gameScene')) {
+            phaserGame.current.scene.getScene('gameScene').toggleBoardColor();
+            setBoardColor((prev) => !prev);
+        }
+    }
+    const clickQuitGame = async () => {
+        if (userID === null || roomCode === null) return;
+        try {
+            let reponse = await quitGame({ roomCode, userID });
+            if (reponse === undefined || reponse.error === undefined || reponse.error !== errorCodes.noError) {
+                console.log("error:" + reponse.error)
+                return;
+            }
+            localStorage.removeItem(roomCode);
+            navigate("/");
+        } catch (err) {
+            console.error(err);
+        }
+    };
     useEffect(() => {
         if (!phaserGame.current) {
             phaserGame.current = new Phaser.Game(gameConfig);
@@ -140,67 +160,77 @@ function Game() {
     useEffect(() => {
         updatePlayers();
     }, [gameState]);
+
+    if (gameState !== null && gameState.isGameOver) {
+        navigate("/end/" + roomCode);
+    }
+
     return <GameContext.Provider value={gameState}>
-        <UserContext.Provider value={user}>
-            <div className="game-player-container">
-                <div id="game" />
-                <Box sx={{ width: "100%" }}>
-                    <div className="flex-row" style={{ borderBottom: "1px solid", borderColor: "divider" }}>
-                        <Tabs value={tabIndex} onChange={handleTabIndex} >
-                            <Tab label="Game Info" />
-                            <Tab label="History" />
-                        </Tabs>
-                        <div style={{marginLeft: "auto"}}><IconButton>
+        <ColorContext.Provider value={boardColor}>
+        <div className="game-player-container">
+            <div id="game" />
+            <Box sx={{ width: "100%" }}>
+                <div className="flex-row" style={{ borderBottom: "1px solid", borderColor: "divider" }}>
+                    <Tabs value={tabIndex} onChange={handleTabIndex} >
+                        <Tab label="Game Info" />
+                        <Tab label="History" />
+                    </Tabs>
+                    <div style={{ marginLeft: "auto" }}>
+                        <IconButton onClick={toggleBoardColor}>
                             <PaletteOutlined />
                         </IconButton>
                         <IconButton>
                             <HelpOutlineOutlined />
-                        </IconButton></div>
+                        </IconButton>
+                        <IconButton onClick={clickQuitGame}>
+                            <Logout/>
+                        </IconButton>
                     </div>
-                    {tabIndex == 0 && gameState !== null &&
-                        <Grid container width="100%" spacing={2}>
-                            <Grid item xs={6}>
-                                <div className="flex-column">
-                                    <Typography variant="h4" sx={{ display: "inline-block" }}>Players</Typography>
-                                    <Typography variant="body1" sx={{ display: "inline-block" }}>
-                                        It's {gameState.players[gameState.turn.playerTurn].name}'s Turn!</Typography>
-                                    <ToggleButtonGroup value={selectedUser} className="player-icon-container" exclusive
-                                        onChange={changeSelectedUser}>
-                                        {gameState.players.map((player, i) =>
-                                            <ToggleButton key={i} value={i} onClick={() => setSelectedUser(i)} sx={{ width: "5rem" }}>
-                                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                                    {gameState.turn.playerTurn == i ? <KeyboardArrowDown /> : <Icon />}
-                                                    <img key={i} src={pieceImgFile(player.playerID)} className="player-icon"
-                                                        style={{
-                                                            objectFit: 'contain',
-                                                            filter: player.isAlive ? 'none' : 'grayscale(100%)'
-                                                        }} />
-                                                </div>
-                                            </ToggleButton>)}
-                                    </ToggleButtonGroup>
-                                    {selectedUser !== -1 && <Player player={gameState.players[selectedUser]} />}
-                                </div>
+                </div>
+                {tabIndex == 0 && gameState !== null &&
+                    <Grid container width="100%" spacing={2}>
+                        <Grid item xs={6}>
+                            <div className="flex-column">
+                                <Typography variant="h4" sx={{ display: "inline-block" }}>Players</Typography>
+                                <Typography variant="body1" sx={{ display: "inline-block" }}>
+                                    It's {gameState.players[gameState.turn.playerTurn].name}'s Turn!</Typography>
+                                <ToggleButtonGroup value={selectedUser} className="player-icon-container" exclusive
+                                    onChange={changeSelectedUser}>
+                                    {gameState.players.map((player, i) =>
+                                        <ToggleButton key={i} value={i} onClick={() => setSelectedUser(i)} sx={{ width: "5rem" }}>
+                                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                                {gameState.turn.playerTurn == i ? <KeyboardArrowDown /> : <Icon />}
+                                                <img key={i} src={pieceImgFile(player.playerID)} className="player-icon"
+                                                    style={{
+                                                        objectFit: 'contain',
+                                                        filter: player.isAlive ? 'none' : 'grayscale(100%)'
+                                                    }} />
+                                            </div>
+                                        </ToggleButton>)}
+                                </ToggleButtonGroup>
+                                {selectedUser !== -1 && <Player player={gameState.players[selectedUser]} user={name} />}
+                            </div>
 
-                            </Grid>
-                            <Grid item xs={6}>
-                                <ActionMenu roomCode={roomCode} userID={userID} roomListener={roomListener} />
-
-                            </Grid>
                         </Grid>
-                    }
-                    {tabIndex == 1 && gameState !== null &&
-                        <Box>
-                            <Typography variant="h4">History</Typography>
-                            <Typography variant="body1">Coming soon...</Typography>
-                        </Box>}
-                </Box>
-                <Backdrop open={!loaded}>
-                    <CircularProgress color="inherit" />
-                </Backdrop>
-            </div>
-        </UserContext.Provider>
+                        <Grid item xs={6}>
+                            <ActionMenu roomCode={roomCode} userID={userID} roomListener={roomListener} />
+
+                        </Grid>
+                    </Grid>
+                }
+                {tabIndex == 1 && gameState !== null &&
+                    <Box>
+                        <Typography variant="h4">History</Typography>
+                        <Typography variant="body1">Coming soon...</Typography>
+                    </Box>}
+            </Box>
+            <Backdrop open={!loaded}>
+                <CircularProgress color="inherit" />
+            </Backdrop>
+        </div>
+        </ColorContext.Provider>
     </GameContext.Provider>
 }
 
-export { GameContext, UserContext };
+export { GameContext, ColorContext };
 export default Game;

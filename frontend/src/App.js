@@ -8,6 +8,7 @@ import Lobby from "./components/Lobby";
 import ErrorPage from "./components/ErrorPage";
 import GameJSON from "./components/GameJSON";
 import Rules from "./components/Rules";
+import End from "./components/End";
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
   {
     path: "/game/:roomCode",
     element: <Game />,
+  },
+  {
+    path: "/end/:roomCode",
+    element: <End />
   },
   {
     path: "/join",

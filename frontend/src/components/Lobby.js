@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Button, Card, Typography, CardHeader, Avatar, IconButton } from "@mui/material";
+import { Button, Card, Typography, CardHeader, Avatar, IconButton, Backdrop, CircularProgress } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import { doc, onSnapshot } from "firebase/firestore";
 import { db, errorCodes, getRoomInfo, leaveRoom, startGame } from "../data/firebase.js";
@@ -13,6 +13,7 @@ function Lobby() {
     if (roomCode === undefined) {
         navigate("/");
     }
+    const [loaded, setLoaded] = useState(false);
     const [userID, setUserID] = useState(null);
     const [name, setName] = useState(null);
     const [roomListener, setRoomListener] = useState(null);
@@ -37,6 +38,7 @@ function Lobby() {
         setIsHost(requesterIsHost);
         setHost(host);
         setUserNames(usersInRoom);
+        setLoaded(true);
     }
     console.log(roomListener, roomCode, userID);
     // Load data from local storage
@@ -102,34 +104,42 @@ function Lobby() {
                 }
             />
             {name === user && <IconButton variant="contained" onClick={clickLeaveRoom} sx={{ marginLeft: "auto" }}>
-                <CloseIcon />
+                <CloseIcon style={{color: "red"}} />
             </IconButton>}
         </Card>
     );
     const clickStartGame = async () => {
         if (!canStartGame) return;
         try {
+            setLoaded(false);
             const response = await startGame({ roomCode, userID });
+            setLoaded(true);
             if (response === undefined || response.error === undefined || response.error !== errorCodes.noError) {
                 console.log("error:" + response.error)
                 return;
             }
         } catch (err) {
             console.error(err);
+            setLoaded(true);
         }
     };
     return (
         <div className="landing">
             <img src="/assets/logo.png" alt="Monopoly Logo" className="logo-small" />
-            <Card className="lobby" raised>
-                <Typography variant="h3">Room Code: {roomCode}</Typography>
-                <Typography variant="h5">Players:</Typography>
-                {userList}
-                {isHost && <Button variant="contained" onClick={clickStartGame}
-                    disabled={!canStartGame} sx={{ marginTop: "1rem" }}>Start Game</Button>}
-                {!isHost && <Typography variant="subtitle1" sx={{ marginTop: "1rem" }}>
-                    Waiting for host to start the game...</Typography>}
-            </Card>
+            <div style={{ position: "relative" }}>
+                <Card className="lobby" raised>
+                    <Typography variant="h3">Room Code: {roomCode}</Typography>
+                    <Typography variant="h5">Players:</Typography>
+                    {userList}
+                    {isHost && <Button variant="contained" onClick={clickStartGame}
+                        disabled={!canStartGame} sx={{ marginTop: "1rem" }}>Start Game</Button>}
+                    {!isHost && <Typography variant="subtitle1" sx={{ marginTop: "1rem" }}>
+                        Waiting for host to start the game...</Typography>}
+                </Card>
+                <Backdrop open={!loaded} sx={{ position: "absolute" }}>
+                    <CircularProgress color="inherit"/>
+                </Backdrop>
+            </div>
         </div>)
 }
 

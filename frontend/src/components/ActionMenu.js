@@ -40,28 +40,36 @@ function ActionMenu({ roomCode, userID, roomListener }) {
     };
 
     const clickRollDice = () => {
+        if (diceActions.length === 0) return;
         doAction({ type: actionTypes.ROLL_DICE });
     };
     const clickWager = () => {
+        if (wagerActions.length === 0) return;
         doAction({ type: actionTypes.WAGER, numGangMembers: wagerGangMembers });
+        setWagerGangMembers(0);
     };
     const clickBuyProperty = () => {
+        if (buyPropertyActions.length === 0) return;
         doAction({ type: actionTypes.BUY_PROPERTY });
     };
     const clickCreateHideout = () => {
+        if (createHideoutActions.length === 0) return;
         doAction({ type: actionTypes.CREATE_HIDEOUT });
     };
     const clickCreateAmbush = () => {
+        if (createAmbushActions.length === 0) return;
         doAction({ type: actionTypes.CREATE_AMBUSH, numGangMembers: ambushGangMembers });
+        setAmbushGangMembers(1);
     };
     const clickEndTurn = () => {
+        if (endTurnActions.length === 0) return;
         doAction({ type: actionTypes.END_TURN });
     };
 
     const doAction = async (action) => {
         try {
             let numGangMembers = action.numGangMembers === undefined ? 0 : action.numGangMembers;
-            let response = await applyAction({ roomCode, userID, type: action.type, numGangMembers});
+            let response = await applyAction({ roomCode, userID, type: action.type, numGangMembers });
             if (response === undefined || response.error !== errorCodes.noError) {
                 console.log("error:" + response.error);
                 return;
@@ -93,46 +101,45 @@ function ActionMenu({ roomCode, userID, roomListener }) {
         refreshActions();
     }, [gameState]);
 
-    const hasActions = diceActions.length > 0 || wagerActions.length > 0 || buyPropertyActions.length > 0 || createHideoutActions.length > 0 || createAmbushActions.length > 0 || endTurnActions.length > 0;
+    let hasActions = (diceActions.length > 0 || wagerActions.length > 0 || buyPropertyActions.length > 0 || createHideoutActions.length > 0 || createAmbushActions.length > 0 || endTurnActions.length > 0);
 
     return <div className="action-menu">
         <Typography variant="h5">Actions</Typography>
-        {!hasActions && <Typography variant="body1">No actions available</Typography>}
-        {diceActions.length > 0 && <>
-            <Button variant="contained" startIcon={<Casino />} onClick={clickRollDice}>
+        {!hasActions && <Typography variant="body1">Not your turn!</Typography>}
+        {hasActions && <>
+            <Button variant="contained" startIcon={<Casino />} onClick={clickRollDice} disabled={diceActions.length == 0}>
                 Roll Dice
             </Button>
             <div className='dice-container'>
                 <div className='dice-box'>
-                    <Typography variant='h6'>{gameState.dice1 == -1 ? "" : gameState.dice1}</Typography>
+                    <Typography variant='h6'>{gameState.dice1 == -1 || diceActions.length > 0 ? "" : gameState.dice1}</Typography>
                 </div>
                 <div className='dice-box'>
-                    <Typography variant='h6'>{gameState.dice2 == -1 ? "" : gameState.dice2}</Typography>
+                    <Typography variant='h6'>{gameState.dice2 == -1 || diceActions.length > 0 ? "" : gameState.dice2}</Typography>
                 </div>
             </div>
+            {wagerActions.length > 0 && <Card variant="outlined" sx={{ padding: "1rem" }}>
+                <Typography variant="body1">Gang Members</Typography>
+                <InputSlider min={minWager} max={maxWager} step={1} value={wagerGangMembers} setValue={setWagerGangMembers} />
+                <CardActions>
+                    <Button variant="contained" onClick={clickWager}>Wager</Button>
+                </CardActions>
+            </Card>}
+            {buyPropertyActions.length > 0 && <Button variant="contained" startIcon={<AttachMoney />} onClick={clickBuyProperty}>
+                Buy {gameState.properties[gameState.players[gameState.turn.playerTurn].location].name}
+            </Button>}
+            {createHideoutActions.length > 0 && <Button variant="contained" startIcon={<Apartment />} onClick={clickCreateHideout}>
+                Buy Hideout
+            </Button>}
+            {createAmbushActions.length > 0 && <Card variant="outlined" sx={{ padding: "1rem" }}>
+                <Typography variant="body1">Gang Members</Typography>
+                <InputSlider min={minAmbush} max={maxAmbush} step={1} value={ambushGangMembers} setValue={setAmbushGangMembers} />
+                <CardActions>
+                    <Button variant="contained" onClick={clickCreateAmbush}>Set Ambush</Button>
+                </CardActions>
+            </Card>}
+            {endTurnActions.length > 0 && <Button variant="contained" startIcon={<Stop />} onClick={clickEndTurn}>Complete Turn</Button>}
         </>}
-        {wagerActions.length > 0 && <Card variant="outlined" sx={{ padding: "1rem" }}>
-            <Typography variant="body1">Gang Members</Typography>
-            <InputSlider min={minWager} max={maxWager} step={1} value={wagerGangMembers} setValue={setWagerGangMembers} />
-            <CardActions>
-                <Button variant="contained" onClick={clickWager}>Wager</Button>
-            </CardActions>
-        </Card>}
-        {buyPropertyActions.length > 0 && <Button variant="contained" startIcon={<AttachMoney />} onClick={clickBuyProperty}>
-            Buy {gameState.properties[gameState.players[gameState.turn.playerTurn].location].name}
-        </Button>}
-        {createHideoutActions.length > 0 && <Button variant="contained" startIcon={<Apartment />} onClick={clickCreateHideout}>
-            Buy Hideout
-        </Button>}
-        {createAmbushActions.length > 0 && <Card variant="outlined" sx={{ padding: "1rem" }}>
-            <Typography variant="body1">Gang Members</Typography>
-            <InputSlider min={minAmbush} max={maxAmbush} step={1} value={ambushGangMembers} setValue={setAmbushGangMembers} />
-            <CardActions>
-                <Button variant="contained" onClick={clickCreateAmbush}>Set Ambush</Button>
-            </CardActions>
-        </Card>}
-        {endTurnActions.length > 0 && <Button variant="contained" startIcon={<Stop />} onClick={clickEndTurn}>Complete Turn</Button>}
-        
     </div>
 }
 
