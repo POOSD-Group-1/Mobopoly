@@ -120,12 +120,27 @@ function GameJSON() {
             phaserGame.current.scene.getScene('gameScene').updatePlayers(locations);
         }
     };
+    const updateAmbushes = () => {
+        if (phaserGame.current.scene.getScene('gameScene')) {
+            phaserGame.current.scene.getScene('gameScene').updateAmbushes(gameState.ambushes);
+        }
+    };
+    const updateHideouts = () => {
+        if (phaserGame.current.scene.getScene('gameScene')) {
+            gameState.players.forEach((player) => {
+                if (player.hideouts.length > 0) {
+                    phaserGame.current.scene.getScene('gameScene').updateHideouts(player.hideouts);
+                }
+            });
+        }
+    };
     useEffect(() => {
         if (!phaserGame.current) {
             phaserGame.current = new Phaser.Game(gameConfig);
             phaserGame.current.scene.start('gameScene', { numPlayers: gameState.players.length });
             phaserGame.current.events.once('ready', () => {
                 updatePlayers();
+                updateAmbushes();
             });
         }
 
@@ -138,24 +153,28 @@ function GameJSON() {
     }, []);
     useEffect(() => {
         updatePlayers();
+        updateHideouts();
     }, [gameState.players]);
-    const playerIcons =
-        <ToggleButtonGroup value={selectedUser} className="player-icon-container" exclusive
-            onChange={changeSelectedUser}>
-            {gameState.players.map((player, i) =>
-                <ToggleButton key={i} value={i} onClick={() => setSelectedUser(i)} sx={{ width: "5rem" }}>
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                        {gameState.turn.playerTurn == i ? <KeyboardArrowDown /> : <Icon />}
-                        <img key={i} src={pieceImgFile(player.playerID)} className="player-icon"
-                            style={{
-                                objectFit: 'contain',
-                                filter: player.isAlive ? 'none' : 'grayscale(100%)'
-                            }} />
-                    </div>
-                </ToggleButton>)}
-        </ToggleButtonGroup>
+    useEffect(() => {
+        updateAmbushes();
+    }, [gameState.ambushes]);
+    // const playerIcons =
+    //     <ToggleButtonGroup value={selectedUser} className="player-icon-container" exclusive
+    //         onChange={changeSelectedUser}>
+    //         {gameState.players.map((player, i) =>
+    //             <ToggleButton key={i} value={i} onClick={() => setSelectedUser(i)} sx={{ width: "5rem" }}>
+    //                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+    //                     {gameState.turn.playerTurn == i ? <KeyboardArrowDown /> : <Icon />}
+    //                     <img key={i} src={pieceImgFile(player.playerID)} className="player-icon"
+    //                         style={{
+    //                             objectFit: 'contain',
+    //                             filter: player.isAlive ? 'none' : 'grayscale(100%)'
+    //                         }} />
+    //                 </div>
+    //             </ToggleButton>)}
+    //     </ToggleButtonGroup>
     return <GameContext.Provider value={gameState}>
-        <UserContext.Provider value={user}>
+        {/* <UserContext.Provider value={user}> */}
             <div className="game-player-container">
                 <div id="game" />
                 <Box sx={{ width: "100%" }}>
@@ -164,7 +183,7 @@ function GameJSON() {
                         <Tab label="History" />
                     </Tabs>
 
-                    {tabIndex == 0 &&
+                    {/* {tabIndex == 0 &&
                         <Grid container width="100%" spacing={2}>
                             <Grid item xs={6}>
                                 <div className="flex-column">
@@ -181,18 +200,18 @@ function GameJSON() {
 
                             </Grid>
                         </Grid>
-                    }
-                    {tabIndex == 1 &&
+                    } */}
+                    {/* {tabIndex == 1 &&
                         <Box>
                             <Typography variant="h4">History</Typography>
                             <Typography variant="body1">Coming soon...</Typography>
-                        </Box>}
+                        </Box>} */}
                 </Box>
                 <Backdrop open={!loaded}>
                     <CircularProgress color="inherit" />
                 </Backdrop>
             </div>
-        </UserContext.Provider>
+        {/* </UserContext.Provider> */}
     </GameContext.Provider>
 }
 

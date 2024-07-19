@@ -60,8 +60,9 @@ function End() {
         if (userID === null || roomCode === undefined) return;
         refreshGameData();
     }, [roomListener]);
-    const playerList = gameState === null ? [] : gameState.players.map((player, i) =>
-        <Card key={i} raised sx={{ display: "flex", }}>
+    const playerList = gameState === null ? [] : gameState.ranking.map((playerID, i) => {
+        const player = gameState.players[playerID];
+        return <Card key={i} raised sx={{ display: "flex", }}>
             <CardHeader
                 avatar={i == gameState.players.length - 1 ? <EmojiEvents sx={{ color: "gold" }} /> : <HighlightOff sx={{ color: "red" }} />}
                 title={
@@ -73,8 +74,8 @@ function End() {
                     </div>
                 }
             />
-        </Card>
-    );
+        </Card>;
+    });
     playerList.reverse();
 
     return (
