@@ -186,7 +186,7 @@ function Game() {
         <ToggleButton key={i} value={i} onClick={() => setSelectedUser(i)} 
         sx={{ width: "5rem", backgroundColor: player.name === name ? "#B4EFF0" : "transparent" }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                {gameState.turn.playerTurn == i ? <KeyboardArrowDown /> : <Icon />}
+                {gameState.turn.playerTurn == player.playerID ? <KeyboardArrowDown /> : <Icon />}
                 <img key={i} src={pieceImgFile(player.playerID)} className="player-icon"
                     style={{
                         objectFit: 'contain',
@@ -209,7 +209,7 @@ function Game() {
                         <IconButton onClick={toggleBoardColor}>
                             <PaletteOutlined />
                         </IconButton>
-                        <IconButton>
+                        <IconButton onClick={() => window.open("/rules")}>
                             <HelpOutlineOutlined />
                         </IconButton>
                         <IconButton onClick={clickQuitGame}>
@@ -233,7 +233,7 @@ function Game() {
 
                         </Grid>
                         <Grid item xs={6}>
-                            <ActionMenu roomCode={roomCode} userID={userID} roomListener={roomListener} />
+                            <ActionMenu roomCode={roomCode} userID={userID} roomListener={roomListener} name={name} />
 
                         </Grid>
                     </Grid>

@@ -6,7 +6,7 @@ import "../styles.css";
 import InputSlider from "./InputSlider";
 import { actionTypes, errorCodes, getActionsForTurn, applyAction } from "../data/firebase";
 
-function ActionMenu({ roomCode, userID, roomListener }) {
+function ActionMenu({ roomCode, userID, roomListener, name }) {
     const gameState = useContext(GameContext);
     const [ambushGangMembers, setAmbushGangMembers] = useState(1);
     const [wagerGangMembers, setWagerGangMembers] = useState(0);
@@ -105,7 +105,7 @@ function ActionMenu({ roomCode, userID, roomListener }) {
         refreshActions();
     }, [gameState]);
 
-    let hasActions = (diceActions.length > 0 || wagerActions.length > 0 || buyPropertyActions.length > 0 || createHideoutActions.length > 0 || createAmbushActions.length > 0 || endTurnActions.length > 0);
+    let hasActions = gameState.players[gameState.turn.playerTurn].name == name && (diceActions.length > 0 || wagerActions.length > 0 || buyPropertyActions.length > 0 || createHideoutActions.length > 0 || createAmbushActions.length > 0 || endTurnActions.length > 0);
 
     return <div className="action-menu">
         <Typography variant="h5">Actions</Typography>

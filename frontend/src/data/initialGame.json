@@ -4,7 +4,7 @@
         {
             "playerID": 0,
             "name": "Sachin",
-            "location": 26,
+            "location": 27,
             "numGangMembers": 0,
             "money": 200,
             "hideouts": [],
@@ -14,17 +14,17 @@
         {
             "playerID": 1,
             "name": "Thomas",
-            "location": 26,
+            "location": 27,
             "numGangMembers": 0,
             "money": 1500,
-            "hideouts": [],
+            "hideouts": [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 22, 23, 24, 25, 26, 27],
             "properties": [],
             "isAlive": true
         },
         {
             "playerID": 2,
             "name": "Shane",
-            "location": 26,
+            "location": 27,
             "numGangMembers": 3,
             "money": 1500,
             "hideouts": [],
@@ -34,7 +34,7 @@
         {
             "playerID": 3,
             "name": "Harrison",
-            "location": 26,
+            "location": 27,
             "numGangMembers": 3,
             "money": 1500,
             "hideouts": [],
@@ -44,7 +44,7 @@
         {
             "playerID": 4,
             "name": "Keeghan",
-            "location": 26,
+            "location": 27,
             "numGangMembers": 3,
             "money": 1500,
             "hideouts": [],
@@ -54,12 +54,12 @@
         {
             "playerID": 5,
             "name": "Kurt",
-            "location": 26,
+            "location": 27,
             "numGangMembers": 3,
             "money": 1500,
             "hideouts": [],
             "properties": [],
-            "isAlive": false
+            "isAlive": true
         }
     ],
     "properties": [
@@ -249,7 +249,7 @@
             "name" : "Dark Blue Bar",
             "cost": 50,
             "rent": 50,
-            "location": 26,
+            "location": 0,
             "playerID": -1
         },
         {
@@ -260,7 +260,7 @@
             "playerID": -1
         }
     ],
-    "ambushes" : [],
+    "ambushes" : [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 22, 23, 24, 25, 26, 27],
     "turn": {
         "playerTurn": 2,
         "hasRolledDice": true,
